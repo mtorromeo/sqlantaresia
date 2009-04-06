@@ -1,0 +1,80 @@
+# -*- coding: utf-8 -*-
+from PyQt4.QtCore import Qt, QObject,  SIGNAL
+from PyQt4.QtGui import QDialog, QMessageBox
+from Ui_ConfigureConnectionDialog import Ui_ConfigureConnectionDialog
+
+class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
+	def __init__(self, parent=None, connectionName="", connectionOptions={}):
+		QDialog.__init__(self, parent)
+		self.setupUi(self)
+
+		self.connection = connectionName
+		self.connectionOptions = connectionOptions
+
+		self.txtName.setText( self.connection )
+		self.txtHost.setText( self.connectionOptions["host"] )
+		self.txtPort.setText( str(self.connectionOptions["port"]) )
+		if self.connectionOptions["database"] is not None:
+			self.txtDatabase.setText( self.connectionOptions["database"] )
+		self.txtUsername.setText( self.connectionOptions["username"] )
+		self.txtPassword.setText( self.connectionOptions["password"] )
+
+		self.checkTunnel.setChecked( self.connectionOptions["useTunnel"] )
+
+		if self.connectionOptions["tunnelPort"] is not None:
+			self.txtTunnelPort.setText( str(self.connectionOptions["tunnelPort"]) )
+		if self.connectionOptions["tunnelUsername"] is not None:
+			self.txtTunnelUsername.setText( self.connectionOptions["tunnelUsername"] )
+		if self.connectionOptions["tunnelPassword"] is not None:
+			self.txtTunnelPassword.setText( self.connectionOptions["tunnelPassword"] )
+
+		QObject.connect( self, SIGNAL("accepted()"), self.onAccept )
+
+	def on_buttonBox_accepted(self):
+		emptyChecks = (
+			(self.txtName, "You have to specify the name for the connection"),
+			(self.txtHost, "You have to specify the host name to connect to"),
+			(self.txtUsername, "You have to specify the username of the connection"),
+		)
+		for check in emptyChecks:
+			if check[0].text().isEmpty():
+				QMessageBox.warning(self, "Data validation error", check[1])
+				check[0].selectAll()
+				check[0].setFocus()
+				return
+
+		port = int(self.txtPort.text())
+		if port <=0 or port > 65535:
+			QMessageBox.warning(self, "Data validation error", "The specified port for the connection is invalid")
+			self.txtPort.selectAll()
+			self.txtPort.setFocus()
+			return
+
+		if self.checkTunnel.isChecked():
+			port = int(self.txtTunnelPort.text())
+			if port <=0 or port > 65535:
+				QMessageBox.warning(self, "Data validation error", "The specified port for the tunnel is invalid")
+				self.txtTunnelPort.selectAll()
+				self.txtTunnelPort.setFocus()
+				return
+
+			if self.txtTunnelUsername.text().isEmpty():
+				QMessageBox.warning(self, "Data validation error", "You have to specify the username for the tunnel")
+				self.txtTunnelUsername.selectAll()
+				self.txtTunnelUsername.setFocus()
+				return
+
+		self.accept()
+
+
+	def onAccept(self):
+		self.connection = str(self.txtName.text())
+		self.connectionOptions["host"] = str(self.txtHost.text())
+		self.connectionOptions["port"] = int(self.txtPort.text())
+		self.connectionOptions["database"] = str(self.txtDatabase.text())
+		self.connectionOptions["username"] = str(self.txtUsername.text())
+		self.connectionOptions["password"] = str(self.txtPassword.text())
+		self.connectionOptions["useTunnel"] = self.checkTunnel.isChecked()
+		self.connectionOptions["tunnelPort"] = int(self.txtTunnelPort.text())
+		self.connectionOptions["tunnelUsername"] = str(self.txtTunnelUsername.text())
+		self.connectionOptions["tunnelPassword"] = str(self.txtTunnelPassword.text())

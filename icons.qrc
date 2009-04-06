@@ -1,0 +1,19 @@
+<RCC>
+  <qresource prefix="16" >
+    <file>network-connect.png</file>
+    <file>network-disconnect.png</file>
+    <file>application-exit.png</file>
+    <file>document-properties.png</file>
+    <file>list-add.png</file>
+    <file>list-remove.png</file>
+    <file>edit-delete.png</file>
+    <file>tab-close.png</file>
+    <file>schema.png</file>
+    <file>db.png</file>
+    <file>table.png</file>
+    <file>view-refresh.png</file>
+  </qresource>
+  <qresource prefix="32" >
+    <file>kexi.png</file>
+  </qresource>
+</RCC>
