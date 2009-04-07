@@ -63,6 +63,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 
 	def refreshData(self):
 		self.activate()
+		self.tableModel.setFilter("1 LIMIT 0,%d" % self.spinLimit.value())
 		self.tableModel.select()
 		self.tableModel.reset()
 		self.tableData.resizeColumnsToContents()
