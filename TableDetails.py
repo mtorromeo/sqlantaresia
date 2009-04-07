@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
-from PyQt4.QtCore import QVariant, QObject, SIGNAL, pyqtSignature
+from PyQt4.QtCore import Qt,  QVariant, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
 from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
+from QXTableModel import QXTableModel
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
@@ -13,6 +14,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 		self.dbName = dbName
 		self.tableName = tableName
 
+		#Structure
 		self.queryStructure = QSqlQuery( """SELECT `COLUMN_NAME` AS 'Field', `COLUMN_TYPE` AS 'Type', `COLUMN_DEFAULT` AS 'Default', `IS_NULLABLE` AS 'Nullable', `COLUMN_KEY` AS 'Key', `EXTRA` AS 'Extra', `COLLATION_NAME` AS 'Collation'
 FROM `information_schema`.`COLUMNS`
 WHERE `TABLE_SCHEMA`=? AND `TABLE_NAME`=?
@@ -23,6 +25,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 
 		self.setupUi(self)
 
+		#Query: Lexer
 		self.lexer = QsciLexerSQL()
 		self.txtQuery.setFolding(QsciScintilla.NoFoldStyle)
 		self.txtQuery.setMarginWidth(0, 30)
@@ -30,12 +33,16 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.txtQuery.setLexer(self.lexer)
 		self.txtQuery.setText("SELECT * FROM %s" % self.escapedTableName())
 
+		#Data
 		self.activate()
-		self.tableModel = QSqlTableModel(self, self.db)
+		self.tableModel = QXTableModel(self, self.db)
 		self.tableModel.setEditStrategy(QSqlTableModel.OnManualSubmit)
 		self.tableModel.setTable( self.tableName )
+		QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
 		self.tableData.setModel( self.tableModel )
-
+		
+		#Retrieve
+		self.refreshInfo()
 		self.refreshData()
 		self.refreshStructure()
 
@@ -54,20 +61,54 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		if queryModel.lastError().isValid():
 			self.labelQueryError.setText( queryModel.lastError().databaseText() )
 		else:
-			self.labelQueryError.setText("")
+			if queryModel.query().isSelect():
+				self.labelQueryError.setText("%d rows returned" % queryModel.query().size())
+			else:
+				self.labelQueryError.setText("%d rows affected" % queryModel.query().numRowsAffected())
 			self.tableQueryResult.resizeColumnsToContents()
 
 	@pyqtSignature("")
 	def on_btnRefreshData_clicked(self):
 		self.refreshData()
+	
+	def refreshInfo(self):
+		q = QSqlQuery("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=? AND TABLE_NAME=?", self.db)
+		q.addBindValue(QVariant(self.dbName))
+		q.addBindValue(QVariant(self.tableName))
+		q.exec_()
+		q.first()
+		self.lblTableInfo.setText("""<b>Type:</b> %s<br />
+<b>Engine:</b> %s<br />
+<b>Row Format:</b> %s<br />
+<b>Number of rows:</b> %s<br />
+<b>Data Length:</b> %s<br />
+<b>Next Auto Increment:</b> %s<br />
+<b>Created:</b> %s<br />
+<b>Last Update:</b> %s<br />
+<b>Last Check:</b> %s<br />
+<b>Collation:</b> %s
+""" % (
+       q.value(0).toString(),
+		 q.value(1).toString(),
+		 q.value(2).toString(),
+		 q.value(3).toString(),
+		 q.value(4).toString(),
+		 q.value(5).toString(),
+		 q.value(6).toString(),
+		 q.value(7).toString(),
+		 q.value(8).toString(),
+		 q.value(9).toString()
+		))
 
 	def refreshData(self):
 		self.activate()
-		self.tableModel.setFilter("1 LIMIT 0,%d" % self.spinLimit.value())
+		#TODO: Extend QSqlTableModel to implement a cleaner setLimit, the current workaround breaks the order by
 		self.tableModel.select()
 		self.tableModel.reset()
 		self.tableData.resizeColumnsToContents()
-
+		self.btnUndo.setEnabled(False)
+		self.btnApply.setEnabled(False)
+	
 	def refreshStructure(self):
 		self.activate()
 		modelStructure = QSqlQueryModel(self)
@@ -82,3 +123,21 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 	def activate(self):
 		self.db.setDatabaseName(self.dbName)
 		self.db.open()
+	
+	def tableDataEdited(self):
+		self.btnUndo.setEnabled(True)
+		self.btnApply.setEnabled(True)
+
+	@pyqtSignature("")
+	def on_btnApply_clicked(self):
+		self.tableModel.submitAll()
+		if self.tableModel.lastError().isValid():
+			self.lblDataSubmitResult.setText( self.tableModel.lastError().databaseText() )
+		self.btnUndo.setEnabled(False)
+		self.btnApply.setEnabled(False)
+	
+	@pyqtSignature("")
+	def on_btnUndo_clicked(self):
+		self.tableModel.revertAll()
+		self.btnUndo.setEnabled(False)
+		self.btnApply.setEnabled(False)

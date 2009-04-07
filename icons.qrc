@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="16" >
+    <file>edit-undo.png</file>
+    <file>dialog-ok-apply.png</file>
     <file>network-connect.png</file>
     <file>network-disconnect.png</file>
     <file>application-exit.png</file>

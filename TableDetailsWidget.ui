@@ -28,8 +28,15 @@
     <string>Structure</string>
    </attribute>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QTableView" name="tableStructure"/>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="lblTableInfo">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -75,6 +82,9 @@
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>true</bool>
       </attribute>
@@ -89,6 +99,13 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
+       <widget class="QLabel" name="lblDataSubmitResult">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -102,25 +119,33 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="lblLimit">
-        <property name="text">
-         <string>Limit (0 = unlimited)</string>
+       <widget class="QPushButton" name="btnUndo">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
-        <property name="buddy">
-         <cstring>spinLimit</cstring>
+        <property name="text">
+         <string>&amp;Undo</string>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/16/edit-undo.png</normaloff>:/16/edit-undo.png</iconset>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+Z</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinLimit">
-        <property name="maximum">
-         <number>1000000000</number>
+       <widget class="QPushButton" name="btnApply">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
-        <property name="singleStep">
-         <number>1000</number>
+        <property name="text">
+         <string>&amp;Apply</string>
         </property>
-        <property name="value">
-         <number>1000</number>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/16/dialog-ok-apply.png</normaloff>:/16/dialog-ok-apply.png</iconset>
         </property>
        </widget>
       </item>
