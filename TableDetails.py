@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt,  QVariant, QObject, SIGNAL, pyqtSignature
+from PyQt4.QtCore import Qt, QLocale, QVariant, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
 from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
 from QXTableModel import QXTableModel
@@ -28,6 +28,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		#Query: Lexer
 		self.lexer = QsciLexerSQL()
 		self.txtQuery.setFolding(QsciScintilla.NoFoldStyle)
+		self.txtQuery.setWrapMode(QsciScintilla.WrapWord)
 		self.txtQuery.setMarginWidth(0, 30)
 		self.txtQuery.setMarginLineNumbers(0, True)
 		self.txtQuery.setLexer(self.lexer)
@@ -40,7 +41,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.tableModel.setTable( self.tableName )
 		QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
 		self.tableData.setModel( self.tableModel )
-		
+
 		#Retrieve
 		self.refreshInfo()
 		self.refreshData()
@@ -70,8 +71,10 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 	@pyqtSignature("")
 	def on_btnRefreshData_clicked(self):
 		self.refreshData()
-	
+
 	def refreshInfo(self):
+		sysLocale = QLocale.system()
+
 		q = QSqlQuery("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=? AND TABLE_NAME=?", self.db)
 		q.addBindValue(QVariant(self.dbName))
 		q.addBindValue(QVariant(self.tableName))
@@ -91,12 +94,12 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
        q.value(0).toString(),
 		 q.value(1).toString(),
 		 q.value(2).toString(),
-		 q.value(3).toString(),
-		 q.value(4).toString(),
+		 sysLocale.toString( q.value(3).toInt()[0] ),
+		 sysLocale.toString( q.value(4).toInt()[0] ),
 		 q.value(5).toString(),
-		 q.value(6).toString(),
-		 q.value(7).toString(),
-		 q.value(8).toString(),
+		 q.value(6).toDateTime().toString(Qt.SystemLocaleDate),
+		 q.value(7).toDateTime().toString(Qt.SystemLocaleDate),
+		 q.value(8).toDateTime().toString(Qt.SystemLocaleDate),
 		 q.value(9).toString()
 		))
 
@@ -108,7 +111,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.tableData.resizeColumnsToContents()
 		self.btnUndo.setEnabled(False)
 		self.btnApply.setEnabled(False)
-	
+
 	def refreshStructure(self):
 		self.activate()
 		modelStructure = QSqlQueryModel(self)
@@ -123,7 +126,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 	def activate(self):
 		self.db.setDatabaseName(self.dbName)
 		self.db.open()
-	
+
 	def tableDataEdited(self):
 		self.btnUndo.setEnabled(True)
 		self.btnApply.setEnabled(True)
@@ -135,7 +138,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 			self.lblDataSubmitResult.setText( self.tableModel.lastError().databaseText() )
 		self.btnUndo.setEnabled(False)
 		self.btnApply.setEnabled(False)
-	
+
 	@pyqtSignature("")
 	def on_btnUndo_clicked(self):
 		self.tableModel.revertAll()
