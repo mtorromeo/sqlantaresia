@@ -63,8 +63,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.tabsWidget.setCornerWidget( self.btnCloseTab )
 
 		# TreeViewModel
-		self.databasesModel = DatabasesTreeModel(self, self.db)
-		self.treeView.setModel( self.databasesModel )
+		self.dbmsModel = DBMSTreeModel(self, self.db)
+		self.treeView.setModel( self.dbmsModel )
 
 		# ContextMenu
 		self.menuTable = QMenu(self.treeView)
@@ -167,9 +167,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	def refreshTreeView(self, reset=False):
 		if reset:
-			self.databasesModel.setDB( self.db )
+			self.dbmsModel.setDB( self.db )
 		else:
-			self.databasesModel.refresh()
+			self.dbmsModel.refresh()
 
 	def disconnect(self):
 		if self.db.isOpen():
@@ -219,7 +219,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				self.config.write(configfile)
 
 	def on_treeView_activated(self, modelIndex):
-		if modelIndex.parent().internalPointer() is not None:
+		if type(modelIndex.internalPointer()) is TableTreeItem:
 			dbName = modelIndex.parent().internalPointer().getName()
 			tableName = modelIndex.internalPointer().getName()
 
@@ -228,12 +228,15 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	def on_treeView_customContextMenuRequested(self, point):
 		modelIndex = self.treeView.currentIndex()
-		if modelIndex.parent().internalPointer() is None:
+
+		if type(modelIndex.internalPointer()) is TableTreeItem:
 			self.actionDrop_Database.setEnabled(True)
 			self.actionDrop_Table.setEnabled(False)
-		else:
+
+		if type(modelIndex.internalPointer()) is DatabaseTreeItem:
 			self.actionDrop_Database.setEnabled(False)
 			self.actionDrop_Table.setEnabled(True)
+
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
 	@pyqtSignature("")
