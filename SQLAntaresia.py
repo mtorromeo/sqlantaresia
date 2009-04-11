@@ -229,13 +229,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	def on_treeView_customContextMenuRequested(self, point):
 		modelIndex = self.treeView.currentIndex()
 
-		if type(modelIndex.internalPointer()) is TableTreeItem:
-			self.actionDrop_Database.setEnabled(True)
-			self.actionDrop_Table.setEnabled(False)
-
-		if type(modelIndex.internalPointer()) is DatabaseTreeItem:
-			self.actionDrop_Database.setEnabled(False)
-			self.actionDrop_Table.setEnabled(True)
+		self.actionDrop_Database.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
+		self.actionDrop_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
