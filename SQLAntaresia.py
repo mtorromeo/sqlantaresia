@@ -15,7 +15,7 @@ except ImportError:
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from Connections import Connections
 from TableDetails import TableDetails
-from idesqldatabase import IdeSqlDatabase
+from SshSqlDatabase import SshSqlDatabase
 from dbmodels import *
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
@@ -48,9 +48,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.configuredConnections[connectionName] = connection
 
 		# Initialize Database
-		self.db = IdeSqlDatabase(QSqlDatabase.addDatabase("QMYSQL"))
+		if not QSqlDatabase.isDriverAvailable("QMYSQL"):
+			QMessageBox.critical(self, "SQL Driver not found", "The QMYSQL database driver could not be loaded. Consult the system administrator.")
+			exit(1)
+		
+		self.db = SshSqlDatabase(QSqlDatabase.addDatabase("QMYSQL"))
 		self.db.setConnectOptions("CLIENT_COMPRESS=1")
-		#TODO: Gestire errore di caricamento del driver
 
 		# Setup UI
 		self.setupUi(self)
@@ -83,13 +86,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	def closeEvent(self, event):
 		self.db.close()
-		self.closeTunnel()
-
-	def closeTunnel(self):
-		if self.tunnelThread is not None:
-			self.tunnelThread.join()
-			del self.tunnelThread
-			self.tunnelThread = None
 
 	def getConf(self, section, name, defValue=None):
 		try:
@@ -110,28 +106,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		url = str(url)
 		self.disconnect()
 
-		tryConnect = False
 		if url in self.configuredConnections:
 			connection = self.configuredConnections[url]
-
-			if connection["useTunnel"] and SSHForwarder is not None:
-				try:
-					self.tunnelThread = SSHForwarder(username=connection["tunnelUsername"], password=connection["tunnelPassword"], ssh_server=connection["host"], local_port=connection["tunnelPort"], remote_port=connection["port"])
-					self.tunnelThread.start()
-
-					host = "127.0.0.1"
-					port = connection["tunnelPort"]
-				except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
-					msgBoxError = QMessageBox()
-					msgBoxError.setText(str(e))
-					msgBoxError.exec_()
-					return
+				
+			if self.initDB(connection["username"], connection["host"], connection["port"], connection["password"], connection["useTunnel"], connection["tunnelPort"], connection["tunnelUsername"], connection["tunnelPassword"]):
+				self.statusBar.showMessage("Connected.", 10000)
 			else:
-				host = connection["host"]
-				port = connection["port"]
-			username = connection["username"]
-			password = connection["password"]
-			tryConnect = True
+				self.statusBar.showMessage(self.db.lastError().text(), 10000)
 		else:
 			regexp = re.compile("([A-Za-z0-9\.]+)(?::([A-Za-z0-9\.]+))?@([A-Za-z0-9\.]+)(?::([0-9]{2,5}))?(?:/([A-Za-z0-9\.]+))?")
 			matches = regexp.match(url)
@@ -144,24 +125,33 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				if port != None:
 					port = int(port)
 				database = m[4]
-				tryConnect = True
+				
+				if self.initDB(username, host, port, password):
+					self.statusBar.showMessage("Connected.", 10000)
+					#TODO: Se indirizzo valido, salvarlo nella history
+				else:
+					self.statusBar.showMessage(self.db.lastError().text(), 10000)
 
-		if tryConnect:
-			self.statusBar.showMessage("Connecting to %s..." % host)
-			if self.initDB(username, host, port, password):
-				self.statusBar.showMessage("Connected.", 10000)
-				#TODO: Se indirizzo valido, salvarlo nella history
-			else:
-				self.statusBar.showMessage(self.db.lastError().text(), 10000)
-
-	def initDB(self, username, host="localhost", port=None, password=None):
+	def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=None, tunnelUsername=None, tunnelPassword=None):
+		self.statusBar.showMessage("Connecting to %s..." % host)
+		
 		self.db.setHostName(host)
 		self.db.setUserName(username)
 		if password != None and password != "":
 			self.db.setPassword(password)
 		if port != None and port > 0 and port < 65536:
 			self.db.setPort(port)
-		result = self.db.open()
+		
+		if useTunnel and SSHForwarder is not None:
+			self.db.enableTunnel(tunnelUsername, tunnelPassword, tunnelPort)
+		
+		try:
+			result = self.db.open()
+		except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
+			msgBoxError = QMessageBox()
+			msgBoxError.setText(str(e))
+			msgBoxError.exec_()
+		
 		self.refreshTreeView(True)
 		return result
 
@@ -175,13 +165,16 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		if self.db.isOpen():
 			self.tabsWidget.clear()
 			self.db.close()
-			self.closeTunnel()
 			self.statusBar.showMessage("Disconnected.", 10000)
 			self.refreshTreeView(True)
 
 	@pyqtSignature("QString")
 	def on_cmbConnection_currentIndexChanged(self, text):
 		self.connectToUrl(text)
+	
+	@pyqtSignature("")
+	def on_actionReconnect_triggered(self):
+		self.db.reconnect()
 
 	@pyqtSignature("")
 	def on_actionDisconnect_triggered(self):

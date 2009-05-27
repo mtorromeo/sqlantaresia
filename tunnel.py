@@ -73,4 +73,6 @@ class SSHForwarder(Thread):
 		if self.ffwd_server is not None:
 			self.ffwd_server.shutdown()
 		self.ssh_client.close()
+		del self.ffwd_server
+		del self.ssh_client
 		Thread.join(self)
