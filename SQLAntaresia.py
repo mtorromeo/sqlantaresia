@@ -51,7 +51,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		if not QSqlDatabase.isDriverAvailable("QMYSQL"):
 			QMessageBox.critical(self, "SQL Driver not found", "The QMYSQL database driver could not be loaded. Consult the system administrator.")
 			exit(1)
-		
+
 		self.db = SshSqlDatabase(QSqlDatabase.addDatabase("QMYSQL"))
 		self.db.setConnectOptions("CLIENT_COMPRESS=1")
 
@@ -71,8 +71,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		# ContextMenu
 		self.menuTable = QMenu(self.treeView)
-		self.menuTable.addAction( self.actionDrop_Database )
+		self.menuTable.addAction( self.actionTruncate_Table )
 		self.menuTable.addAction( self.actionDrop_Table )
+		self.menuTable.addAction( self.actionDrop_Database )
 
 		# Connection string widget
 		for connectionName in self.configuredConnections:
@@ -108,7 +109,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		if url in self.configuredConnections:
 			connection = self.configuredConnections[url]
-				
+
 			if self.initDB(connection["username"], connection["host"], connection["port"], connection["password"], connection["useTunnel"], connection["tunnelPort"], connection["tunnelUsername"], connection["tunnelPassword"]):
 				self.statusBar.showMessage("Connected.", 10000)
 			else:
@@ -125,7 +126,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				if port != None:
 					port = int(port)
 				database = m[4]
-				
+
 				if self.initDB(username, host, port, password):
 					self.statusBar.showMessage("Connected.", 10000)
 					#TODO: Se indirizzo valido, salvarlo nella history
@@ -134,24 +135,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=None, tunnelUsername=None, tunnelPassword=None):
 		self.statusBar.showMessage("Connecting to %s..." % host)
-		
+
 		self.db.setHostName(host)
 		self.db.setUserName(username)
-		if password != None and password != "":
-			self.db.setPassword(password)
+		#if password != None and password != "":
+		self.db.setPassword(password)
 		if port != None and port > 0 and port < 65536:
 			self.db.setPort(port)
-		
+
 		if useTunnel and SSHForwarder is not None:
 			self.db.enableTunnel(tunnelUsername, tunnelPassword, tunnelPort)
-		
+
 		try:
 			result = self.db.open()
 		except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
 			msgBoxError = QMessageBox()
 			msgBoxError.setText(str(e))
 			msgBoxError.exec_()
-		
+
 		self.refreshTreeView(True)
 		return result
 
@@ -171,7 +172,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	@pyqtSignature("QString")
 	def on_cmbConnection_currentIndexChanged(self, text):
 		self.connectToUrl(text)
-	
+
 	@pyqtSignature("")
 	def on_actionReconnect_triggered(self):
 		self.db.reconnect()
@@ -224,6 +225,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		self.actionDrop_Database.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
 		self.actionDrop_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
+		self.actionTruncate_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
@@ -234,7 +236,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			if idx.parent().internalPointer() is None:
 				dbName = idx.internalPointer().getName()
 				queries.append( "DROP DATABASE %s;" % self.db.escapeTableName(dbName) )
-		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
 			query = QSqlQuery( "\n".join(queries), self.db )
 			if not query.exec_() and query.lastError().isValid():
 				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
@@ -248,11 +250,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				dbName = idx.parent().internalPointer().getName()
 				tableName = idx.internalPointer().getName()
 				queries.append( "DROP TABLE %s.%s;" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
-		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
 			query = QSqlQuery( "\n".join(queries), self.db )
 			if not query.exec_() and query.lastError().isValid():
 				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
 			self.refreshTreeView()
+
+	@pyqtSignature("")
+	def on_actionTruncate_Table_triggered(self):
+		queries = []
+		for idx in self.treeView.selectedIndexes():
+			if idx.parent().internalPointer() is not None:
+				dbName = idx.parent().internalPointer().getName()
+				tableName = idx.internalPointer().getName()
+				queries.append( "TRUNCATE TABLE %s.%s;" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+			query = QSqlQuery( "\n".join(queries), self.db )
+			if not query.exec_() and query.lastError().isValid():
+				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
 
 
 if __name__ == "__main__":

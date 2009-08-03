@@ -53,7 +53,7 @@
      <x>0</x>
      <y>0</y>
      <width>803</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -248,6 +248,15 @@
    </property>
    <property name="text">
     <string>&amp;Disconnect</string>
+   </property>
+  </action>
+  <action name="actionTruncate_Table">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/edit-delete.png</normaloff>:/16/edit-delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Truncate Table</string>
    </property>
   </action>
  </widget>
