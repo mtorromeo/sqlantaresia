@@ -288,6 +288,16 @@
     <string>&amp;New Query Tab</string>
    </property>
   </action>
+  <action name="actionOptimize_Table">
+   <property name="text">
+    <string>Optimize Table</string>
+   </property>
+  </action>
+  <action name="actionRepair_Table">
+   <property name="text">
+    <string>Repair Table</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>

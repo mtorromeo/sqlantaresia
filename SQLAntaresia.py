@@ -72,10 +72,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		# ContextMenu
 		self.menuTable = QMenu(self.treeView)
-		self.menuTable.addAction( self.actionNew_Query_Tab )
-		self.menuTable.addAction( self.actionTruncate_Table )
-		self.menuTable.addAction( self.actionDrop_Table )
-		self.menuTable.addAction( self.actionDrop_Database )
 
 		# Connection string widget
 		for connectionName in self.configuredConnections:
@@ -235,12 +231,34 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	def on_treeView_customContextMenuRequested(self, point):
 		modelIndex = self.treeView.currentIndex()
 
-		self.actionNew_Query_Tab.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
-		self.actionTruncate_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
-		self.actionDrop_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
-		self.actionDrop_Database.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
+		self.menuTable.clear()
+
+		if type(modelIndex.internalPointer()) is DatabaseTreeItem:
+			self.menuTable.addAction( self.actionNew_Query_Tab )
+			self.menuTable.addAction( self.actionDrop_Database )
+
+		if type(modelIndex.internalPointer()) is TableTreeItem:
+			self.menuTable.addAction( self.actionOptimize_Table )
+			self.menuTable.addAction( self.actionRepair_Table )
+			self.menuTable.addAction( self.actionTruncate_Table )
+			self.menuTable.addAction( self.actionDrop_Table )
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
+
+	def queryOnSelectedTables(self, queryTpl):
+		queries = []
+		for idx in self.treeView.selectedIndexes():
+			if idx.parent().internalPointer() is not None:
+				dbName = idx.parent().internalPointer().getName()
+				tableName = idx.internalPointer().getName()
+				queries.append( queryTpl % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+			query = QSqlQuery( "\n".join(queries), self.db )
+			if not query.exec_() and query.lastError().isValid():
+				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
+			else:
+				return True
+		return False
 
 	@pyqtSignature("")
 	def on_actionDrop_Database_triggered(self):
@@ -257,30 +275,20 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	@pyqtSignature("")
 	def on_actionDrop_Table_triggered(self):
-		queries = []
-		for idx in self.treeView.selectedIndexes():
-			if idx.parent().internalPointer() is not None:
-				dbName = idx.parent().internalPointer().getName()
-				tableName = idx.internalPointer().getName()
-				queries.append( "DROP TABLE %s.%s;" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
-		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
-			query = QSqlQuery( "\n".join(queries), self.db )
-			if not query.exec_() and query.lastError().isValid():
-				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
+		if self.queryOnSelectedTables("DROP TABLE %s.%s;"):
 			self.refreshTreeView()
 
 	@pyqtSignature("")
 	def on_actionTruncate_Table_triggered(self):
-		queries = []
-		for idx in self.treeView.selectedIndexes():
-			if idx.parent().internalPointer() is not None:
-				dbName = idx.parent().internalPointer().getName()
-				tableName = idx.internalPointer().getName()
-				queries.append( "TRUNCATE TABLE %s.%s;" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
-		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
-			query = QSqlQuery( "\n".join(queries), self.db )
-			if not query.exec_() and query.lastError().isValid():
-				QMessageBox.critical(self, "Query result", query.lastError().databaseText())
+		self.queryOnSelectedTables("TRUNCATE TABLE %s.%s;")
+
+	@pyqtSignature("")
+	def on_actionOptimize_Table_triggered(self):
+		self.queryOnSelectedTables("OPTIMIZE TABLE %s.%s;")
+
+	@pyqtSignature("")
+	def on_actionRepair_Table_triggered(self):
+		self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
 
 
 if __name__ == "__main__":
