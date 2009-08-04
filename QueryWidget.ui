@@ -71,6 +71,10 @@
          <property name="text">
           <string>&amp;Execute</string>
          </property>
+         <property name="icon">
+          <iconset resource="icons.qrc">
+           <normaloff>:/16/system-run.png</normaloff>:/16/system-run.png</iconset>
+         </property>
         </widget>
        </item>
       </layout>
@@ -89,6 +93,8 @@
    <header>Qsci/qsciscintilla.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

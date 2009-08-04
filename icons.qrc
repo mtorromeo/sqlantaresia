@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="16" >
+    <file>system-run.png</file>
     <file>system-users.png</file>
     <file>tab-new.png</file>
     <file>user-properties.png</file>

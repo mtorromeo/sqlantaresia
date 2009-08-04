@@ -267,9 +267,6 @@
    <property name="text">
     <string>&amp;New Query Tab</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
   </action>
  </widget>
  <tabstops>
