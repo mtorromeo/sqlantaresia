@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="16" >
     <file>system-users.png</file>
+    <file>tab-new.png</file>
     <file>user-properties.png</file>
     <file>edit-undo.png</file>
     <file>dialog-ok-apply.png</file>

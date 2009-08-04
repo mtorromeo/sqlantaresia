@@ -2,7 +2,6 @@
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt, QLocale, QVariant, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
-from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
 from QXTableModel import QXTableModel
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
@@ -25,15 +24,6 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 
 		self.setupUi(self)
 
-		#Query: Lexer
-		self.lexer = QsciLexerSQL()
-		self.txtQuery.setFolding(QsciScintilla.NoFoldStyle)
-		self.txtQuery.setWrapMode(QsciScintilla.WrapWord)
-		self.txtQuery.setMarginWidth(0, 30)
-		self.txtQuery.setMarginLineNumbers(0, True)
-		self.txtQuery.setLexer(self.lexer)
-		self.txtQuery.setText("SELECT * FROM %s" % self.escapedTableName())
-
 		#Data
 		self.activate()
 		self.tableModel = QXTableModel(self, self.db)
@@ -46,27 +36,6 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.refreshInfo()
 		self.refreshData()
 		self.refreshStructure()
-
-	def escapedDBName(self):
-		return self.db.escapeTableName(self.dbName)
-
-	def escapedTableName(self):
-		return self.db.escapeTableName(self.tableName)
-
-	@pyqtSignature("")
-	def on_btnExecuteQuery_clicked(self):
-		self.activate()
-		queryModel = QSqlQueryModel(self)
-		queryModel.setQuery( self.txtQuery.text(), self.db )
-		self.tableQueryResult.setModel( queryModel )
-		if queryModel.lastError().isValid():
-			self.labelQueryError.setText( queryModel.lastError().databaseText() )
-		else:
-			if queryModel.query().isSelect():
-				self.labelQueryError.setText("%d rows returned" % queryModel.query().size())
-			else:
-				self.labelQueryError.setText("%d rows affected" % queryModel.query().numRowsAffected())
-			self.tableQueryResult.resizeColumnsToContents()
 
 	@pyqtSignature("")
 	def on_btnRefreshData_clicked(self):

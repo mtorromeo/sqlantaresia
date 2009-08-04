@@ -15,6 +15,7 @@ except ImportError:
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from Connections import Connections
 from TableDetails import TableDetails
+from QueryTab import QueryTab
 from SshSqlDatabase import SshSqlDatabase
 from dbmodels import *
 
@@ -71,6 +72,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		# ContextMenu
 		self.menuTable = QMenu(self.treeView)
+		self.menuTable.addAction( self.actionNew_Query_Tab )
 		self.menuTable.addAction( self.actionTruncate_Table )
 		self.menuTable.addAction( self.actionDrop_Table )
 		self.menuTable.addAction( self.actionDrop_Database )
@@ -212,6 +214,16 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			with open(self.configFilename, "wb") as configfile:
 				self.config.write(configfile)
 
+	@pyqtSignature("")
+	def on_actionNew_Query_Tab_triggered(self):
+		if len(self.treeView.selectedIndexes()) > 0:
+			idx = self.treeView.selectedIndexes()[0]
+			if type(idx.internalPointer()) is DatabaseTreeItem:
+				dbName = idx.internalPointer().getName()
+				print dbName
+				index = self.tabsWidget.addTab( QueryTab(self.db, dbName), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
+				self.tabsWidget.setCurrentIndex(index)
+
 	def on_treeView_activated(self, modelIndex):
 		if type(modelIndex.internalPointer()) is TableTreeItem:
 			dbName = modelIndex.parent().internalPointer().getName()
@@ -223,9 +235,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	def on_treeView_customContextMenuRequested(self, point):
 		modelIndex = self.treeView.currentIndex()
 
-		self.actionDrop_Database.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
-		self.actionDrop_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
+		self.actionNew_Query_Tab.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
 		self.actionTruncate_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
+		self.actionDrop_Table.setEnabled( type(modelIndex.internalPointer()) is TableTreeItem )
+		self.actionDrop_Database.setEnabled( type(modelIndex.internalPointer()) is DatabaseTreeItem )
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
@@ -233,7 +246,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	def on_actionDrop_Database_triggered(self):
 		queries = []
 		for idx in self.treeView.selectedIndexes():
-			if idx.parent().internalPointer() is None:
+			if type(idx.internalPointer()) is DatabaseTreeItem:
 				dbName = idx.internalPointer().getName()
 				queries.append( "DROP DATABASE %s;" % self.db.escapeTableName(dbName) )
 		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:

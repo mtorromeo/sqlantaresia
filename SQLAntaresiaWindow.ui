@@ -259,6 +259,18 @@
     <string>Truncate Table</string>
    </property>
   </action>
+  <action name="actionNew_Query_Tab">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/tab-new.png</normaloff>:/16/tab-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New Query Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
