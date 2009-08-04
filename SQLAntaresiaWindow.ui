@@ -182,21 +182,37 @@
    </property>
   </action>
   <action name="actionConfigure_SQLAntaresia">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/configure.png</normaloff>:/16/configure.png</iconset>
+   </property>
    <property name="text">
     <string>Configure &amp;SQL Antaresia</string>
    </property>
   </action>
   <action name="actionConfigure_Connections">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/configure.png</normaloff>:/16/configure.png</iconset>
+   </property>
    <property name="text">
     <string>Configure &amp;Connections</string>
    </property>
   </action>
   <action name="actionAbout_SQLAntaresia">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/32/kexi.png</normaloff>:/32/kexi.png</iconset>
+   </property>
    <property name="text">
     <string>About SQL Antaresia</string>
    </property>
   </action>
   <action name="actionAbout_Qt">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/64/qtlogo.png</normaloff>:/64/qtlogo.png</iconset>
+   </property>
    <property name="text">
     <string>About Qt</string>
    </property>
@@ -237,6 +253,10 @@
    </property>
   </action>
   <action name="actionReconnect">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/network-connect.png</normaloff>:/16/network-connect.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Reconnect</string>
    </property>

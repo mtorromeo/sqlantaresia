@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="16" >
+    <file>configure.png</file>
     <file>system-run.png</file>
     <file>system-users.png</file>
     <file>tab-new.png</file>
@@ -18,6 +19,9 @@
     <file>db.png</file>
     <file>table.png</file>
     <file>view-refresh.png</file>
+  </qresource>
+  <qresource prefix="64" >
+    <file>qtlogo.png</file>
   </qresource>
   <qresource prefix="32" >
     <file>kexi.png</file>
