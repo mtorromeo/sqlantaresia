@@ -2,7 +2,10 @@
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt, QLocale, QVariant, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
+
 from QXTableModel import QXTableModel
+from QueryTab import QueryTab
+
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
@@ -36,10 +39,6 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.refreshInfo()
 		self.refreshData()
 		self.refreshStructure()
-
-	@pyqtSignature("")
-	def on_btnRefreshData_clicked(self):
-		self.refreshData()
 
 	def refreshInfo(self):
 		sysLocale = QLocale.system()
@@ -99,6 +98,15 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 	def tableDataEdited(self):
 		self.btnUndo.setEnabled(True)
 		self.btnApply.setEnabled(True)
+
+	@pyqtSignature("")
+	def on_btnEditQuery_clicked(self):
+		index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE 1" % self.db.escapeTableName(self.tableName)), QtGui.QIcon(":/16/db.png"), "Query on %s" % (self.dbName) )
+		self.window().tabsWidget.setCurrentIndex(index)
+
+	@pyqtSignature("")
+	def on_btnRefreshData_clicked(self):
+		self.refreshData()
 
 	@pyqtSignature("")
 	def on_btnApply_clicked(self):

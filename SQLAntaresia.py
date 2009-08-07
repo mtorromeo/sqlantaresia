@@ -216,7 +216,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			idx = self.treeView.selectedIndexes()[0]
 			if type(idx.internalPointer()) is DatabaseTreeItem:
 				dbName = idx.internalPointer().getName()
-				print dbName
 				index = self.tabsWidget.addTab( QueryTab(self.db, dbName), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
 				self.tabsWidget.setCurrentIndex(index)
 

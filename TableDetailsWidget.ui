@@ -29,7 +29,14 @@
    </attribute>
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="0">
-     <widget class="QTableView" name="tableStructure"/>
+     <widget class="QTableView" name="tableStructure">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="cornerButtonEnabled">
+       <bool>false</bool>
+      </property>
+     </widget>
     </item>
     <item row="0" column="0">
      <widget class="QLabel" name="lblTableInfo">
@@ -59,6 +66,17 @@
         <property name="icon">
          <iconset resource="icons.qrc">
           <normaloff>:/16/view-refresh.png</normaloff>:/16/view-refresh.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnEditQuery">
+        <property name="text">
+         <string>Edit Query</string>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/16/db.png</normaloff>:/16/db.png</iconset>
         </property>
        </widget>
       </item>

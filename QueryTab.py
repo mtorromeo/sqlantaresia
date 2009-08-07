@@ -6,7 +6,7 @@ from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
 from Ui_QueryWidget import Ui_QueryWidget
 
 class QueryTab(QtGui.QTabWidget, Ui_QueryWidget):
-	def __init__(self, db, dbName):
+	def __init__(self, db, dbName, query="SHOW TABLES"):
 		QtGui.QTabWidget.__init__(self)
 
 		self.db = db
@@ -21,7 +21,7 @@ class QueryTab(QtGui.QTabWidget, Ui_QueryWidget):
 		self.txtQuery.setMarginWidth(0, 30)
 		self.txtQuery.setMarginLineNumbers(0, True)
 		self.txtQuery.setLexer(self.lexer)
-		self.txtQuery.setText("SHOW TABLES")
+		self.txtQuery.setText(query)
 
 	@pyqtSignature("")
 	def on_btnExecuteQuery_clicked(self):
