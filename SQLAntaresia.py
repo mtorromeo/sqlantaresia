@@ -60,6 +60,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.setupUi(self)
 		self.tabsWidget.clear()
 
+		# StatusBar Widgets
+		self.lblConnectedHost = QLabel("Host:")
+		self.lblConnectionStatus = QLabel("Status:")
+		self.statusBar.addPermanentWidget(self.lblConnectedHost)
+		self.statusBar.addPermanentWidget(self.lblConnectionStatus)
+
 		# Close TAB
 		self.btnCloseTab = QToolButton()
 		self.btnCloseTab.setDefaultAction( self.actionClose_Tab )
@@ -78,8 +84,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.cmbConnection.addItem(connectionName)
 		if self.cmbConnection.count()==0:
 			self.cmbConnection.setEditText("root@localhost")
-		self.toolBarConnection.addWidget( QLabel("Connection string:") )
-		self.toolBarConnection.addWidget( self.cmbConnection )
+		self.toolBarConnection.insertWidget( self.actionGo, QLabel("Connection string:") )
+		self.toolBarConnection.insertWidget( self.actionGo, self.cmbConnection )
 
 		QObject.connect(self.actionAbout_Qt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
@@ -133,6 +139,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=None, tunnelUsername=None, tunnelPassword=None):
 		self.statusBar.showMessage("Connecting to %s..." % host)
+		self.lblConnectedHost.setText("Host:")
+		self.lblConnectionStatus.setText("Status: Connecting...")
 
 		self.db.setHostName(host)
 		self.db.setUserName(username)
@@ -147,9 +155,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		try:
 			result = self.db.open()
 		except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
-			msgBoxError = QMessageBox()
-			msgBoxError.setText(str(e))
-			msgBoxError.exec_()
+			self.statusBar.showMessage(str(e), 10000)
+
+		if result:
+			self.lblConnectedHost.setText("Host: %s@%s" % (username, host))
+			self.lblConnectionStatus.setText("Status: Connected.")
+		else:
+			self.lblConnectionStatus.setText("Status: Disconnected.")
 
 		self.refreshTreeView(True)
 		return result
@@ -168,8 +180,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.refreshTreeView(True)
 
 	@pyqtSignature("QString")
-	def on_cmbConnection_currentIndexChanged(self, text):
-		self.connectToUrl(text)
+	def on_cmbConnection_activated(self, text):
+		self.on_actionGo_triggered(self)
+
+	@pyqtSignature("")
+	def on_actionGo_triggered(self):
+		self.connectToUrl( self.cmbConnection.lineEdit().text() )
 
 	@pyqtSignature("")
 	def on_actionReconnect_triggered(self):
