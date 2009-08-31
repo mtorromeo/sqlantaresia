@@ -30,6 +30,9 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
 
 		QObject.connect( self, SIGNAL("accepted()"), self.onAccept )
 
+	def on_checkTunnel_stateChanged(self, state):
+		self.groupTunnel.setEnabled( state == Qt.Checked )
+
 	def on_buttonBox_accepted(self):
 		emptyChecks = (
 			(self.txtName, "You have to specify the name for the connection"),
