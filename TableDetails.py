@@ -26,6 +26,8 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		self.queryStructure.exec_()
 
 		self.setupUi(self)
+		self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.escapeTableName(self.tableName) )
+		QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
 		#Data
 		self.activate()
@@ -74,6 +76,7 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 	def refreshData(self):
 		self.activate()
 		#TODO: Extend QSqlTableModel to implement a cleaner setLimit, the current workaround breaks the order by
+		self.tableModel.setFilter( self.txtWhere.text() )
 		self.tableModel.select()
 		self.tableModel.reset()
 		self.tableData.resizeColumnsToContents()
@@ -101,7 +104,10 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 
 	@pyqtSignature("")
 	def on_btnEditQuery_clicked(self):
-		index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE 1" % self.db.escapeTableName(self.tableName)), QtGui.QIcon(":/16/db.png"), "Query on %s" % (self.dbName) )
+		where = self.txtWhere.text()
+		if where == "":
+			where = "1"
+		index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE %s" % (self.db.escapeTableName(self.tableName), where) ), QtGui.QIcon(":/16/db.png"), "Query on %s" % (self.dbName) )
 		self.window().tabsWidget.setCurrentIndex(index)
 
 	@pyqtSignature("")

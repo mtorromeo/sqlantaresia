@@ -59,6 +59,19 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
+       <widget class="QLabel" name="lblQueryDesc">
+        <property name="text">
+         <string notr="true">SELECT * FROM %1 WHERE</string>
+        </property>
+        <property name="buddy">
+         <cstring>txtWhere</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtWhere"/>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnRefreshData">
         <property name="text">
          <string>Refresh</string>
@@ -79,19 +92,6 @@
           <normaloff>:/16/db.png</normaloff>:/16/db.png</iconset>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
@@ -169,6 +169,15 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tableStructure</tabstop>
+  <tabstop>txtWhere</tabstop>
+  <tabstop>btnRefreshData</tabstop>
+  <tabstop>btnEditQuery</tabstop>
+  <tabstop>tableData</tabstop>
+  <tabstop>btnApply</tabstop>
+  <tabstop>btnUndo</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>
