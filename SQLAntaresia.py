@@ -87,6 +87,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.toolBarConnection.insertWidget( self.actionGo, QLabel("Connection string:") )
 		self.toolBarConnection.insertWidget( self.actionGo, self.cmbConnection )
 
+		QObject.connect(self.cmbConnection.lineEdit(), SIGNAL("returnPressed()"),  self.on_actionGo_triggered)
 		QObject.connect(self.actionAbout_Qt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
 	def closeEvent(self, event):
@@ -190,8 +191,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.on_actionGo_triggered(self)
 
 	@pyqtSignature("")
-	def on_actionGo_triggered(self):
-		self.connectToUrl( self.cmbConnection.lineEdit().text() )
+	def on_actionGo_triggered(self, parm=None):
+		if parm is None:
+			self.connectToUrl( self.cmbConnection.lineEdit().text() )
 
 	@pyqtSignature("")
 	def on_actionReconnect_triggered(self):
