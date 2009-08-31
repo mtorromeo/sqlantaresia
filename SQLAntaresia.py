@@ -2,7 +2,7 @@
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
 import sys, re, ConfigParser, os, time
-from PyQt4.QtCore import Qt, QObject, SIGNAL,  QString, pyqtSignature
+from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QString, QModelIndex
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QToolButton, QMenu, QComboBox, QIcon, QLabel
 from PyQt4.QtSql import *
 
@@ -169,6 +169,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 	def refreshTreeView(self, reset=False):
 		if reset:
 			self.dbmsModel.setDB( self.db )
+			# Auto expand root items
+			i = 0
+			invalid = QModelIndex()
+			while self.dbmsModel.index(i,0,invalid).isValid():
+				self.treeView.expand( self.dbmsModel.index(i,0,invalid) )
+				i += 1
 		else:
 			self.dbmsModel.refresh()
 
