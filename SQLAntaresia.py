@@ -87,7 +87,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.toolBarConnection.insertWidget( self.actionGo, QLabel("Connection string:") )
 		self.toolBarConnection.insertWidget( self.actionGo, self.cmbConnection )
 
-		QObject.connect(self.cmbConnection.lineEdit(), SIGNAL("returnPressed()"),  self.on_actionGo_triggered)
 		QObject.connect(self.actionAbout_Qt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
 	def closeEvent(self, event):
@@ -145,8 +144,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		self.db.setHostName(host)
 		self.db.setUserName(username)
-		#if password != None and password != "":
-		self.db.setPassword(password)
+		if password != None and password != "":
+			self.db.setPassword(password)
 		if port != None and port > 0 and port < 65536:
 			self.db.setPort(port)
 
@@ -188,12 +187,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	@pyqtSignature("QString")
 	def on_cmbConnection_activated(self, text):
-		self.on_actionGo_triggered(self)
+		self.on_actionGo_triggered()
 
 	@pyqtSignature("")
-	def on_actionGo_triggered(self, parm=None):
-		if parm is None:
-			self.connectToUrl( self.cmbConnection.lineEdit().text() )
+	def on_actionGo_triggered(self):
+		self.connectToUrl( self.cmbConnection.lineEdit().text() )
 
 	@pyqtSignature("")
 	def on_actionReconnect_triggered(self):

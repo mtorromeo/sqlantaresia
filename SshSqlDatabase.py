@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 from PyQt4.QtGui import QMessageBox
 from PyQt4.QtSql import QSqlDatabase, QSqlDriver, QSqlQuery
+from PyQt4.QtCore import QVariant
 
 try:
 	import paramiko
@@ -74,3 +76,16 @@ class SshSqlDatabase(QSqlDatabase):
 			return False
 		q = QSqlQuery("SELECT 1", self)
 		return q.exec_()
+	
+	def recordToDict(self, record):
+		res = {}
+		for i in range(record.count()):
+			field = record.field(i)
+			type = field.type()
+			value = None
+			if type == QVariant.Int or type == QVariant.UInt or type == QVariant.LongLong:
+				value = field.value().toInt()[0]
+			elif type == QVariant.String:
+				value = str(field.value().toString())
+			res[ str(field.name()) ] = value
+		return res
