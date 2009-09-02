@@ -46,7 +46,7 @@ class SshSqlDatabase(QSqlDatabase):
 		self.open()
 	
 	def openTunnel(self):
-		self.tunnelHost = self.hostName()
+		self.tunnelHost = str(self.hostName())
 		self.setHostName("127.0.0.1")
 		self.tunnelRemotePort = self.port()
 		if self.tunnelPort is not None:
