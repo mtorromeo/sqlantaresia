@@ -6,11 +6,19 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QString, QModelInde
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QToolButton, QMenu, QComboBox, QIcon, QLabel
 from PyQt4.QtSql import *
 
+import warnings
+warnings.filterwarnings("ignore", ".*sha module is deprecated.*", DeprecationWarning)
+warnings.filterwarnings("ignore", ".*md5 module is deprecated.*", DeprecationWarning)
+
 try:
 	import paramiko
 	from tunnel import SSHForwarder
+except DeprecationWarning:
+	pass
 except ImportError:
 	SSHForwarder = None
+except Exception, e:
+	print e
 
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from Connections import Connections
@@ -51,7 +59,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		# Initialize Database
 		if not QSqlDatabase.isDriverAvailable("QMYSQL"):
 			QMessageBox.critical(self, "SQL Driver not found", "The QMYSQL database driver could not be loaded. Consult the system administrator.")
-			exit(1)
+			sys.exit(1)
 
 		self.db = SshSqlDatabase(QSqlDatabase.addDatabase("QMYSQL"))
 		self.db.setConnectOptions("CLIENT_COMPRESS=1")
