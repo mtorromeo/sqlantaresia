@@ -38,7 +38,14 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.login = ""
 
 		# Configuration file
-		self.configFilename = os.path.expanduser('~/.sqlantaresia.conf')
+		if os.name == "nt":
+			appdir = os.path.expanduser('~/Application Data/SQLAntaresia')
+			if not os.path.isdir(appdir):
+				os.mkdir(appdir)
+			self.configFilename = appdir + "/sqlantaresia.conf"
+		else:
+			self.configFilename = os.path.expanduser('~/.sqlantaresia.conf')
+		
 		self.config = ConfigParser.ConfigParser()
 		self.config.read([self.configFilename])
 
