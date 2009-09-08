@@ -3,7 +3,7 @@
 # Depends: pyqt4, python-qscintilla, python-paramiko
 import sys, re, ConfigParser, os, time
 from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QString, QModelIndex
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QToolButton, QMenu, QComboBox, QIcon, QLabel
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QMenu, QComboBox, QIcon, QLabel
 from PyQt4.QtSql import *
 
 import warnings
@@ -45,7 +45,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.configFilename = appdir + "/sqlantaresia.conf"
 		else:
 			self.configFilename = os.path.expanduser('~/.sqlantaresia.conf')
-		
+
 		self.config = ConfigParser.ConfigParser()
 		self.config.read([self.configFilename])
 
@@ -80,12 +80,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.lblConnectionStatus = QLabel("Status:")
 		self.statusBar.addPermanentWidget(self.lblConnectedHost)
 		self.statusBar.addPermanentWidget(self.lblConnectionStatus)
-
-		# Close TAB
-		self.btnCloseTab = QToolButton()
-		self.btnCloseTab.setDefaultAction( self.actionClose_Tab )
-		self.btnCloseTab.setToolButtonStyle(Qt.ToolButtonIconOnly)
-		self.tabsWidget.setCornerWidget( self.btnCloseTab )
 
 		# TreeViewModel
 		self.dbmsModel = DBMSTreeModel(self, self.db)
