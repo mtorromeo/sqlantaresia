@@ -161,6 +161,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		if useTunnel and SSHForwarder is not None:
 			self.db.enableTunnel(tunnelUsername, tunnelPassword, tunnelPort)
 
+		result = False
 		try:
 			result = self.db.open()
 		except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
