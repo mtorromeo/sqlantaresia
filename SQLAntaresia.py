@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
+import sip
+sip.setapi("QString", 2)
+sip.setapi("QVariant", 2)
+
 import sys, re, ConfigParser, os, time
-from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QString, QModelIndex
+from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QModelIndex
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QMenu, QComboBox, QIcon, QLabel
 from PyQt4.QtSql import *
 
@@ -116,8 +120,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		except ConfigParser.NoSectionError: return defValue
 		except ConfigParser.NoOptionError: return defValue
 
-	def connectToUrl(self,  url):
-		url = str(url)
+	def connectToUrl(self, url):
 		self.disconnect()
 
 		if url in self.configuredConnections:
@@ -165,7 +168,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		try:
 			result = self.db.open()
 		except (paramiko.BadHostKeyException, paramiko.AuthenticationException) as e:
-			self.statusBar.showMessage(str(e), 10000)
+			self.statusBar.showMessage(e, 10000)
 
 		if result:
 			self.lblConnectedHost.setText("Host: %s@%s" % (username, host))

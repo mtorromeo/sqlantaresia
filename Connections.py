@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import Qt, QVariant, QStringList, pyqtSignature
+from PyQt4.QtCore import Qt, pyqtSignature
 from PyQt4.QtGui import QMessageBox, QDialog, QStringListModel
 from Ui_ConnectionsDialog import Ui_ConnectionsDialog
 
@@ -12,7 +12,7 @@ class Connections(QDialog, Ui_ConnectionsDialog):
 		self.connections = connections
 
 		self.connectionsModel = QStringListModel()
-		self.connectionsList = QStringList()
+		self.connectionsList = []
 		for connection in self.connections:
 			self.connectionsList.append(connection)
 		self.connectionsModel.setStringList(self.connectionsList)
@@ -45,28 +45,32 @@ class Connections(QDialog, Ui_ConnectionsDialog):
 	@pyqtSignature("")
 	def on_btnDel_clicked(self):
 		idx = self.listConnections.currentIndex()
-		connection = str(self.connectionsModel.data(idx, Qt.DisplayRole).toString())
+		connection = self.connectionsModel.data(idx, Qt.DisplayRole)
 
 		msgBox = QMessageBox()
 		msgBox.setText('Do you really want to delete the connection "%s"?' % connection)
 		msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 		msgBox.setDefaultButton(QMessageBox.No)
 		if msgBox.exec_() == QMessageBox.Yes:
-			self.connectionsList.removeAll(connection)
+			try:
+				self.connectionsList.remove(connection)
+			except ValueError: pass
 			del self.connections[connection]
 			self.refreshConnections()
 
 	@pyqtSignature("")
 	def on_btnProps_clicked(self):
 		idx = self.listConnections.currentIndex()
-		connection = str(self.connectionsModel.data(idx, Qt.DisplayRole).toString())
+		connection = self.connectionsModel.data(idx, Qt.DisplayRole)
 
 		configDialog = ConfigureConnection(self, connection, self.connections[connection])
 		if configDialog.exec_() == QDialog.Accepted:
 			if connection != configDialog.connection:
-					self.connectionsModel.setData(idx, QVariant(configDialog.connection),  Qt.DisplayRole)
+					self.connectionsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
 					self.connections[configDialog.connection] = self.connections[connection]
 					self.connectionsList.append(configDialog.connection)
 					del self.connections[connection]
-					self.connectionsList.removeAll(connection)
+					try:
+						self.connectionsList.remove(connection)
+					except ValueError: pass
 					self.refreshConnections()

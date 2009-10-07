@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, QLocale, QVariant, QObject, SIGNAL, pyqtSignature
+from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
 from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
 from Ui_QueryWidget import Ui_QueryWidget

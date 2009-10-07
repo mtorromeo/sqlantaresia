@@ -68,7 +68,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
 			q = QSqlQuery(self.db)
 			q.exec_("SHOW DATABASES")
 			while q.next():
-				dblist.append( str(q.value(0).toString()) )
+				dblist.append( q.value(0) )
 		return dblist
 
 	def refreshData(self):
@@ -105,7 +105,7 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
 			q = QSqlQuery(self.db)
 			q.exec_("SELECT GRANTEE FROM `information_schema`.`USER_PRIVILEGES` GROUP BY GRANTEE")
 			while q.next():
-				_list.append( str(q.value(0).toString()) )
+				_list.append( q.value(0) )
 		return _list
 
 	def refreshData(self):
@@ -143,7 +143,7 @@ class DatabaseTreeItem(BaseTreeItem):
 			q.exec_("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
 			i = 0
 			while q.next():
-				children.append( TableTreeItem( i, self, self.db, q.value(0).toString() ) )
+				children.append( TableTreeItem( i, self, self.db, q.value(0) ) )
 				i = i+1
 		self.children = children
 
@@ -241,14 +241,14 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
 
 	def data(self, index, role):
 		if not index.isValid() or role is QtCore.Qt.EditRole:
-			return QtCore.QVariant()
+			return None
 
 		if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
-			return QtCore.QVariant( index.internalPointer().getColumnData(index.column()) )
+			return index.internalPointer().getColumnData(index.column())
 		elif role == QtCore.Qt.DecorationRole:
-			return QtCore.QVariant( index.internalPointer().getIcon(index.column()) )
+			return index.internalPointer().getIcon(index.column())
 
-		return QtCore.QVariant()
+		return None
 
 	def parent(self, childIdx):
 		if not childIdx.isValid():
@@ -279,5 +279,5 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
 
 	def headerData(self, col, orientation, role):
 		if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-			return QtCore.QVariant("Databases")
-		return QtCore.QVariant()
+			return "Databases"
+		return None

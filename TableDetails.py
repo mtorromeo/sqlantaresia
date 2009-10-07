@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, QLocale, QVariant, QObject, SIGNAL, pyqtSignature
+from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
 from PyQt4.QtSql import *
 
 from QXTableModel import QXTableModel
@@ -16,21 +16,17 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 		self.dbName = dbName
 		self.tableName = tableName
 
-		#Structure
-		self.queryStructure = QSqlQuery( """SELECT `COLUMN_NAME` AS 'Field', `COLUMN_TYPE` AS 'Type', `COLUMN_DEFAULT` AS 'Default', `IS_NULLABLE` AS 'Nullable', `COLUMN_KEY` AS 'Key', `EXTRA` AS 'Extra', `COLLATION_NAME` AS 'Collation'
-FROM `information_schema`.`COLUMNS`
-WHERE `TABLE_SCHEMA`=? AND `TABLE_NAME`=?
-ORDER BY `ORDINAL_POSITION`""", self.db)
-		self.queryStructure.addBindValue(QVariant(self.dbName))
-		self.queryStructure.addBindValue(QVariant(self.tableName))
-		self.queryStructure.exec_()
-
 		self.setupUi(self)
 		self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.escapeTableName(self.tableName) )
 		QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
-		#Data
 		self.activate()
+
+		#Structure
+		self.queryStructure = QSqlQuery( """SHOW FULL COLUMNS FROM %s""" % self.db.escapeTableName(self.tableName), self.db)
+		self.queryStructure.exec_()
+
+		#Data
 		self.tableModel = QXTableModel(self, self.db)
 		self.tableModel.setEditStrategy(QSqlTableModel.OnManualSubmit)
 		self.tableModel.setTable( self.tableName )
@@ -46,8 +42,8 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 		sysLocale = QLocale.system()
 
 		q = QSqlQuery("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=? AND TABLE_NAME=?", self.db)
-		q.addBindValue(QVariant(self.dbName))
-		q.addBindValue(QVariant(self.tableName))
+		q.addBindValue(self.dbName)
+		q.addBindValue(self.tableName)
 		q.exec_()
 		q.first()
 		self.lblTableInfo.setText("""<b>Type:</b> %s<br />
@@ -61,16 +57,16 @@ ORDER BY `ORDINAL_POSITION`""", self.db)
 <b>Last Check:</b> %s<br />
 <b>Collation:</b> %s
 """ % (
-       q.value(0).toString(),
-		 q.value(1).toString(),
-		 q.value(2).toString(),
-		 sysLocale.toString( q.value(3).toInt()[0] ),
-		 sysLocale.toString( q.value(4).toInt()[0] ),
-		 q.value(5).toString(),
-		 q.value(6).toDateTime().toString(Qt.SystemLocaleDate),
-		 q.value(7).toDateTime().toString(Qt.SystemLocaleDate),
-		 q.value(8).toDateTime().toString(Qt.SystemLocaleDate),
-		 q.value(9).toString()
+       q.value(0),
+		 q.value(1),
+		 q.value(2),
+		 sysLocale.toString( q.value(3) ),
+		 sysLocale.toString( q.value(4) ),
+		 q.value(5),
+		 q.value(6).toString(Qt.SystemLocaleDate),
+		 q.value(7).toString(Qt.SystemLocaleDate),
+		 q.value(8).toString(Qt.SystemLocaleDate),
+		 q.value(9)
 		))
 
 	def refreshData(self):

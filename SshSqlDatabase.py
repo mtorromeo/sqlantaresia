@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import QMessageBox
 from PyQt4.QtSql import QSqlDatabase, QSqlDriver, QSqlQuery
-from PyQt4.QtCore import QVariant
 
 try:
 	import paramiko
@@ -12,16 +11,16 @@ except ImportError:
 class SshSqlDatabase(QSqlDatabase):
 	useTunnel = False
 	tunnelThread = None
-	
+
 	def __init__(self, db):
 		QSqlDatabase.__init__(self, db)
-	
+
 	def enableTunnel(self, username, password, port=None):
 		self.useTunnel = True
 		self.tunnelUsername = username
 		self.tunnelPassword = password
 		self.tunnelPort = port
-	
+
 	def disableTunnel(self):
 		self.useTunnel = False
 		if self.tunnelHost is not None:
@@ -30,31 +29,31 @@ class SshSqlDatabase(QSqlDatabase):
 		if self.tunnelRemotePort is not None:
 			self.setHostName(self.tunnelRemotePort)
 			self.tunnelRemotePort = None
-	
+
 	def open(self):
 		if self.useTunnel and self.tunnelThread is None:
 			self.openTunnel()
 		return QSqlDatabase.open(self)
-	
+
 	def close(self):
 		result = QSqlDatabase.close(self)
 		self.closeTunnel()
 		return result
-	
+
 	def reconnect(self):
 		self.close()
 		self.open()
-	
+
 	def openTunnel(self):
-		self.tunnelHost = str(self.hostName())
+		self.tunnelHost = self.hostName()
 		self.setHostName("127.0.0.1")
 		self.tunnelRemotePort = self.port()
 		if self.tunnelPort is not None:
 			self.setPort(int(self.tunnelPort))
-		
+
 		self.tunnelThread = SSHForwarder(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=self.tunnelHost, local_port=self.tunnelPort, remote_port=self.tunnelRemotePort)
 		self.tunnelThread.start()
-	
+
 	def closeTunnel(self):
 		if self.tunnelThread is not None:
 			self.tunnelThread.join()
@@ -70,22 +69,17 @@ class SshSqlDatabase(QSqlDatabase):
 				query = QSqlQuery( sql, self )
 			if not query.exec_() and query.lastError().isValid():
 				QMessageBox.critical(QApplication.activeWindow(), "Query result", query.lastError().databaseText())
-	
+
 	def verify(self):
 		if not self.isOpen():
 			return False
 		q = QSqlQuery("SELECT 1", self)
 		return q.exec_()
-	
+
 	def recordToDict(self, record):
 		res = {}
 		for i in range(record.count()):
 			field = record.field(i)
 			type = field.type()
-			value = None
-			if type == QVariant.Int or type == QVariant.UInt or type == QVariant.LongLong:
-				value = field.value().toInt()[0]
-			elif type == QVariant.String:
-				value = str(field.value().toString())
-			res[ str(field.name()) ] = value
+			res[ str(field.name()) ] = field.value()
 		return res

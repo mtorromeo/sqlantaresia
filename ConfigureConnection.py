@@ -40,7 +40,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
 			(self.txtUsername, "You have to specify the username of the connection"),
 		)
 		for check in emptyChecks:
-			if check[0].text().isEmpty():
+			if check[0].text() == "" or check[0].text().isspace():
 				QMessageBox.warning(self, "Data validation error", check[1])
 				check[0].selectAll()
 				check[0].setFocus()
@@ -61,7 +61,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
 				self.txtTunnelPort.setFocus()
 				return
 
-			if self.txtTunnelUsername.text().isEmpty():
+			if self.txtTunnelUsername.text() == "" or self.txtTunnelUsername.text().isspace():
 				QMessageBox.warning(self, "Data validation error", "You have to specify the username for the tunnel")
 				self.txtTunnelUsername.selectAll()
 				self.txtTunnelUsername.setFocus()
@@ -71,13 +71,13 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
 
 
 	def onAccept(self):
-		self.connection = str(self.txtName.text())
-		self.connectionOptions["host"] = str(self.txtHost.text())
+		self.connection = self.txtName.text()
+		self.connectionOptions["host"] = self.txtHost.text()
 		self.connectionOptions["port"] = int(self.txtPort.text())
-		self.connectionOptions["database"] = str(self.txtDatabase.text())
-		self.connectionOptions["username"] = str(self.txtUsername.text())
-		self.connectionOptions["password"] = str(self.txtPassword.text())
+		self.connectionOptions["database"] = self.txtDatabase.text()
+		self.connectionOptions["username"] = self.txtUsername.text()
+		self.connectionOptions["password"] = self.txtPassword.text()
 		self.connectionOptions["useTunnel"] = self.checkTunnel.isChecked()
 		self.connectionOptions["tunnelPort"] = int(self.txtTunnelPort.text())
-		self.connectionOptions["tunnelUsername"] = str(self.txtTunnelUsername.text())
-		self.connectionOptions["tunnelPassword"] = str(self.txtTunnelPassword.text())
+		self.connectionOptions["tunnelUsername"] = self.txtTunnelUsername.text()
+		self.connectionOptions["tunnelPassword"] = self.txtTunnelPassword.text()
