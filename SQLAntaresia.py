@@ -127,11 +127,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			if matches:
 				m = matches.groups()
 				username = m[0]
-				password = m[1]
+				password = "" if m[1] is None else m[1]
 				host = m[2]
-				port = m[3]
-				if port != None:
-					port = int(port)
+				port = 3306 if m[3] is None else int(m[3])
 				database = m[4]
 
 				if self.initDB(username, host, port, password):

@@ -50,7 +50,6 @@ class SshSqlDatabase():
 		self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=user, passwd=passwd, charset="utf8", use_unicode=True)
 
 	def close(self):
-		self.dbpool.connection().close()
 		self.closeTunnel()
 
 	def reconnect(self):
