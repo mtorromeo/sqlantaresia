@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
-from PyQt4.QtSql import *
 from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
+from QPySqlModels import QPySelectModel
+import _mysql_exceptions
+
 from Ui_QueryWidget import Ui_QueryWidget
 
 class QueryTab(QtGui.QTabWidget, Ui_QueryWidget):
@@ -25,19 +27,18 @@ class QueryTab(QtGui.QTabWidget, Ui_QueryWidget):
 
 	@pyqtSignature("")
 	def on_btnExecuteQuery_clicked(self):
-		self.activate()
-		queryModel = QSqlQueryModel(self)
-		queryModel.setQuery( self.txtQuery.text(), self.db )
-		self.tableQueryResult.setModel( queryModel )
-		if queryModel.lastError().isValid():
-			self.labelQueryError.setText( queryModel.lastError().databaseText() )
-		else:
-			if queryModel.query().isSelect():
+		self.db.setDatabase(self.dbName)
+		queryModel = QPySelectModel(self, self.db)
+		queryModel.setSelect( self.txtQuery.text() )
+		try:
+			queryModel.select()
+			self.tableQueryResult.setModel( queryModel )
+			#TODO: show affected rows
+			"""if queryModel.query().isSelect():
 				self.labelQueryError.setText("%d rows returned" % queryModel.query().size())
 			else:
-				self.labelQueryError.setText("%d rows affected" % queryModel.query().numRowsAffected())
+				self.labelQueryError.setText("%d rows affected" % queryModel.query().numRowsAffected())"""
 			self.tableQueryResult.resizeColumnsToContents()
+		except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+			self.labelQueryError.setText( errmsg )
 
-	def activate(self):
-		self.db.setDatabaseName(self.dbName)
-		self.db.open()

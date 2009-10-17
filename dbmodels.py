@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtSql import QSqlQuery
 
 class BaseTreeItem(object):
 	""" Base class for composite pattern of trac data.
@@ -64,16 +63,16 @@ class EntityDatabasesTreeItem(BaseTreeItem):
 
 	def __getDbList(self):
 		dblist = []
-		if self.db.isOpen():
-			q = QSqlQuery(self.db)
-			q.exec_("SHOW DATABASES")
-			while q.next():
-				dblist.append( q.value(0) )
+		db = self.db.connection().cursor()
+		db.execute("SHOW DATABASES")
+		for row in db.fetchall():
+				dblist.append( row[0] )
 		return dblist
 
 	def refreshData(self):
-		self.__databases = self.__getDbList()
+		self.__databases = []
 		self.items = []
+		self.__databases = self.__getDbList()
 		for i in range(len(self.__databases)):
 			self.items.append(DatabaseTreeItem( i, self, self.db, self.__databases[i] ))
 
@@ -101,11 +100,10 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
 
 	def __getList(self):
 		_list = []
-		if self.db.isOpen():
-			q = QSqlQuery(self.db)
-			q.exec_("SELECT GRANTEE FROM `information_schema`.`USER_PRIVILEGES` GROUP BY GRANTEE")
-			while q.next():
-				_list.append( q.value(0) )
+		db = self.db.connection().cursor()
+		db.execute("SELECT GRANTEE FROM `information_schema`.`USER_PRIVILEGES` GROUP BY GRANTEE")
+		for row in db.fetchall():
+			_list.append( row[0] )
 		return _list
 
 	def refreshData(self):
@@ -138,13 +136,12 @@ class DatabaseTreeItem(BaseTreeItem):
 
 	def refreshData(self):
 		children = []
-		if self.db.isOpen():
-			q = QSqlQuery(self.db)
-			q.exec_("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
-			i = 0
-			while q.next():
-				children.append( TableTreeItem( i, self, self.db, q.value(0) ) )
-				i = i+1
+		db = self.db.connection().cursor()
+		db.execute("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
+		i = 0
+		for row in db.fetchall():
+			children.append( TableTreeItem( i, self, self.db, row[0] ) )
+			i = i+1
 		self.children = children
 
 	def getParent(self):
@@ -205,30 +202,19 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
 
 	def setDB(self, db):
 		self.db = db
-		self.roots = [
-			EntityDatabasesTreeItem(0, None, self.db),
-			EntityPrivilegesTreeItem(1, None, self.db)
-		]
-		self.reset()
+		try:
+			self.roots = [
+				EntityDatabasesTreeItem(0, None, self.db),
+				EntityPrivilegesTreeItem(1, None, self.db)
+			]
+		except Exception as e:
+			self.roots = []
+			raise e
+		finally:
+			self.reset()
 
 	def refresh(self):
 		self.setDB(self.db)
-
-	"""def refresh(self):
-		olddatabases = self.databases
-		self.databases = self.__getDbList()
-		for i in range(len(olddatabases)-1,-1,-1):
-			if olddatabases[i] not in self.databases:
-				self.emit(QtCore.SIGNAL("rowsAboutToBeRemoved"), None,i,i)
-				print "remove", olddatabases[i]
-				del self.roots[i]
-				self.emit(QtCore.SIGNAL("rowsRemoved"), None,i,i)
-		for i in range(len(self.databases)):
-			if self.databases[i] not in olddatabases:
-				self.emit(QtCore.SIGNAL("rowsAboutToBeInserted"), None,i,i)
-				print "insert", self.databases[i]
-				self.roots.insert(i, DatabasesTreeItem( self, self.db, self.databases[i] ))
-				self.emit(QtCore.SIGNAL("rowsInserted"), None,i,i)"""
 
 	def rowCount(self, parentIdx):
 		if parentIdx.isValid():

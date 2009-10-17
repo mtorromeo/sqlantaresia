@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
-from PyQt4.QtSql import *
 
-from QXTableModel import QXTableModel
+from QPySqlModels import *
+import _mysql_exceptions
 from QueryTab import QueryTab
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
@@ -20,15 +20,10 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 		self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.escapeTableName(self.tableName) )
 		QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
-		self.activate()
-
-		#Structure
-		self.queryStructure = QSqlQuery( """SHOW FULL COLUMNS FROM %s""" % self.db.escapeTableName(self.tableName), self.db)
-		self.queryStructure.exec_()
+		self.db.setDatabase(self.dbName)
 
 		#Data
-		self.tableModel = QXTableModel(self, self.db)
-		self.tableModel.setEditStrategy(QSqlTableModel.OnManualSubmit)
+		self.tableModel = QPyTableModel(self, self.db)
 		self.tableModel.setTable( self.tableName )
 		QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
 		self.tableData.setModel( self.tableModel )
@@ -41,11 +36,10 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 	def refreshInfo(self):
 		sysLocale = QLocale.system()
 
-		q = QSqlQuery("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=? AND TABLE_NAME=?", self.db)
-		q.addBindValue(self.dbName)
-		q.addBindValue(self.tableName)
-		q.exec_()
-		q.first()
+		db = self.db.dbpool.connection().cursor()
+		db.execute("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s", (self.dbName, self.tableName))
+		result = db.fetchone()
+		#TODO: Localize dates
 		self.lblTableInfo.setText("""<b>Type:</b> %s<br />
 <b>Engine:</b> %s<br />
 <b>Row Format:</b> %s<br />
@@ -56,43 +50,31 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 <b>Last Update:</b> %s<br />
 <b>Last Check:</b> %s<br />
 <b>Collation:</b> %s
-""" % (
-       q.value(0),
-		 q.value(1),
-		 q.value(2),
-		 sysLocale.toString( q.value(3) ),
-		 sysLocale.toString( q.value(4) ),
-		 q.value(5),
-		 q.value(6).toString(Qt.SystemLocaleDate),
-		 q.value(7).toString(Qt.SystemLocaleDate),
-		 q.value(8).toString(Qt.SystemLocaleDate),
-		 q.value(9)
-		))
+""" % result)
 
 	def refreshData(self):
-		self.activate()
-		#TODO: Extend QSqlTableModel to implement a cleaner setLimit, the current workaround breaks the order by
+		self.db.setDatabase(self.dbName)
+		#TODO: Implement a limit for the results
 		self.tableModel.setFilter( self.txtWhere.text() )
-		self.tableModel.select()
+		try:
+			self.tableModel.select()
+		except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+			self.lblDataSubmitResult.setText( errmsg )
 		self.tableModel.reset()
 		self.tableData.resizeColumnsToContents()
 		self.btnUndo.setEnabled(False)
 		self.btnApply.setEnabled(False)
 
 	def refreshStructure(self):
-		self.activate()
-		modelStructure = QSqlQueryModel(self)
-		#QObject.connect(modelStructure, SIGNAL("rowsInserted()"), self.tableStructure.resizeColumnsToContents)
-		modelStructure.setQuery(self.queryStructure)
+		self.db.setDatabase(self.dbName)
+		modelStructure = QPySelectModel(self, self.db)
+		modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.escapeTableName(self.tableName))
+		try:
+			modelStructure.select()
+		except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+			self.lblDataSubmitResult.setText( errmsg )
 		self.tableStructure.setModel(modelStructure)
 		self.tableStructure.resizeColumnsToContents()
-
-		if self.queryStructure.lastError().isValid():
-			print self.queryStructure.lastError().databaseText()
-
-	def activate(self):
-		self.db.setDatabaseName(self.dbName)
-		self.db.open()
 
 	def tableDataEdited(self):
 		self.btnUndo.setEnabled(True)

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import QMessageBox
-from PyQt4.QtSql import QSqlDatabase, QSqlDriver, QSqlQuery
+
+import MySQLdb
+import _mysql_exceptions
+from DBUtils.PersistentDB import PersistentDB
 
 try:
 	import paramiko
@@ -8,12 +11,20 @@ try:
 except ImportError:
 	SSHForwarder = None
 
-class SshSqlDatabase(QSqlDatabase):
+class SshSqlDatabase():
 	useTunnel = False
 	tunnelThread = None
-
-	def __init__(self, db):
-		QSqlDatabase.__init__(self, db)
+	dbpool = None
+	__host = ""
+	__port = 3306
+	__user = ""
+	__passwd = ""
+	
+	def connection(self):
+		return self.dbpool.connection()
+	
+	def setDatabase(self, database):
+		return self.connection().cursor().execute("USE `%s`" % database)
 
 	def enableTunnel(self, username, password, port=None):
 		self.useTunnel = True
@@ -23,35 +34,31 @@ class SshSqlDatabase(QSqlDatabase):
 
 	def disableTunnel(self):
 		self.useTunnel = False
-		if self.tunnelHost is not None:
-			self.setHostName(self.tunnelHost)
-			self.tunnelHost = None
-		if self.tunnelRemotePort is not None:
-			self.setHostName(self.tunnelRemotePort)
-			self.tunnelRemotePort = None
+	
+	def isOpen(self):
+		return self.dbpool is not None
 
-	def open(self):
+	def open(self, host, user, passwd, port=3306):
+		self.__host = host
+		self.__port = port
+		self.__user = user
+		self.__passwd = passwd
 		if self.useTunnel and self.tunnelThread is None:
-			self.openTunnel()
-		return QSqlDatabase.open(self)
+			self.openTunnel(host, port)
+			host = "127.0.0.1"
+			port = self.tunnelPort
+		self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=user, passwd=passwd, charset="utf8", use_unicode=True)
 
 	def close(self):
-		result = QSqlDatabase.close(self)
+		self.dbpool.connection().close()
 		self.closeTunnel()
-		return result
 
 	def reconnect(self):
 		self.close()
-		self.open()
+		self.open(self.__host, self.__user, self.__passwd, self.__port)
 
-	def openTunnel(self):
-		self.tunnelHost = self.hostName()
-		self.setHostName("127.0.0.1")
-		self.tunnelRemotePort = self.port()
-		if self.tunnelPort is not None:
-			self.setPort(int(self.tunnelPort))
-
-		self.tunnelThread = SSHForwarder(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=self.tunnelHost, local_port=self.tunnelPort, remote_port=self.tunnelRemotePort)
+	def openTunnel(self, host, port):
+		self.tunnelThread = SSHForwarder(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=host, local_port=self.tunnelPort, remote_port=port)
 		self.tunnelThread.start()
 
 	def closeTunnel(self):
@@ -61,25 +68,12 @@ class SshSqlDatabase(QSqlDatabase):
 			self.tunnelThread = None
 
 	def escapeTableName(self, tableName):
-		return self.driver().escapeIdentifier(tableName, QSqlDriver.TableName)
+		return "`%s`" % tableName
 
-	def confirmQuery(self, sql, query=None):
+	def confirmQuery(self, sql):
 		if QMessageBox.question(QApplication.activeWindow(), "Query confirmation request", "%s\nAre you sure?" % sql, QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
-			if query is None:
-				query = QSqlQuery( sql, self )
-			if not query.exec_() and query.lastError().isValid():
-				QMessageBox.critical(QApplication.activeWindow(), "Query result", query.lastError().databaseText())
-
-	def verify(self):
-		if not self.isOpen():
-			return False
-		q = QSqlQuery("SELECT 1", self)
-		return q.exec_()
-
-	def recordToDict(self, record):
-		res = {}
-		for i in range(record.count()):
-			field = record.field(i)
-			type = field.type()
-			res[ str(field.name()) ] = field.value()
-		return res
+			db = self.connection().cursor()
+			try:
+				db.execute(sql)
+			except _mysql_exception.ProgrammingError as (errno, errmsg):
+				QMessageBox.critical(QApplication.activeWindow(), "Query result", errmsg)
