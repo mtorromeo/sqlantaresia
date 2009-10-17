@@ -93,7 +93,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.toolBarConnection.insertWidget( self.actionGo, QLabel("Connection string:") )
 		self.toolBarConnection.insertWidget( self.actionGo, self.cmbConnection )
 
-		QObject.connect(self.actionAbout_Qt, SIGNAL("triggered()"),  QApplication.aboutQt)
+		QObject.connect(self.actionAboutQt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
 	def closeEvent(self, event):
 		self.db.close()
@@ -201,14 +201,14 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.cmbConnection.setEditText("")
 
 	@pyqtSignature("")
-	def on_actionAbout_SQLAntaresia_triggered(self):
+	def on_actionAboutSQLAntaresia_triggered(self):
 		QMessageBox.about(self, "About SQL Antaresia", u"SQL Antaresia is a MySQL administrative tool aimed at developers and sysadmins.\n\n© 2009 Massimiliano Torromeo")
 
 	def on_tabsWidget_tabCloseRequested(self, index):
 		self.tabsWidget.removeTab( index )
 
 	@pyqtSignature("")
-	def on_actionConfigure_Connections_triggered(self):
+	def on_actionConfigureConnections_triggered(self):
 		dialog = Connections(self, self.configuredConnections)
 		dialog.exec_()
 		for section in self.config.sections():
@@ -230,7 +230,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				self.config.write(configfile)
 
 	@pyqtSignature("")
-	def on_actionNew_Query_Tab_triggered(self):
+	def on_actionNewQueryTab_triggered(self):
 		if len(self.treeView.selectedIndexes()) > 0:
 			idx = self.treeView.selectedIndexes()[0]
 			if type(idx.internalPointer()) is DatabaseTreeItem:
@@ -252,14 +252,15 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		self.menuTable.clear()
 
 		if type(modelIndex.internalPointer()) is DatabaseTreeItem:
-			self.menuTable.addAction( self.actionNew_Query_Tab )
-			self.menuTable.addAction( self.actionDrop_Database )
+			self.menuTable.addAction( self.actionNewQueryTab )
+			self.menuTable.addAction( self.actionDropDatabase )
 
 		if type(modelIndex.internalPointer()) is TableTreeItem:
-			self.menuTable.addAction( self.actionOptimize_Table )
-			self.menuTable.addAction( self.actionRepair_Table )
-			self.menuTable.addAction( self.actionTruncate_Table )
-			self.menuTable.addAction( self.actionDrop_Table )
+			self.menuTable.addAction( self.actionShowCreate )
+			self.menuTable.addAction( self.actionOptimizeTable )
+			self.menuTable.addAction( self.actionRepairTable )
+			self.menuTable.addAction( self.actionTruncateTable )
+			self.menuTable.addAction( self.actionDropTable )
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
@@ -273,14 +274,33 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
 			try:
 				self.db.connection().cursor().execute("\n".join(queries))
-			except _mysqlexceptions.ProgrammingError as (errno, errmsg):
+			except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 				QMessageBox.critical(self, "Query result", errmsg)
 			else:
 				return True
 		return False
 
 	@pyqtSignature("")
-	def on_actionDrop_Database_triggered(self):
+	def on_actionShowCreate_triggered(self):
+		if len(self.treeView.selectedIndexes()) > 0:
+			idx = self.treeView.selectedIndexes()[0]
+			if type(idx.internalPointer()) is TableTreeItem:
+				dbName = idx.parent().internalPointer().getName()
+				tableName = idx.internalPointer().getName()
+				
+				try:
+					cursor = self.db.connection().cursor()
+					cursor.execute("SHOW CREATE TABLE `%s`.`%s`;" % (dbName, tableName))
+					row = cursor.fetchone()
+					create = row[1]
+				except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+					QMessageBox.critical(self, "Query result", errmsg)
+				
+				index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
+				self.tabsWidget.setCurrentIndex(index)
+
+	@pyqtSignature("")
+	def on_actionDropDatabase_triggered(self):
 		queries = []
 		for idx in self.treeView.selectedIndexes():
 			if type(idx.internalPointer()) is DatabaseTreeItem:
@@ -289,25 +309,25 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
 			try:
 				self.db.connection().cursor().execute("\n".join(queries))
-			except _mysqlexceptions.ProgrammingError as (errno, errmsg):
+			except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 				QMessageBox.critical(self, "Query result", errmsg)
 			self.refreshTreeView()
 
 	@pyqtSignature("")
-	def on_actionDrop_Table_triggered(self):
+	def on_actionDropTable_triggered(self):
 		if self.queryOnSelectedTables("DROP TABLE %s.%s;"):
 			self.refreshTreeView()
 
 	@pyqtSignature("")
-	def on_actionTruncate_Table_triggered(self):
+	def on_actionTruncateTable_triggered(self):
 		self.queryOnSelectedTables("TRUNCATE TABLE %s.%s;")
 
 	@pyqtSignature("")
-	def on_actionOptimize_Table_triggered(self):
+	def on_actionOptimizeTable_triggered(self):
 		self.queryOnSelectedTables("OPTIMIZE TABLE %s.%s;")
 
 	@pyqtSignature("")
-	def on_actionRepair_Table_triggered(self):
+	def on_actionRepairTable_triggered(self):
 		self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
 
 

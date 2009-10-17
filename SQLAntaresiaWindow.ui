@@ -59,7 +59,7 @@
      <x>0</x>
      <y>0</y>
      <width>803</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -79,18 +79,18 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="actionAbout_SQLAntaresia"/>
-    <addaction name="actionAbout_Qt"/>
+    <addaction name="actionAboutSQLAntaresia"/>
+    <addaction name="actionAboutQt"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
     <property name="title">
      <string>&amp;Settings</string>
     </property>
-    <addaction name="actionShow_Databases"/>
-    <addaction name="actionShow_Statusbar"/>
+    <addaction name="actionShowDatabases"/>
+    <addaction name="actionShowStatusbar"/>
     <addaction name="separator"/>
-    <addaction name="actionConfigure_Connections"/>
-    <addaction name="actionConfigure_SQLAntaresia"/>
+    <addaction name="actionConfigureConnections"/>
+    <addaction name="actionConfigureSQLAntaresia"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Server"/>
@@ -141,7 +141,7 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionRefresh_Table_List">
+  <action name="actionRefreshTableList">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/view-refresh.png</normaloff>:/16/view-refresh.png</iconset>
@@ -150,7 +150,7 @@
     <string>Refresh Table List</string>
    </property>
   </action>
-  <action name="actionRefresh_Databases">
+  <action name="actionRefreshDatabases">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/view-refresh.png</normaloff>:/16/view-refresh.png</iconset>
@@ -159,7 +159,7 @@
     <string>Refresh Databases</string>
    </property>
   </action>
-  <action name="actionDrop_Table">
+  <action name="actionDropTable">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/edit-delete.png</normaloff>:/16/edit-delete.png</iconset>
@@ -168,7 +168,7 @@
     <string>Drop Table</string>
    </property>
   </action>
-  <action name="actionClose_Tab">
+  <action name="actionCloseTab">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/tab-close.png</normaloff>:/16/tab-close.png</iconset>
@@ -180,7 +180,7 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionShow_Statusbar">
+  <action name="actionShowStatusbar">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -191,7 +191,7 @@
     <string>Show St&amp;atusbar</string>
    </property>
   </action>
-  <action name="actionConfigure_SQLAntaresia">
+  <action name="actionConfigureSQLAntaresia">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -203,7 +203,7 @@
     <string>Configure &amp;SQL Antaresia</string>
    </property>
   </action>
-  <action name="actionConfigure_Connections">
+  <action name="actionConfigureConnections">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/configure.png</normaloff>:/16/configure.png</iconset>
@@ -212,7 +212,7 @@
     <string>Configure &amp;Connections</string>
    </property>
   </action>
-  <action name="actionAbout_SQLAntaresia">
+  <action name="actionAboutSQLAntaresia">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/32/kexi.png</normaloff>:/32/kexi.png</iconset>
@@ -221,7 +221,7 @@
     <string>About SQL Antaresia</string>
    </property>
   </action>
-  <action name="actionAbout_Qt">
+  <action name="actionAboutQt">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/64/qtlogo.png</normaloff>:/64/qtlogo.png</iconset>
@@ -242,7 +242,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionShow_Databases">
+  <action name="actionShowDatabases">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -253,7 +253,7 @@
     <string>Show &amp;Databases</string>
    </property>
   </action>
-  <action name="actionDrop_Database">
+  <action name="actionDropDatabase">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/edit-delete.png</normaloff>:/16/edit-delete.png</iconset>
@@ -283,7 +283,7 @@
     <string>&amp;Disconnect</string>
    </property>
   </action>
-  <action name="actionTruncate_Table">
+  <action name="actionTruncateTable">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/edit-delete.png</normaloff>:/16/edit-delete.png</iconset>
@@ -292,7 +292,7 @@
     <string>Truncate Table</string>
    </property>
   </action>
-  <action name="actionNew_Query_Tab">
+  <action name="actionNewQueryTab">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/tab-new.png</normaloff>:/16/tab-new.png</iconset>
@@ -301,12 +301,12 @@
     <string>&amp;New Query Tab</string>
    </property>
   </action>
-  <action name="actionOptimize_Table">
+  <action name="actionOptimizeTable">
    <property name="text">
     <string>Optimize Table</string>
    </property>
   </action>
-  <action name="actionRepair_Table">
+  <action name="actionRepairTable">
    <property name="text">
     <string>Repair Table</string>
    </property>
@@ -318,6 +318,15 @@
    </property>
    <property name="text">
     <string>Go</string>
+   </property>
+  </action>
+  <action name="actionShowCreate">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/document-properties.png</normaloff>:/16/document-properties.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Create</string>
    </property>
   </action>
  </widget>
@@ -347,7 +356,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionShow_Statusbar</sender>
+   <sender>actionShowStatusbar</sender>
    <signal>triggered(bool)</signal>
    <receiver>statusBar</receiver>
    <slot>setVisible(bool)</slot>
@@ -363,7 +372,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionShow_Databases</sender>
+   <sender>actionShowDatabases</sender>
    <signal>triggered(bool)</signal>
    <receiver>dockWidget</receiver>
    <slot>setVisible(bool)</slot>
@@ -381,7 +390,7 @@
   <connection>
    <sender>dockWidget</sender>
    <signal>visibilityChanged(bool)</signal>
-   <receiver>actionShow_Databases</receiver>
+   <receiver>actionShowDatabases</receiver>
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
