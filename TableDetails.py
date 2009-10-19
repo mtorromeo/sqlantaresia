@@ -36,7 +36,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 	def refreshInfo(self):
 		sysLocale = QLocale.system()
 
-		db = self.db.dbpool.connection().cursor()
+		db = self.db.connection().cursor()
 		db.execute("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s", (self.dbName, self.tableName))
 		result = db.fetchone()
 		#TODO: Localize dates

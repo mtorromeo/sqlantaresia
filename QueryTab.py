@@ -25,18 +25,24 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 		fgColor = QColor(190,190,190,255)
 		bgColor = QColor(30,36,38,255)
 		black = QColor(0,0,0,255)
+		comment = QColor(101,103,99,255)
 		
 		self.lexer.setDefaultColor(fgColor)
 		self.lexer.setColor(fgColor, self.lexer.Default)
-		self.lexer.setColor(QColor(101,103,99,255), self.lexer.Comment)
-		self.lexer.setColor(QColor(101,103,99,255), self.lexer.CommentLine)
+		self.lexer.setColor(comment, self.lexer.Comment)
+		self.lexer.setColor(comment, self.lexer.CommentLine)
+		self.lexer.setColor(comment, self.lexer.CommentDoc)
 		self.lexer.setColor(QColor(204,33,33,255), self.lexer.Number)
 		self.lexer.setColor(QColor(114,160,207,255), self.lexer.Keyword)
 		self.lexer.setColor(QColor(139,226,51,255), self.lexer.DoubleQuotedString)
 		self.lexer.setColor(QColor(139,226,51,255), self.lexer.SingleQuotedString)
 		self.lexer.setColor(QColor(252,163,61,255), self.lexer.PlusKeyword)
+		self.lexer.setColor(fgColor, self.lexer.Operator)
 		self.lexer.setColor(fgColor, self.lexer.Identifier)
-		self.lexer.setColor(QColor(101,103,99,255), self.lexer.PlusComment)
+		self.lexer.setColor(comment, self.lexer.PlusComment)
+		self.lexer.setColor(comment, self.lexer.CommentLineHash)
+		self.lexer.setColor(comment, self.lexer.CommentDocKeyword)
+		self.lexer.setColor(comment, self.lexer.CommentDocKeywordError)
 		self.lexer.setPaper(bgColor)
 		self.lexer.setDefaultPaper(bgColor)
 		self.txtQuery.setCaretForegroundColor(fgColor)
@@ -66,11 +72,10 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 		try:
 			queryModel.select()
 			self.tableQueryResult.setModel( queryModel )
-			#TODO: show affected rows
-			"""if queryModel.query().isSelect():
-				self.labelQueryError.setText("%d rows returned" % queryModel.query().size())
+			if self.txtQuery.text().strip().lower().startswith('select'):
+				self.labelQueryError.setText("%d rows returned" % queryModel.cursor.rowcount)
 			else:
-				self.labelQueryError.setText("%d rows affected" % queryModel.query().numRowsAffected())"""
+				self.labelQueryError.setText("%d rows affected" % queryModel.cursor.rowcount)
 			self.tableQueryResult.resizeColumnsToContents()
 		except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 			self.labelQueryError.setText( errmsg )

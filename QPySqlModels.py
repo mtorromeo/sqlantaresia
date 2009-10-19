@@ -9,19 +9,16 @@ class QPySelectModel(QAbstractTableModel):
 
 	def __init__(self, parent, db):
 		QAbstractTableModel.__init__(self, parent)
-		self.db = db.connection().cursor(cursorclass=SSCursor)
+		self.cursor = db.connection().cursor(cursorclass=SSCursor)
 	
 	def __del__(self):
-		self.db.close()
-	
-	def cursor(self):
-		return self.db
+		self.cursor.close()
 	
 	def select(self):
 		self.__rows = []
 		if self.__statement is not None:
-			self.db.execute(self.__statement)
-			for row in self.db.fetchall():
+			self.cursor.execute(self.__statement)
+			for row in self.cursor.fetchall():
 				self.__rows.append(row)
 	
 	def setSelect(self, statement):
@@ -31,7 +28,7 @@ class QPySelectModel(QAbstractTableModel):
 		return len(self.__rows)
 	
 	def columnCount(self, parent):
-		return 0 if self.db.description is None else len(self.db.description)
+		return 0 if self.cursor.description is None else len(self.cursor.description)
 	
 	def data(self, index, role):
 		if len(self.__rows)==0 or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self.__rows) or index.column()>=len(self.__rows[index.row()]):
@@ -44,7 +41,7 @@ class QPySelectModel(QAbstractTableModel):
 			return None
 		
 		try:
-			return self.db.description[section][0]
+			return self.cursor.description[section][0]
 		except:
 			return None
 
