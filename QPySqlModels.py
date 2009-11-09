@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import SIGNAL, QAbstractTableModel, Qt
 
-from MySQLdb.cursors import SSCursor
+#from MySQLdb.cursors import SSCursor
 
 class QPySelectModel(QAbstractTableModel):
 	__rows = []
@@ -9,7 +9,8 @@ class QPySelectModel(QAbstractTableModel):
 
 	def __init__(self, parent, db):
 		QAbstractTableModel.__init__(self, parent)
-		self.cursor = db.connection().cursor(cursorclass=SSCursor)
+		#self.cursor = db.connection().cursor(cursorclass=SSCursor)
+		self.cursor = db.connection().cursor()
 	
 	def __del__(self):
 		self.cursor.close()

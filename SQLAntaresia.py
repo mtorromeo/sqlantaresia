@@ -264,16 +264,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
-	def queryOnSelectedTables(self, queryTpl):
+	def queryOnSelectedTables(self, queryTpl, listTables=False):
 		queries = []
 		for idx in self.treeView.selectedIndexes():
 			if idx.parent().internalPointer() is not None:
 				dbName = idx.parent().internalPointer().getName()
 				tableName = idx.internalPointer().getName()
-				queries.append( queryTpl % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
-		if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+				if listTables:
+					queries.append( "%s.%s" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+				else:
+					queries.append( queryTpl % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+		if listTables:
+			query = queryTpl % (", ".join(queries))
+		else:
+			query = "\n".join(queries)
+		queryDesc = query if len(query)<500 else query[0:250] + "\n[...]\n" + query[-250:]
+		if QMessageBox.question(self, "Confirmation request", queryDesc+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
 			try:
-				self.db.connection().cursor().execute("\n".join(queries))
+				self.db.connection().cursor().execute(query)
 			except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 				QMessageBox.critical(self, "Query result", errmsg)
 			else:
@@ -287,7 +295,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			if type(idx.internalPointer()) is TableTreeItem:
 				dbName = idx.parent().internalPointer().getName()
 				tableName = idx.internalPointer().getName()
-				
+
 				try:
 					cursor = self.db.connection().cursor()
 					cursor.execute("SHOW CREATE TABLE `%s`.`%s`;" % (dbName, tableName))
@@ -295,7 +303,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 					create = row[1]
 				except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 					QMessageBox.critical(self, "Query result", errmsg)
-				
+
 				index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
 				self.tabsWidget.setCurrentIndex(index)
 
@@ -324,7 +332,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 	@pyqtSignature("")
 	def on_actionOptimizeTable_triggered(self):
-		self.queryOnSelectedTables("OPTIMIZE TABLE %s.%s;")
+		self.queryOnSelectedTables("OPTIMIZE TABLE %s;", listTables=True)
 
 	@pyqtSignature("")
 	def on_actionRepairTable_triggered(self):
