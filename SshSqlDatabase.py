@@ -15,14 +15,14 @@ class SshSqlDatabase():
 	useTunnel = False
 	tunnelThread = None
 	dbpool = None
-	__host = ""
-	__port = 3306
-	__user = ""
-	__passwd = ""
-	
+	_host = ""
+	_port = 3306
+	_user = ""
+	_passwd = ""
+
 	def connection(self):
 		return self.dbpool.connection()
-	
+
 	def setDatabase(self, database):
 		return self.connection().cursor().execute("USE `%s`" % database)
 
@@ -34,27 +34,27 @@ class SshSqlDatabase():
 
 	def disableTunnel(self):
 		self.useTunnel = False
-	
+
 	def isOpen(self):
 		return self.dbpool is not None
 
 	def open(self, host, user, passwd, port=3306):
-		self.__host = host
-		self.__port = port
-		self.__user = user
-		self.__passwd = passwd
+		self._host = host
+		self._port = port
+		self._user = user
+		self._passwd = passwd
 		if self.useTunnel and self.tunnelThread is None:
 			self.openTunnel(host, port)
 			host = "127.0.0.1"
 			port = self.tunnelPort
-		self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=user, passwd=passwd, charset="utf8", use_unicode=True)
+		self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=user, passwd=passwd, charset="utf8", use_unicode=True, setsession=['SET AUTOCOMMIT = 1'])
 
 	def close(self):
 		self.closeTunnel()
 
 	def reconnect(self):
 		self.close()
-		self.open(self.__host, self.__user, self.__passwd, self.__port)
+		self.open(self._host, self._user, self._passwd, self._port)
 
 	def openTunnel(self, host, port):
 		self.tunnelThread = SSHForwarder(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=host, local_port=self.tunnelPort, remote_port=port)
