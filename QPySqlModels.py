@@ -35,7 +35,8 @@ class QPySelectModel(QAbstractTableModel):
 		if len(self._rows)==0 or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
 			return None
 
-		return str(self._rows[index.row()][index.column()])
+		data = self._rows[index.row()][index.column()]
+		return "NULL" if data is None else str(data)
 
 	def headerData(self, section, orientation, role):
 		if role != Qt.DisplayRole or orientation == Qt.Vertical:
