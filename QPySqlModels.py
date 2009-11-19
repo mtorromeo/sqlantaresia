@@ -4,8 +4,8 @@ from PyQt4.QtCore import SIGNAL, QAbstractTableModel, Qt
 #from MySQLdb.cursors import SSCursor
 
 class QPySelectModel(QAbstractTableModel):
-	__rows = []
-	__statement = None
+	_rows = []
+	_statement = None
 
 	def __init__(self, parent, db):
 		QAbstractTableModel.__init__(self, parent)
@@ -16,26 +16,26 @@ class QPySelectModel(QAbstractTableModel):
 		self.cursor.close()
 
 	def select(self):
-		self.__rows = []
-		if self.__statement is not None:
-			self.cursor.execute(self.__statement)
+		self._rows = []
+		if self._statement is not None:
+			self.cursor.execute(self._statement)
 			for row in self.cursor.fetchall():
-				self.__rows.append(row)
+				self._rows.append(row)
 
 	def setSelect(self, statement):
-		self.__statement = statement
+		self._statement = statement
 
 	def rowCount(self, parent):
-		return len(self.__rows)
+		return len(self._rows)
 
 	def columnCount(self, parent):
 		return 0 if self.cursor.description is None else len(self.cursor.description)
 
 	def data(self, index, role):
-		if len(self.__rows)==0 or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self.__rows) or index.column()>=len(self.__rows[index.row()]):
+		if len(self._rows)==0 or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
 			return None
 
-		return self.__rows[index.row()][index.column()]
+		return str(self._rows[index.row()][index.column()])
 
 	def headerData(self, section, orientation, role):
 		if role != Qt.DisplayRole or orientation == Qt.Vertical:
@@ -47,18 +47,18 @@ class QPySelectModel(QAbstractTableModel):
 			return None
 
 class QPyTableModel(QPySelectModel):
-	__tableName = None
-	__filter = ""
+	_tableName = None
+	_filter = ""
 
 	def setTable(self, tableName):
-		self.__tableName = tableName
+		self._tableName = tableName
 
 	def setFilter(self, where=""):
-		self.__filter = where
+		self._filter = where
 
 	def select(self):
-		statement = "SELECT * FROM `%s`" % self.__tableName
-		if self.__filter != "":
-			statement += " WHERE %s" % self.__filter
+		statement = "SELECT * FROM `%s`" % self._tableName
+		if self._filter != "":
+			statement += " WHERE %s" % self._filter
 		self.setSelect(statement)
 		QPySelectModel.select(self)
