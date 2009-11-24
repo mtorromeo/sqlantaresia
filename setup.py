@@ -8,4 +8,4 @@ setup(name="sqlantaresia",
 	url="http://code.google.com/p/sqlantaresia/",
 	license="MIT License",
 	windows=[{"script": "SQLAntaresia.py"}],
-	options={"py2exe": {"skip_archive": True, "includes": ["sip", "PyQt4.QtSql"]}})
+	options={"py2exe": {"skip_archive": True, "includes": ["sip"]}})
