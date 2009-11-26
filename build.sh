@@ -1,4 +1,5 @@
 #!/bin/sh
+cd src
 for qrc in *.qrc; do
 	pyrcc4 "$qrc" -o "$(basename "$qrc" ".qrc")_rc.py"
 done
