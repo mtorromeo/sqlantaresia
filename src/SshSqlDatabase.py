@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QApplication
 
 import MySQLdb
 import _mysql_exceptions
@@ -74,5 +74,5 @@ class SshSqlDatabase():
 			db = self.connection().cursor()
 			try:
 				db.execute(sql)
-			except _mysql_exception.ProgrammingError as (errno, errmsg):
+			except _mysql_exceptions.ProgrammingError as (errno, errmsg):
 				QMessageBox.critical(QApplication.activeWindow(), "Query result", errmsg)

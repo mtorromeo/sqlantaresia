@@ -5,9 +5,9 @@ import sip
 sip.setapi("QString", 2)
 sip.setapi("QVariant", 2)
 
-import sys, re, ConfigParser, os, time, socket, _mysql_exceptions
-from PyQt4.QtCore import Qt, QObject, SIGNAL, pyqtSignature, QModelIndex
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox,  QDialog, QMenu, QComboBox, QIcon, QLabel
+import sys, re, ConfigParser, os, socket, _mysql_exceptions
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
 
 import warnings
 warnings.filterwarnings("ignore", ".*sha module is deprecated.*", DeprecationWarning)
@@ -130,7 +130,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 				password = "" if m[1] is None else m[1]
 				host = m[2]
 				port = 3306 if m[3] is None else int(m[3])
-				database = m[4]
+				#database = m[4]
 
 				if self.initDB(username, host, port, password):
 					self.statusBar.showMessage("Connected.", 10000)

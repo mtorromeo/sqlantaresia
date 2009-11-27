@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import SIGNAL, QAbstractTableModel, Qt
+from PyQt4.QtCore import QAbstractTableModel, Qt
 
 #from MySQLdb.cursors import SSCursor
 
@@ -36,7 +36,7 @@ class QPySelectModel(QAbstractTableModel):
 			return None
 
 		data = self._rows[index.row()][index.column()]
-		return "NULL" if data is None else str(data)
+		return "NULL" if data is None else unicode(data)
 
 	def headerData(self, section, orientation, role):
 		if role != Qt.DisplayRole or orientation == Qt.Vertical:

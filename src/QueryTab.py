@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import QTabWidget, QColor, QFont
-from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
-from PyQt4.Qsci import QsciScintilla, QsciScintillaBase, QsciLexerSQL
+from PyQt4.QtCore import pyqtSignature
+from PyQt4.Qsci import QsciScintilla, QsciLexerSQL
 from QPySqlModels import QPySelectModel
 import _mysql_exceptions
 

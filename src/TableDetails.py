@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, QLocale, QObject, SIGNAL, pyqtSignature
+from PyQt4.QtCore import SIGNAL, QLocale, QObject, pyqtSignature
 
 from QPySqlModels import *
 import _mysql_exceptions

@@ -1,9 +1,9 @@
-import paramiko, select, socket, SocketServer
+import paramiko, select, SocketServer
 from threading import Thread
 
 class ForwardServer(SocketServer.ThreadingTCPServer):
-    daemon_threads = True
-    allow_reuse_address = True
+	daemon_threads = True
+	allow_reuse_address = True
 
 class Handler(SocketServer.BaseRequestHandler):
 	def handle(self):
