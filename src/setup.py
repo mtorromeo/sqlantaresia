@@ -35,8 +35,12 @@ elif sys.platform == 'win32':
 	py2exe.build_exe.isSystemDLL = isSystemDLL
 	
 	extra_options = dict(
-		windows=[{"script": mainscript}],
+		windows=[{
+			"script": mainscript,
+			"icon_resources": [(0, "kexi.ico")]
+		}],
 		options={"py2exe": {
+			"optimize": 2,
 			"skip_archive": True,
 			"includes": ["sip"]
 		}}
