@@ -10,7 +10,7 @@ Usage (Mac OS X):
 Usage (Windows):
     python setup.py py2exe
 """
-import sys
+import sys, os
 from setuptools import setup
 
 mainscript = 'SQLAntaresia.py'
@@ -21,12 +21,20 @@ if sys.platform == 'darwin':
 		app=[mainscript],
 		options={"py2app": {
 			"argv_emulation": True,
-			"includes": ["PyQt4._qt"]
+			"includes": ["sip", "PyQt4.QtCore", "PyQt4.QtGui", "PyQt4.Qsci"]
 		}},
 	)
 elif sys.platform == 'win32':
+	import py2exe
+	
+	origIsSystemDLL = py2exe.build_exe.isSystemDLL
+	def isSystemDLL(pathname):
+		if os.path.basename(pathname).lower() == "msvcp90.dll":
+			return 0
+		return origIsSystemDLL(pathname)
+	py2exe.build_exe.isSystemDLL = isSystemDLL
+	
 	extra_options = dict(
-		setup_requires=['py2exe'],
 		windows=[{"script": mainscript}],
 		options={"py2exe": {
 			"skip_archive": True,
