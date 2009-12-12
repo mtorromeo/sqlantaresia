@@ -7,7 +7,7 @@ sip.setapi("QVariant", 2)
 
 import sys, re, ConfigParser, os, socket, _mysql_exceptions
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QFont
 
 import warnings
 warnings.filterwarnings("ignore", ".*sha module is deprecated.*", DeprecationWarning)
@@ -24,6 +24,7 @@ except Exception, e:
 	print e
 
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
+from SettingsDialog import SettingsDialog
 from Connections import Connections
 from TableDetails import TableDetails
 from QueryTab import QueryTab
@@ -51,6 +52,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
 		self.config = ConfigParser.ConfigParser()
 		self.config.read([self.configFilename])
+		
+		self.editorFont = QFont()
+		self.editorFont.fromString('Monospace,12,-1,5,50,0,0,0,0,0')
 
 		self.configuredConnections = {}
 		for connectionName in self.config.sections():
@@ -228,6 +232,18 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			self.config.set(connection, "tunnelPassword", self.configuredConnections[connection]["tunnelPassword"])
 			with open(self.configFilename, "wb") as configfile:
 				self.config.write(configfile)
+	
+	@pyqtSignature("")
+	def on_actionConfigureSQLAntaresia_triggered(self):
+		d = SettingsDialog()
+		d.setEditorFont(self.editorFont)
+		if d.exec_():
+			self.editorFont = d.lblSelectedFont.font()
+			if "QueryEditor" not in self.config.sections():
+				self.config.add_section("QueryEditor")
+			self.config.set("QueryEditor", "font", self.editorFont.toString())
+			with open(self.configFilename, "wb") as configfile:
+				self.config.write(configfile)
 
 	@pyqtSignature("")
 	def on_actionNewQueryTab_triggered(self):
@@ -235,7 +251,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			idx = self.treeView.selectedIndexes()[0]
 			if type(idx.internalPointer()) is DatabaseTreeItem:
 				dbName = idx.internalPointer().getName()
-				index = self.tabsWidget.addTab( QueryTab(self.db, dbName), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
+				index = self.tabsWidget.addTab( QueryTab(self.db, dbName, font=self.editorFont), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
 				self.tabsWidget.setCurrentIndex(index)
 
 	def on_treeView_activated(self, modelIndex):
@@ -243,7 +259,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 			dbName = modelIndex.parent().internalPointer().getName()
 			tableName = modelIndex.internalPointer().getName()
 
-			index = self.tabsWidget.addTab( TableDetails(self.db, dbName, tableName), QIcon(":/16/table.png"), "%s.%s" % (dbName, tableName) )
+			index = self.tabsWidget.addTab( TableDetails(self.db, dbName, tableName, font=self.editorFont), QIcon(":/16/table.png"), "%s.%s" % (dbName, tableName) )
 			self.tabsWidget.setCurrentIndex(index)
 
 	def on_treeView_customContextMenuRequested(self, point):

@@ -8,7 +8,7 @@ import _mysql_exceptions
 from Ui_QueryWidget import Ui_QueryWidget
 
 class QueryTab(QTabWidget, Ui_QueryWidget):
-	def __init__(self, db, dbName, query="SHOW TABLES"):
+	def __init__(self, db, dbName, query="SHOW TABLES", font=QFont("fixed")):
 		QTabWidget.__init__(self)
 
 		self.db = db
@@ -18,9 +18,9 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 		
 		self.lexer = QsciLexerSQL()
 		
-		self.lexer.setDefaultFont(QFont("fixed"))
-		self.lexer.setFont(QFont("fixed"))
-		self.txtQuery.setMarginsFont(QFont("fixed"))
+		self.lexer.setDefaultFont(font)
+		self.lexer.setFont(font)
+		self.txtQuery.setMarginsFont(font)
 		
 		fgColor = QColor(190,190,190,255)
 		bgColor = QColor(30,36,38,255)
