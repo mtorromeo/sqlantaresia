@@ -1,5 +1,7 @@
 .*
 !.gitignore
+*.pyc
+*.pyo
 Ui_*.py
 /build
 /dist
