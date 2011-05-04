@@ -253,7 +253,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             idx = self.treeView.selectedIndexes()[0]
             if type(idx.internalPointer()) is DatabaseTreeItem:
                 dbName = idx.internalPointer().getName()
-                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, font=self.editorFont), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, font=self.editorFont), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
@@ -261,7 +261,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             dbName = modelIndex.parent().internalPointer().getName()
             tableName = modelIndex.internalPointer().getName()
 
-            index = self.tabsWidget.addTab( TableDetails(self.db, dbName, tableName), QIcon(":/16/table.png"), "%s.%s" % (dbName, tableName) )
+            index = self.tabsWidget.addTab( TableDetails(self.db, dbName, tableName), QIcon(":/16/icons/table.png"), "%s.%s" % (dbName, tableName) )
             self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_customContextMenuRequested(self, point):
@@ -322,7 +322,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 except _mysql_exceptions.ProgrammingError as (errno, errmsg):
                     QMessageBox.critical(self, "Query result", errmsg)
 
-                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create, font=self.editorFont), QIcon(":/16/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create, font=self.editorFont), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

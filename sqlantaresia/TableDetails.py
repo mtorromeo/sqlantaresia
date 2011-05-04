@@ -85,7 +85,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         where = self.txtWhere.text()
         if where == "":
             where = "1"
-        index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE %s" % (self.db.escapeTableName(self.tableName), where) ), QtGui.QIcon(":/16/db.png"), "Query on %s" % (self.dbName) )
+        index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE %s" % (self.db.escapeTableName(self.tableName), where) ), QtGui.QIcon(":/16/icons/db.png"), "Query on %s" % (self.dbName) )
         self.window().tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

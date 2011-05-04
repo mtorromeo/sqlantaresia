@@ -87,7 +87,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/db.png")
+        return QtGui.QImage(":/16/icons/db.png")
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db):
@@ -123,7 +123,7 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/system-users.png")
+        return QtGui.QImage(":/16/icons/system-users.png")
 
 
 class DatabaseTreeItem(BaseTreeItem):
@@ -155,7 +155,7 @@ class DatabaseTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/db.png")
+        return QtGui.QImage(":/16/icons/db.png")
 
 class TableTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db, name):
@@ -174,7 +174,7 @@ class TableTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/table.png")
+        return QtGui.QImage(":/16/icons/table.png")
 
 class PrivilegeTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db, name):
@@ -193,7 +193,7 @@ class PrivilegeTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/user-properties.png")
+        return QtGui.QImage(":/16/icons/user-properties.png")
 
 class DBMSTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, parent=None, db=None):
