@@ -54,8 +54,8 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
     def refreshData(self):
         self.db.setDatabase(self.dbName)
-        #TODO: Implement a limit for the results
         self.tableModel.setFilter( self.txtWhere.text() )
+        self.tableModel.setLimit( self.txtLimit.text() )
         try:
             self.tableModel.select()
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):
@@ -83,9 +83,22 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     @pyqtSignature("")
     def on_btnEditQuery_clicked(self):
         where = self.txtWhere.text()
-        if where == "":
+        if not where:
             where = "1"
-        index = self.window().tabsWidget.addTab( QueryTab(db=self.db, dbName=self.dbName, query="SELECT * FROM %s WHERE %s" % (self.db.escapeTableName(self.tableName), where) ), QtGui.QIcon(":/16/icons/db.png"), "Query on %s" % (self.dbName) )
+        limit = int( self.txtLimit.text() )
+        if limit:
+            limit = " LIMIT %d" % limit
+        else:
+            limit = ""
+        index = self.window().tabsWidget.addTab(
+            QueryTab(
+                db = self.db,
+                dbName = self.dbName,
+                query = "SELECT * FROM %s WHERE %s%s" % (self.db.escapeTableName(self.tableName), where, limit)
+            ),
+            QtGui.QIcon(":/16/icons/db.png"),
+            "Query on %s" % (self.dbName)
+        )
         self.window().tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

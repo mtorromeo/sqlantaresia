@@ -48,8 +48,11 @@ class QPySelectModel(QAbstractTableModel):
             return None
 
 class QPyTableModel(QPySelectModel):
-    _tableName = None
-    _filter = ""
+    def __init__(self, parent, db):
+        QPySelectModel.__init__(self, parent, db)
+        _tableName = None
+        _filter = ""
+        _limit = 0
 
     def setTable(self, tableName):
         self._tableName = tableName
@@ -57,9 +60,14 @@ class QPyTableModel(QPySelectModel):
     def setFilter(self, where=""):
         self._filter = where
 
+    def setLimit(self, limit=0):
+        self._limit = int(limit)
+
     def select(self):
         statement = "SELECT * FROM `%s`" % self._tableName
-        if self._filter != "":
+        if self._filter:
             statement += " WHERE %s" % self._filter
+        if self._limit:
+            statement += " LIMIT %d" % self._limit
         self.setSelect(statement)
         QPySelectModel.select(self)
