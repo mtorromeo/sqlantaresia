@@ -13,7 +13,7 @@ Usage (Windows):
 import sys, os
 from setuptools import setup
 
-mainscript = 'sqlantaresia/SQLAntaresia.py'
+mainscript = 'bin/sqlantaresia'
 
 if sys.platform == 'darwin':
     extra_options = dict(

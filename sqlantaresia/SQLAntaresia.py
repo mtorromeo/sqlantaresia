@@ -363,8 +363,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = SQLAntaresia()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
