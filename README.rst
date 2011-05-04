@@ -44,7 +44,10 @@ CHANGELOG
 
 New in version 0.2
 ''''''''''''''''''
+* Implemented query limit in the data tab (default: 1000)
+* Local port auto selection of the SSH tunnel (when local port = 0)
 * Better database error handling and reporting
+* Secured random number generator in SSH tunnels
 
 LICENSE
 -------
