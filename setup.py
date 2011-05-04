@@ -13,7 +13,7 @@ Usage (Windows):
 import sys, os
 from setuptools import setup
 
-mainscript = 'SQLAntaresia.py'
+mainscript = 'sqlantaresia/SQLAntaresia.py'
 
 if sys.platform == 'darwin':
     extra_options = dict(
@@ -46,16 +46,31 @@ elif sys.platform == 'win32':
         }}
     )
 else:
-    extra_options = dict(
-        scripts=[mainscript],
-    )
+    extra_options = {}
 
 setup(
-    name="sqlantaresia",
-    version="0.1",
-    author="Massimiliano Torromeo",
-    author_email="massimiliano.torromeo@gmail.com",
-    url="http://code.google.com/p/sqlantaresia/",
-    license="MIT License",
+    name = "sqlantaresia",
+    packages = ["sqlantaresia"],
+    scripts = [mainscript],
+    version = "0.1",
+    author = "Massimiliano Torromeo",
+    author_email = "massimiliano.torromeo@gmail.com",
+    url = "http://code.google.com/p/sqlantaresia/",
+    keywords = ["qt", "pyqt", "desktop", "mysql"],
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "License :: OSI Approved :: MIT License",
+        "Environment :: X11 Applications :: Qt",
+        "Intended Audience :: System Administrators",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: POSIX :: BSD",
+        "Natural Language :: English",
+        "Topic :: Utilities"
+    ],
+    license = "MIT License",
     **extra_options
 )
