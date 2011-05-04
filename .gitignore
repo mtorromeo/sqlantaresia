@@ -5,5 +5,5 @@
 Ui_*.py
 /build
 /dist
-/sqlantaresia.egg-info
+/SQLAntaresia.egg-info
 /sqlantaresia/icons_rc.py

@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
-import sip
-sip.setapi("QString", 2)
-sip.setapi("QVariant", 2)
 
 import sys, re, ConfigParser, os, socket, _mysql_exceptions
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QFont
-
-import warnings
-warnings.filterwarnings("ignore", ".*sha module is deprecated.*", DeprecationWarning)
-warnings.filterwarnings("ignore", ".*md5 module is deprecated.*", DeprecationWarning)
 
 try:
     import paramiko
@@ -361,14 +354,3 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionRepairTable_triggered(self):
         self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
-
-
-def main():
-    app = QApplication(sys.argv)
-    window = SQLAntaresia()
-    window.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

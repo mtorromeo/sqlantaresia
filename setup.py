@@ -10,6 +10,9 @@ Usage (Mac OS X):
 Usage (Windows):
     python setup.py py2exe
 """
+
+# Include sqlantaresia application first to force sip api version 2
+from sqlantaresia import application
 import sys, os
 from setuptools import setup
 
@@ -49,13 +52,15 @@ else:
     extra_options = {}
 
 setup(
-    name = "sqlantaresia",
+    name = application.name,
     packages = ["sqlantaresia"],
     scripts = [mainscript],
-    version = "0.1",
+    version = application.version,
+    description = application.description,
     author = "Massimiliano Torromeo",
     author_email = "massimiliano.torromeo@gmail.com",
-    url = "http://code.google.com/p/sqlantaresia/",
+    url = application.url,
+    download_url = "http://github.com/mtorromeo/sqlantaresia/tarball/v"+application.version,
     keywords = ["qt", "pyqt", "desktop", "mysql"],
     classifiers = [
         "Programming Language :: Python",
