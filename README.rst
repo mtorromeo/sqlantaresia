@@ -2,6 +2,8 @@ SQLAntaresia
 ============
 SQLAntaresia is a cross platform MySQL management tool aimed at both developers and system administrators with a simple user interface.
 
+.. image:: http://lh6.googleusercontent.com/_9wOQn-OcPic/SsTIN9vu7uI/AAAAAAAADpk/oe7JLAAS2aQ/s900/sqlantaresia-screenie.png
+
 .. contents::
 
 Installation
