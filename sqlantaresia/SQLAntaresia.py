@@ -46,22 +46,22 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.config = ConfigParser.ConfigParser()
         self.config.read([self.configFilename])
 
-        self.editorFont = QFont()
-        self.editorFont.fromString('Monospace,12,-1,5,50,0,0,0,0,0')
+        QueryTab.font.fromString( self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0') )
 
         self.configuredConnections = {}
         for connectionName in self.config.sections():
-            connection = {}
-            connection["username"] = self.getConf(connectionName, "username", self.login)
-            connection["password"] = self.getConf(connectionName, "password", "")
-            connection["host"] = self.getConf(connectionName, "host", "localhost")
-            connection["port"] = self.getConfInt(connectionName, "port", 3306)
-            connection["database"] = self.getConf(connectionName, "database", "")
-            connection["useTunnel"] = self.getConfBool(connectionName, "useTunnel", False)
-            connection["tunnelPort"] = self.getConfInt(connectionName, "tunnelPort", 0)
-            connection["tunnelUsername"] = self.getConf(connectionName, "tunnelUsername", self.login)
-            connection["tunnelPassword"] = self.getConf(connectionName, "tunnelPassword", "")
-            self.configuredConnections[connectionName] = connection
+            if connectionName[0] != "@":
+                connection = {}
+                connection["username"] = self.getConf(connectionName, "username", self.login)
+                connection["password"] = self.getConf(connectionName, "password", "")
+                connection["host"] = self.getConf(connectionName, "host", "localhost")
+                connection["port"] = self.getConfInt(connectionName, "port", 3306)
+                connection["database"] = self.getConf(connectionName, "database", "")
+                connection["useTunnel"] = self.getConfBool(connectionName, "useTunnel", False)
+                connection["tunnelPort"] = self.getConfInt(connectionName, "tunnelPort", 0)
+                connection["tunnelUsername"] = self.getConf(connectionName, "tunnelUsername", self.login)
+                connection["tunnelPassword"] = self.getConf(connectionName, "tunnelPassword", "")
+                self.configuredConnections[connectionName] = connection
 
         self.db = SshSqlDatabase()
 
@@ -216,9 +216,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionConfigureConnections_triggered(self):
         dialog = Connections(self, self.configuredConnections)
         dialog.exec_()
+
         for section in self.config.sections():
-            if section not in self.configuredConnections:
+            if section[0] != "@" and section not in self.configuredConnections:
                 self.config.remove_section(section)
+
         for connection in self.configuredConnections:
             if connection not in self.config.sections():
                 self.config.add_section(connection)
@@ -231,18 +233,19 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.config.set(connection, "tunnelPort", self.configuredConnections[connection]["tunnelPort"])
             self.config.set(connection, "tunnelUsername", self.configuredConnections[connection]["tunnelUsername"])
             self.config.set(connection, "tunnelPassword", self.configuredConnections[connection]["tunnelPassword"])
-            with open(self.configFilename, "wb") as configfile:
-                self.config.write(configfile)
+
+        with open(self.configFilename, "wb") as configfile:
+            self.config.write(configfile)
 
     @pyqtSignature("")
     def on_actionConfigureSQLAntaresia_triggered(self):
         d = SettingsDialog()
-        d.setEditorFont(self.editorFont)
+        d.setEditorFont(QueryTab.font)
         if d.exec_():
-            self.editorFont = d.lblSelectedFont.font()
-            if "QueryEditor" not in self.config.sections():
-                self.config.add_section("QueryEditor")
-            self.config.set("QueryEditor", "font", self.editorFont.toString())
+            QueryTab.font = d.lblSelectedFont.font()
+            if "@QueryEditor" not in self.config.sections():
+                self.config.add_section("@QueryEditor")
+            self.config.set("@QueryEditor", "font", QueryTab.font.toString())
             with open(self.configFilename, "wb") as configfile:
                 self.config.write(configfile)
 
@@ -252,7 +255,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             idx = self.treeView.selectedIndexes()[0]
             if type(idx.internalPointer()) is DatabaseTreeItem:
                 dbName = idx.internalPointer().getName()
-                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, font=self.editorFont), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(self.db, dbName), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
@@ -321,7 +324,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 except _mysql_exceptions.ProgrammingError as (errno, errmsg):
                     QMessageBox.critical(self, "Query result", errmsg)
 
-                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create, font=self.editorFont), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

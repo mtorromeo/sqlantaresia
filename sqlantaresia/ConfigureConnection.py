@@ -46,6 +46,12 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
                 check[0].setFocus()
                 return
 
+        if self.txtName.text()[0] == "@":
+            QMessageBox.warning(self, "Data validation error", "Invalid connection name")
+            self.txtName.selectAll()
+            self.txtName.setFocus()
+            return
+
         port = int(self.txtPort.text())
         if port <=0 or port > 65535:
             QMessageBox.warning(self, "Data validation error", "The specified port for the connection is invalid")
