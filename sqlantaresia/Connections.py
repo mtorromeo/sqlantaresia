@@ -32,7 +32,7 @@ class Connections(QDialog, Ui_ConnectionsDialog):
             "username": "root",
             "password": "",
             "useTunnel": False,
-            "tunnelPort": 3306,
+            "tunnelPort": 0,
             "tunnelUsername": None,
             "tunnelPassword": None
         }
