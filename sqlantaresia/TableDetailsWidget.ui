@@ -22,7 +22,7 @@
   <widget class="QWidget" name="tabStructure">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/schema.png</normaloff>:/16/schema.png</iconset>
+     <normaloff>:/16/icons/schema.png</normaloff>:/16/icons/schema.png</iconset>
    </attribute>
    <attribute name="title">
     <string>Structure</string>
@@ -50,7 +50,7 @@
   <widget class="QWidget" name="tabData">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/table.png</normaloff>:/16/table.png</iconset>
+     <normaloff>:/16/icons/table.png</normaloff>:/16/icons/table.png</iconset>
    </attribute>
    <attribute name="title">
     <string>Data</string>
@@ -78,7 +78,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/view-refresh.png</normaloff>:/16/view-refresh.png</iconset>
+          <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
         </property>
        </widget>
       </item>
@@ -89,7 +89,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/db.png</normaloff>:/16/db.png</iconset>
+          <normaloff>:/16/icons/db.png</normaloff>:/16/icons/db.png</iconset>
         </property>
        </widget>
       </item>
@@ -143,7 +143,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/edit-undo.png</normaloff>:/16/edit-undo.png</iconset>
+          <normaloff>:/16/icons/edit-undo.png</normaloff>:/16/icons/edit-undo.png</iconset>
         </property>
         <property name="shortcut">
          <string>Ctrl+Z</string>
@@ -160,7 +160,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/dialog-ok-apply.png</normaloff>:/16/dialog-ok-apply.png</iconset>
+          <normaloff>:/16/icons/dialog-ok-apply.png</normaloff>:/16/icons/dialog-ok-apply.png</iconset>
         </property>
        </widget>
       </item>

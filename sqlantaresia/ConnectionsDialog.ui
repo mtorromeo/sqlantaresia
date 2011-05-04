@@ -41,7 +41,7 @@
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/16/list-add.png</normaloff>:/16/list-add.png</iconset>
+       <normaloff>:/16/icons/list-add.png</normaloff>:/16/icons/list-add.png</iconset>
      </property>
     </widget>
    </item>
@@ -52,7 +52,7 @@
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/16/document-properties.png</normaloff>:/16/document-properties.png</iconset>
+       <normaloff>:/16/icons/document-properties.png</normaloff>:/16/icons/document-properties.png</iconset>
      </property>
     </widget>
    </item>
@@ -63,7 +63,7 @@
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
-       <normaloff>:/16/list-remove.png</normaloff>:/16/list-remove.png</iconset>
+       <normaloff>:/16/icons/list-remove.png</normaloff>:/16/icons/list-remove.png</iconset>
      </property>
     </widget>
    </item>
