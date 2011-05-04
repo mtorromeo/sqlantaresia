@@ -16,10 +16,15 @@ url = "http://github.com/mtorromeo/sqlantaresia"
 
 
 def main():
+    import setproctitle
+    setproctitle.setproctitle("sqlantaresia")
+
     from PyQt4.QtGui import QApplication
     from SQLAntaresia import SQLAntaresia
 
     app = QApplication(sys.argv)
+    app.setApplicationName(name)
+
     window = SQLAntaresia()
     window.show()
     sys.exit(app.exec_())

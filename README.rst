@@ -26,6 +26,7 @@ SQLAntaresia is a **python 2.6+** application and it also depends upon the follo
 * mysql-python
 * dbutils
 * ConfigParser
+* setproctitle
 
 Build instructions
 ''''''''''''''''''
