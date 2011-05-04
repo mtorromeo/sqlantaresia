@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import _mysql_exceptions
 from PyQt4 import QtCore, QtGui
 
 class BaseTreeItem(object):
@@ -67,7 +68,6 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         db.execute("SHOW DATABASES")
         for row in db.fetchall():
             dblist.append( row[0] )
-        print dblist
         return dblist
 
     def refreshData(self):
@@ -138,12 +138,17 @@ class DatabaseTreeItem(BaseTreeItem):
     def refreshData(self):
         children = []
         db = self.db.connection().cursor()
-        db.execute("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
-        i = 0
-        for row in db.fetchall():
-            children.append( TableTreeItem( i, self, self.db, row[0] ) )
-            i = i+1
-        self.children = children
+        try:
+            db.execute("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
+            i = 0
+            for row in db.fetchall():
+                children.append( TableTreeItem( i, self, self.db, row[0] ) )
+                i = i+1
+        except _mysql_exceptions.OperationalError as e:
+            if e.args[0] != 1018: # Can't read dir
+                raise e
+        finally:
+            self.children = children
 
     def getParent(self):
         return self.parent
