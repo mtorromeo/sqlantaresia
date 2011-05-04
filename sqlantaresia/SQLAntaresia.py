@@ -179,6 +179,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         except _mysql_exceptions.OperationalError as (errno, errmsg):
             if errno == 2006:
                 self.lblConnectionStatus.setText("Status: Disconnected.")
+            else:
+                QMessageBox.critical(self, "Database error", str(errmsg))
 
     def disconnect(self):
         if self.db.isOpen():
