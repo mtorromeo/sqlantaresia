@@ -1,0 +1,6 @@
+.*
+!.gitignore
+Ui_*.py
+/build
+/dist
+/sqlantaresia/icons_rc.py
