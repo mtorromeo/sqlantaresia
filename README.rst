@@ -23,10 +23,10 @@ SQLAntaresia is a **python 2.6+** application and it also depends upon the follo
 
 * PyQt4 (4.6+)
 * paramiko
-* mysql-python
-* dbutils
-* ConfigParser
+* MySQL-python
+* DBUtils
 * setproctitle
+* PyCrypto (For unix only)
 
 Build instructions
 ''''''''''''''''''

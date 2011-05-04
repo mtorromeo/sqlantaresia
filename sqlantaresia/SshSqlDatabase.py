@@ -7,9 +7,9 @@ from DBUtils.PersistentDB import PersistentDB
 
 try:
     import paramiko
-    from tunnel import SSHForwarder
+    from tunnel import TunnelThread
 except ImportError:
-    SSHForwarder = None
+    TunnelThread = None
 
 class SshSqlDatabase():
     useTunnel = False
@@ -26,7 +26,7 @@ class SshSqlDatabase():
     def setDatabase(self, database):
         return self.connection().cursor().execute("USE `%s`" % database)
 
-    def enableTunnel(self, username, password, port=None):
+    def enableTunnel(self, username, password, port=0):
         self.useTunnel = True
         self.tunnelUsername = username
         self.tunnelPassword = password
@@ -46,7 +46,7 @@ class SshSqlDatabase():
         if self.useTunnel and self.tunnelThread is None:
             self.openTunnel(host, port)
             host = "127.0.0.1"
-            port = self.tunnelPort
+            port = self.tunnelThread.local_port
         self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=user, passwd=passwd, charset="utf8", use_unicode=True, setsession=['SET AUTOCOMMIT = 1'])
 
     def close(self):
@@ -57,7 +57,7 @@ class SshSqlDatabase():
         self.open(self._host, self._user, self._passwd, self._port)
 
     def openTunnel(self, host, port):
-        self.tunnelThread = SSHForwarder(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=host, local_port=self.tunnelPort, remote_port=port)
+        self.tunnelThread = TunnelThread(username=self.tunnelUsername, password=self.tunnelPassword, ssh_server=host, local_port=self.tunnelPort, remote_port=port)
         self.tunnelThread.start()
 
     def closeTunnel(self):

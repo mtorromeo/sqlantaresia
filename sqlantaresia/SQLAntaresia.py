@@ -8,12 +8,12 @@ from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QL
 
 try:
     import paramiko
-    from tunnel import SSHForwarder
+    from tunnel import TunnelThread
 except DeprecationWarning:
     pass
 except ImportError:
-    SSHForwarder = None
-except Exception, e:
+    TunnelThread = None
+except Exception as e:
     print e
 
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
@@ -58,7 +58,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             connection["port"] = self.getConfInt(connectionName, "port", 3306)
             connection["database"] = self.getConf(connectionName, "database", "")
             connection["useTunnel"] = self.getConfBool(connectionName, "useTunnel", False)
-            connection["tunnelPort"] = self.getConfInt(connectionName, "tunnelPort", 3306)
+            connection["tunnelPort"] = self.getConfInt(connectionName, "tunnelPort", 0)
             connection["tunnelUsername"] = self.getConf(connectionName, "tunnelUsername", self.login)
             connection["tunnelPassword"] = self.getConf(connectionName, "tunnelPassword", "")
             self.configuredConnections[connectionName] = connection
@@ -133,12 +133,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     self.statusBar.showMessage("Connected.", 10000)
                     #TODO: Se indirizzo valido, salvarlo nella history
 
-    def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=None, tunnelUsername=None, tunnelPassword=None):
+    def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=0, tunnelUsername=None, tunnelPassword=None):
         self.statusBar.showMessage("Connecting to %s..." % host)
         self.lblConnectedHost.setText("Host:")
         self.lblConnectionStatus.setText("Status: Connecting...")
 
-        if useTunnel and SSHForwarder is not None:
+        if useTunnel and TunnelThread is not None:
             self.db.enableTunnel(tunnelUsername, tunnelPassword, tunnelPort)
 
         result = False

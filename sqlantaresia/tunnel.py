@@ -1,5 +1,9 @@
 import paramiko, select, SocketServer
 from threading import Thread
+try:
+    import Crypto.Random as Random
+except ImportError:
+    Random = None
 
 class ForwardServer(SocketServer.ThreadingTCPServer):
     daemon_threads = True
@@ -10,14 +14,11 @@ class Handler(SocketServer.BaseRequestHandler):
         try:
             chan = self.ssh_transport.open_channel('direct-tcpip', (self.chain_host, self.chain_port), self.request.getpeername())
         except Exception, e:
-            #verbose('Incoming request to %s:%d failed: %s' % (self.chain_host, self.chain_port, repr(e)))
             return
 
         if chan is None:
-            #verbose('Incoming request to %s:%d was rejected by the SSH server.' % (self.chain_host, self.chain_port))
             return
 
-        #verbose('Connected! Tunnel open %r -> %r -> %r' % (self.request.getpeername(), chan.getpeername(), (self.chain_host, self.chain_port)))
         while True:
             r, w, x = select.select([self.request, chan], [], [])
             if self.request in r:
@@ -32,21 +33,12 @@ class Handler(SocketServer.BaseRequestHandler):
                 self.request.send(data)
         chan.close()
         self.request.close()
-        #verbose('Tunnel closed from %r' % (self.request.getpeername(),))
 
-def forward_tunnel(local_port, remote_host, remote_port, transport):
-    # this is a little convoluted, but lets me configure things for the Handler
-    # object. (SocketServer doesn't give Handlers any way to access the outer
-    # server normally.)
-    class SubHander(Handler):
-        chain_host = remote_host
-        chain_port = remote_port
-        ssh_transport = transport
-    ForwardServer(('', local_port), SubHander).serve_forever()
-
-class SSHForwarder(Thread):
-    def __init__(self, ssh_server, local_port, ssh_port=22, remote_host="localhost", remote_port=None, username=None, password=None):
+class TunnelThread(Thread):
+    def __init__(self, ssh_server, local_port=0, ssh_port=22, remote_host="localhost", remote_port=None, username=None, password=None):
         Thread.__init__(self)
+        if Random:
+            Random.atfork()
         if remote_port is None:
             remote_port = local_port
         self.local_port = local_port
@@ -60,11 +52,12 @@ class SSHForwarder(Thread):
 
         transport = self.ssh_client.get_transport()
 
-        class SubHander(Handler):
+        class SubHandler(Handler):
             chain_host = remote_host
             chain_port = remote_port
             ssh_transport = transport
-        self.ffwd_server = ForwardServer(('', self.local_port), SubHander)
+        self.ffwd_server = ForwardServer(('', self.local_port), SubHandler)
+        self.ip, self.local_port = self.ffwd_server.server_address
 
     def run(self):
         self.ffwd_server.serve_forever()
