@@ -15,8 +15,17 @@ Usage (Windows):
 from sqlantaresia import application
 import sys, os
 from setuptools import setup
+from PyQt4 import uic
+from glob import glob
 
 mainscript = 'bin/sqlantaresia'
+README = os.path.join(os.path.dirname(__file__), 'README.rst')
+
+# Programmatically compile the forms with the uic module, sadly this is not possible for icon resources
+for form in glob("sqlantaresia/*.ui"):
+    uif = "Ui_{0}.py".format( os.path.basename(form).rpartition('.')[0] )
+    with open(os.path.join("sqlantaresia", uif), "wb") as f:
+        uic.compileUi(form, f)
 
 if sys.platform == 'darwin':
     extra_options = dict(
@@ -55,8 +64,10 @@ setup(
     name = application.name,
     packages = ["sqlantaresia"],
     scripts = [mainscript],
+    requires = ["paramiko", "MySQL_python", "DBUtils", "setproctitle"],
     version = application.version,
     description = application.description,
+    long_description = open(README).read(),
     author = "Massimiliano Torromeo",
     author_email = "massimiliano.torromeo@gmail.com",
     url = application.url,
