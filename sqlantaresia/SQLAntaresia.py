@@ -5,6 +5,7 @@
 import re, ConfigParser, os, socket, _mysql_exceptions
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
+from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 try:
     import paramiko
@@ -68,6 +69,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         # Setup UI
         self.setupUi(self)
         self.tabsWidget.clear()
+        self.tabsWidget.setTabBar( QMiddleClickCloseTabBar() )
+        self.tabsWidget.setTabsClosable(True)
+        self.tabsWidget.setMovable(True)
 
         # StatusBar Widgets
         self.lblConnectedHost = QLabel("Host:")
