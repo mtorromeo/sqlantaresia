@@ -2,9 +2,9 @@
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
 
-import sys, re, ConfigParser, os, socket, _mysql_exceptions
+import re, ConfigParser, os, socket, _mysql_exceptions
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QFont
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
 
 try:
     import paramiko
@@ -22,7 +22,7 @@ from Connections import Connections
 from TableDetails import TableDetails
 from QueryTab import QueryTab
 from SshSqlDatabase import SshSqlDatabase
-from dbmodels import *
+from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def __init__(self):
@@ -302,7 +302,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         if QMessageBox.question(self, "Confirmation request", queryDesc+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.db.connection().cursor().execute(query)
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+            except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
             else:
                 return True
@@ -321,7 +321,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     cursor.execute("SHOW CREATE TABLE `%s`.`%s`;" % (dbName, tableName))
                     row = cursor.fetchone()
                     create = row[1]
-                except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+                except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                     QMessageBox.critical(self, "Query result", errmsg)
 
                 index = self.tabsWidget.addTab( QueryTab(self.db, dbName, query=create), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
@@ -337,7 +337,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.db.connection().cursor().execute("\n".join(queries))
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+            except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
             self.refreshTreeView()
 
