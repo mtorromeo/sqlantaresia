@@ -3,7 +3,7 @@
 # Depends: pyqt4, python-qscintilla, python-paramiko
 
 import re, ConfigParser, os, socket, _mysql_exceptions
-from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
@@ -47,8 +47,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.config = ConfigParser.ConfigParser()
         self.config.read([self.configFilename])
 
-        QueryTab.font.fromString( self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0') )
-
         self.configuredConnections = {}
         for connectionName in self.config.sections():
             if connectionName[0] != "@":
@@ -86,6 +84,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         # ContextMenu
         self.menuTable = QMenu(self.treeView)
 
+        # Saved settings
+        QueryTab.font.fromString( self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0') )
+        self.restoreGeometry( QByteArray.fromBase64( self.config.get("@MainWindow", "geometry") ) )
+
         # Connection string widget
         for connectionName in self.configuredConnections:
             self.cmbConnection.addItem(connectionName)
@@ -98,6 +100,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     def closeEvent(self, event):
         self.db.close()
+        if "@MainWindow" not in self.config.sections():
+            self.config.add_section("@MainWindow")
+        self.config.set("@MainWindow", "geometry", self.saveGeometry().toBase64())
+        with open(self.configFilename, "wb") as configfile:
+            self.config.write(configfile)
 
     def getConf(self, section, name, defValue=None):
         try:
