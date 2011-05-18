@@ -86,7 +86,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         # Saved settings
         QueryTab.font.fromString( self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0') )
-        self.restoreGeometry( QByteArray.fromBase64( self.config.get("@MainWindow", "geometry") ) )
+        if self.config.has_section("@MainWindow"):
+            self.restoreGeometry( QByteArray.fromBase64( self.config.get("@MainWindow", "geometry") ) )
 
         # Connection string widget
         for connectionName in self.configuredConnections:
