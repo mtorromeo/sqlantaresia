@@ -51,6 +51,7 @@ class TunnelThread(Thread):
         self.ssh_client.connect(ssh_server, ssh_port, username=username, password=password, look_for_keys=True)
 
         transport = self.ssh_client.get_transport()
+        transport.set_keepalive(30)
 
         class SubHandler(Handler):
             chain_host = remote_host
