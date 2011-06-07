@@ -97,6 +97,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.toolBarConnection.insertWidget( self.actionGo, QLabel("Connection string:") )
         self.toolBarConnection.insertWidget( self.actionGo, self.cmbConnection )
 
+        self.setTabOrder(self.cmbConnection, self.treeView)
+        self.setTabOrder(self.treeView, self.tabsWidget)
+        self.cmbConnection.lineEdit().selectAll()
+
         QObject.connect(self.actionAboutQt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
     def closeEvent(self, event):
