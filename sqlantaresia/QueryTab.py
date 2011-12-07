@@ -79,6 +79,6 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
             else:
                 self.labelQueryError.setText("%d rows affected" % queryModel.cursor.rowcount)
             self.tableQueryResult.resizeColumnsToContents()
-        except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError) as (errno, errmsg):
             self.labelQueryError.setText( errmsg )
 
