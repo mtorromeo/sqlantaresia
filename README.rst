@@ -51,7 +51,7 @@ New in version 0.2
 
 LICENSE
 -------
-Copyright (c) 2009-2011 Massimiliano Torromeo
+Copyright (c) 2009-2012 Massimiliano Torromeo
 
 SQLAntaresia is free software released under the terms of the MIT license.
 

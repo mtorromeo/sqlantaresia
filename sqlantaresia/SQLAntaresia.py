@@ -223,7 +223,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     @pyqtSignature("")
     def on_actionAboutSQLAntaresia_triggered(self):
-        QMessageBox.about(self, "About SQL Antaresia", u"SQL Antaresia is a MySQL administrative tool aimed at developers and sysadmins.\n\n© 2009 Massimiliano Torromeo")
+        QMessageBox.about(self, "About SQL Antaresia", u"SQL Antaresia is a MySQL administrative tool aimed at developers and sysadmins.\n\n© 2009-2012 Massimiliano Torromeo")
 
     def on_tabsWidget_tabCloseRequested(self, index):
         self.tabsWidget.removeTab( index )
