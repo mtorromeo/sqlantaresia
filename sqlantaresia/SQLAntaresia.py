@@ -188,9 +188,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         except _mysql_exceptions.OperationalError as (errno, errmsg):
             if errno in (1018, # Can't read dir
                          2003, 2006): # Can't connect to
-                print errno, errmsg
                 if errno >= 2000:
                     self.lblConnectionStatus.setText("Status: Disconnected.")
+                    QMessageBox.critical(self, "Connection error", str(errmsg))
             elif errno == 1045: # Access denied
                 self.disconnect()
                 QMessageBox.critical(self, "Database error", str(errmsg))
