@@ -326,6 +326,15 @@
     <string>Configure Connection</string>
    </property>
   </action>
+  <action name="actionRemoveConnection">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove Connection</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>

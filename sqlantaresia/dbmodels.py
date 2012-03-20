@@ -64,6 +64,9 @@ class BaseTreeItem(object):
             item = item.getParent()
         return item.connection if type(item) is ConnectionTreeItem else None
 
+    def __repr__(self):
+        return "<" + self.__class__.__name__ + " " + self.getName() + ">"
+
 class ConnectionTreeItem(BaseTreeItem):
     def __init__(self, row, model, name, connection):
         self.parent = model
@@ -271,6 +274,25 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
             raise e
         finally:
             self.reset()
+
+    def refresh(self):
+        present = []
+        for i, item in enumerate(self.roots):
+            name = item.getName()
+            if name not in self.connections:
+                del self.roots[i]
+            else:
+                present.append(name)
+
+        for i, item in enumerate(self.roots):
+            item.row = i
+
+        for name in self.connections:
+            if name not in present:
+                i = len(self.roots)
+                self.roots.append( ConnectionTreeItem(i, self, name, self.connections[name]) )
+
+        self.reset()
 
     def rowCount(self, parentIdx):
         if parentIdx.isValid():

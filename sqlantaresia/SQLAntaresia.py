@@ -183,7 +183,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionConfigureConnections_triggered(self):
         dialog = Connections(self, self.connections)
         dialog.exec_()
+        self.saveConfig()
 
+    def saveConfig(self):
         for section in self.config.sections():
             if section[0] != "@" and section not in self.connections:
                 self.config.remove_section(section)
@@ -265,6 +267,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         elif _type is ConnectionTreeItem:
             self.menuTable.addAction( self.actionConfigureConnection )
+            self.menuTable.addAction( self.actionRemoveConnection )
 
         self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
@@ -381,3 +384,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                         self.dbmsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
                         self.connections[configDialog.connection] = connection
                         del self.connections[name]
+
+    @pyqtSignature("")
+    def on_actionRemoveConnection_triggered(self):
+        if not self.treeView.selectedIndexes():
+            return
+
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.internalPointer()
+
+        if type(item) is not ConnectionTreeItem:
+            return
+
+        name = item.getName()
+        connection = item.getConnection()
+
+        if connection.isOpen():
+            connection.close()
+
+        del self.connections[name]
+        self.dbmsModel.refresh()
+        self.saveConfig()
