@@ -61,14 +61,6 @@
     </property>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menu_Server">
-    <property name="title">
-     <string>Se&amp;rver</string>
-    </property>
-    <addaction name="actionReconnect"/>
-    <addaction name="actionDisconnect"/>
-    <addaction name="actionRefresh"/>
-   </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
      <string>&amp;Help</string>
@@ -86,7 +78,6 @@
     <addaction name="actionConfigureSQLAntaresia"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Server"/>
    <addaction name="menu_Settings"/>
    <addaction name="menu_Help"/>
   </widget>
