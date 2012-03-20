@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import QAbstractTableModel, Qt
 
+import operator
+
 #from MySQLdb.cursors import SSCursor
 
 class QPySelectModel(QAbstractTableModel):
@@ -32,7 +34,7 @@ class QPySelectModel(QAbstractTableModel):
         return 0 if self.cursor.description is None else len(self.cursor.description)
 
     def data(self, index, role):
-        if len(self._rows)==0 or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
+        if not self._rows or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
             return None
 
         data = self._rows[index.row()][index.column()]
@@ -46,6 +48,11 @@ class QPySelectModel(QAbstractTableModel):
             return self.cursor.description[section][0]
         except:
             return None
+
+    def sort(self, ncol, order):
+        self.layoutAboutToBeChanged.emit()
+        self._rows = sorted(self._rows, key=operator.itemgetter(ncol), reverse=(order == Qt.DescendingOrder))
+        self.layoutChanged.emit()
 
 class QPyTableModel(QPySelectModel):
     def __init__(self, parent, db):
