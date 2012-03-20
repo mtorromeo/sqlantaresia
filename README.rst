@@ -42,6 +42,12 @@ There is a unix shell script in the root of the distribution package named *buil
 CHANGELOG
 ---------
 
+New in version 0.4
+''''''''''''''''''
+* Allow multiple connections to different servers at the same time
+* Reorganized application layout
+* Allow to specify the ssh port to connect to for the tunnel
+
 New in version 0.3
 ''''''''''''''''''
 * Refresh database/table list action
