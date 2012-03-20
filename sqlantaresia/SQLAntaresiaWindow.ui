@@ -100,24 +100,28 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
-      <widget class="QTreeView" name="treeView">
-       <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::ExtendedSelection</enum>
-       </property>
-       <property name="rootIsDecorated">
-        <bool>false</bool>
-       </property>
-       <property name="headerHidden">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QTreeView" name="treeView">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="headerHidden">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
   </widget>
   <action name="actionRefreshTableList">
@@ -323,7 +327,13 @@
      <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
    </property>
    <property name="text">
-    <string>Configure Connection</string>
+    <string>Configure server</string>
+   </property>
+   <property name="iconText">
+    <string>Configure server</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure server</string>
    </property>
   </action>
   <action name="actionRemoveConnection">
@@ -332,7 +342,28 @@
      <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
    </property>
    <property name="text">
-    <string>Remove Connection</string>
+    <string>Remove server</string>
+   </property>
+   <property name="iconText">
+    <string>Remove server</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove server</string>
+   </property>
+  </action>
+  <action name="actionAddConnection">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/list-add.png</normaloff>:/16/icons/list-add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add new server</string>
+   </property>
+   <property name="iconText">
+    <string>Add new server</string>
+   </property>
+   <property name="toolTip">
+    <string>Add new server</string>
    </property>
   </action>
  </widget>

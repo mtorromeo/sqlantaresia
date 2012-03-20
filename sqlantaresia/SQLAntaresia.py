@@ -9,8 +9,8 @@ import socket
 import _mysql_exceptions
 import paramiko
 
-from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray, Qt
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection
@@ -60,6 +60,19 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.tabsWidget.setTabBar( QMiddleClickCloseTabBar() )
         self.tabsWidget.setTabsClosable(True)
         self.tabsWidget.setMovable(True)
+
+        # Setup left dock with a new window with toolbar
+        dockWindow = QMainWindow(self.dockWidget)
+        dockWindow.setWindowFlags(Qt.Widget)
+        self.dockToolbar = QToolBar(dockWindow)
+        dockWindow.addToolBar(self.dockToolbar)
+        dockWindow.setCentralWidget(self.treeView)
+        self.dockWidget.setWidget(dockWindow)
+
+        # Dock toolbar
+        self.dockToolbar.addAction(self.actionConfigureConnection)
+        self.dockToolbar.addAction(self.actionAddConnection)
+        self.dockToolbar.addAction(self.actionRemoveConnection)
 
         # StatusBar Widgets
         self.lblConnectedHost = QLabel("Host:")
