@@ -399,6 +399,28 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                         del self.connections[name]
 
     @pyqtSignature("")
+    def on_actionAddConnection_triggered(self):
+        options = {
+            "host": "localhost",
+            "port": 3306,
+            "database": None,
+            "username": "root",
+            "password": "",
+            "use_tunnel": False,
+            "tunnel_port": 0,
+            "tunnel_username": None,
+            "tunnel_password": None
+        }
+
+        configDialog = ConfigureConnection(self, "", options)
+        if configDialog.exec_() == QDialog.Accepted:
+            name = configDialog.connection
+            if name not in self.connections:
+                self.connections[name] = SQLServerConnection( **options )
+                self.dbmsModel.refresh()
+                self.saveConfig()
+
+    @pyqtSignature("")
     def on_actionRemoveConnection_triggered(self):
         if not self.treeView.selectedIndexes():
             return
