@@ -4,6 +4,7 @@ from PyQt4.QtCore import pyqtSignature
 from PyQt4.Qsci import QsciScintilla, QsciLexerSQL
 from QPySqlModels import QPySelectModel
 import _mysql_exceptions
+import time
 
 from Ui_QueryWidget import Ui_QueryWidget
 
@@ -72,13 +73,17 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         queryModel = QPySelectModel(self, self.db)
         queryModel.setSelect( self.txtQuery.text() )
         try:
+            elapsed = time.clock()
             queryModel.select()
+            elapsed = time.clock() - elapsed
             self.tableQueryResult.setModel( queryModel )
             if self.txtQuery.text().strip().lower().startswith('select'):
                 self.labelQueryError.setText("%d rows returned" % queryModel.cursor.rowcount)
             else:
                 self.labelQueryError.setText("%d rows affected" % queryModel.cursor.rowcount)
+            self.labelQueryTime.setText("Query took %f sec" % elapsed)
             self.tableQueryResult.resizeColumnsToContents()
         except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError) as (errno, errmsg):
             self.labelQueryError.setText( errmsg )
+            self.labelQueryTime.setText("")
 
