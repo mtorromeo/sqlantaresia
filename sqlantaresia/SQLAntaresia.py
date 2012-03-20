@@ -69,9 +69,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.dockWidget.setWidget(dockWindow)
 
         # Dock toolbar
-        self.dockToolbar.addAction(self.actionConfigureConnection)
         self.dockToolbar.addAction(self.actionAddConnection)
         self.dockToolbar.addAction(self.actionRemoveConnection)
+        self.dockToolbar.addAction(self.actionConfigureConnection)
+        self.dockToolbar.addAction(self.actionRefresh)
+        self.dockToolbar.addSeparator()
+        self.dockToolbar.addAction(self.actionDisconnect)
+        self.dockToolbar.addAction(self.actionReconnect)
 
         # StatusBar Widgets
         self.lblConnectedHost = QLabel("Host:")
@@ -119,70 +123,23 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         except ConfigParser.NoSectionError: return defValue
         except ConfigParser.NoOptionError: return defValue
 
-    #def initDB(self, username, host="localhost", port=None, password=None, useTunnel=False, tunnelPort=0, tunnelUsername=None, tunnelPassword=None):
-        #self.statusBar.showMessage("Connecting to %s..." % host)
-        #self.lblConnectedHost.setText("Host:")
-        #self.lblConnectionStatus.setText("Status: Connecting...")
+    @pyqtSignature("")
+    def on_actionRefresh_triggered(self):
+        self.dbmsModel.refresh()
 
-        #if useTunnel and TunnelThread is not None:
-            #self.db.enableTunnel(tunnelUsername, tunnelPassword, tunnelPort)
+    @pyqtSignature("")
+    def on_actionReconnect_triggered(self):
+        for idx in self.treeView.selectedIndexes():
+            item = idx.internalPointer()
+            connection = item.getConnection()
+            if connection.isOpen():
+                connection.reconnect()
 
-        #result = False
-        #try:
-            #self.db.open(host=host, user=username, passwd=password, port=port)
-            #result = True
-        #except (paramiko.BadHostKeyException, paramiko.AuthenticationException, socket.error) as e:
-            #QMessageBox.critical(self, "Connection error", str(e))
-
-        #if result:
-            #self.lblConnectedHost.setText("Host: %s@%s" % (username, host))
-            #self.lblConnectionStatus.setText("Status: Connected.")
-        #else:
-            #self.lblConnectionStatus.setText("Status: Disconnected.")
-
-        #self.refreshTreeView()
-        #return result
-
-    #def refreshTreeView(self):
-        #try:
-            #self.dbmsModel.setDB( self.db )
-
-            ## Auto expand root items
-            #i = 0
-            #invalid = QModelIndex()
-            #while self.dbmsModel.index(i,0,invalid).isValid():
-                #self.treeView.expand( self.dbmsModel.index(i,0,invalid) )
-                #i += 1
-        #except _mysql_exceptions.OperationalError as (errno, errmsg):
-            #if errno in (1018, # Can't read dir
-                         #2003, 2006): # Can't connect to
-                #if errno >= 2000:
-                    #self.lblConnectionStatus.setText("Status: Disconnected.")
-                    #QMessageBox.critical(self, "Connection error", str(errmsg))
-            #elif errno == 1045: # Access denied
-                #self.disconnect()
-                #QMessageBox.critical(self, "Database error", str(errmsg))
-            #else:
-                #QMessageBox.critical(self, "Database error", "[{0}] {1}".format(errno, errmsg))
-
-    #def disconnect(self):
-        #if self.db.isOpen():
-            #self.tabsWidget.clear()
-            #self.db.close()
-            #self.statusBar.showMessage("Disconnected.", 10000)
-            #self.refreshTreeView()
-
-    #@pyqtSignature("")
-    #def on_actionRefresh_triggered(self):
-        #self.refreshTreeView()
-
-    #@pyqtSignature("")
-    #def on_actionReconnect_triggered(self):
-        #self.db.reconnect()
-
-    #@pyqtSignature("")
-    #def on_actionDisconnect_triggered(self):
-        #self.disconnect()
+    @pyqtSignature("")
+    def on_actionDisconnect_triggered(self):
+        for idx in self.treeView.selectedIndexes():
+            item = idx.internalPointer()
+            item.getConnection().close()
 
     @pyqtSignature("")
     def on_actionAboutSQLAntaresia_triggered(self):
@@ -256,7 +213,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 QMessageBox.critical(self, "SSH connection", str(e))
 
     def on_treeView_customContextMenuRequested(self, point):
-        _type = type(self.treeView.currentIndex().internalPointer())
+        item = self.treeView.currentIndex().internalPointer()
+        _type = type(item)
 
         self.menuTable.clear()
 
@@ -274,6 +232,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         elif _type is ConnectionTreeItem:
             self.menuTable.addAction( self.actionConfigureConnection )
             self.menuTable.addAction( self.actionRemoveConnection )
+            if item.getConnection().isOpen():
+                self.menuTable.addSeparator()
+                self.menuTable.addAction(self.actionDisconnect)
+                self.menuTable.addAction(self.actionReconnect)
 
         self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
