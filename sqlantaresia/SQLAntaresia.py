@@ -170,21 +170,19 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         else:
             self.lblConnectionStatus.setText("Status: Disconnected.")
 
-        self.refreshTreeView(True)
+        self.refreshTreeView()
         return result
 
-    def refreshTreeView(self, reset=False):
+    def refreshTreeView(self):
         try:
-            if reset:
-                self.dbmsModel.setDB( self.db )
-                # Auto expand root items
-                i = 0
-                invalid = QModelIndex()
-                while self.dbmsModel.index(i,0,invalid).isValid():
-                    self.treeView.expand( self.dbmsModel.index(i,0,invalid) )
-                    i += 1
-            else:
-                self.dbmsModel.refresh()
+            self.dbmsModel.setDB( self.db )
+
+            # Auto expand root items
+            i = 0
+            invalid = QModelIndex()
+            while self.dbmsModel.index(i,0,invalid).isValid():
+                self.treeView.expand( self.dbmsModel.index(i,0,invalid) )
+                i += 1
         except _mysql_exceptions.OperationalError as (errno, errmsg):
             if errno in (1018, # Can't read dir
                          2003, 2006): # Can't connect to
@@ -202,7 +200,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.tabsWidget.clear()
             self.db.close()
             self.statusBar.showMessage("Disconnected.", 10000)
-            self.refreshTreeView(True)
+            self.refreshTreeView()
 
     @pyqtSignature("QString")
     def on_cmbConnection_activated(self, text):
@@ -211,6 +209,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionGo_triggered(self):
         self.connectToUrl( self.cmbConnection.lineEdit().text() )
+
+    @pyqtSignature("")
+    def on_actionRefresh_triggered(self):
+        self.refreshTreeView()
 
     @pyqtSignature("")
     def on_actionReconnect_triggered(self):

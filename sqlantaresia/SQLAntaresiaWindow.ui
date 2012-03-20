@@ -83,6 +83,7 @@
     </property>
     <addaction name="actionReconnect"/>
     <addaction name="actionDisconnect"/>
+    <addaction name="actionRefresh"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -277,7 +278,7 @@
      <normaloff>:/16/icons/network-connect.png</normaloff>:/16/icons/network-connect.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Reconnect</string>
+    <string>Re&amp;connect</string>
    </property>
   </action>
   <action name="actionDisconnect">
@@ -333,6 +334,18 @@
    </property>
    <property name="text">
     <string>Show Create</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Refresh</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
    </property>
   </action>
  </widget>
