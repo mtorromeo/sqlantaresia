@@ -16,7 +16,6 @@ from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 from ConfigureConnection import ConfigureConnection
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from SettingsDialog import SettingsDialog
-from Connections import Connections
 from TableDetails import TableDetails
 from QueryTab import QueryTab
 from connections import SQLServerConnection
@@ -191,12 +190,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     def on_tabsWidget_tabCloseRequested(self, index):
         self.tabsWidget.removeTab( index )
-
-    @pyqtSignature("")
-    def on_actionConfigureConnections_triggered(self):
-        dialog = Connections(self, self.connections)
-        dialog.exec_()
-        self.saveConfig()
 
     def saveConfig(self):
         for section in self.config.sections():

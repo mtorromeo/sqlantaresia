@@ -83,7 +83,6 @@
     <addaction name="actionShowDatabases"/>
     <addaction name="actionShowStatusbar"/>
     <addaction name="separator"/>
-    <addaction name="actionConfigureConnections"/>
     <addaction name="actionConfigureSQLAntaresia"/>
    </widget>
    <addaction name="menu_File"/>
