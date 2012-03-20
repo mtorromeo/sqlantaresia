@@ -42,6 +42,16 @@ There is a unix shell script in the root of the distribution package named *buil
 CHANGELOG
 ---------
 
+New in version 0.3
+''''''''''''''''''
+* Refresh database/table list action
+* Sortable columns in data view
+* Display query execution time
+* Implemented a ssh keepalive packet to avoid network timeouts
+* Save/Restore main windows geometry
+* Close tab with middle click
+* Several bugs fixed
+
 New in version 0.2
 ''''''''''''''''''
 * Implemented query limit in the data tab (default: 1000)
