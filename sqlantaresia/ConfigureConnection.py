@@ -19,14 +19,14 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
         self.txtUsername.setText( self.connectionOptions["username"] )
         self.txtPassword.setText( self.connectionOptions["password"] )
 
-        self.checkTunnel.setChecked( self.connectionOptions["useTunnel"] )
+        self.checkTunnel.setChecked( self.connectionOptions["use_tunnel"] )
 
-        if self.connectionOptions["tunnelPort"] is not None:
-            self.txtTunnelPort.setText( str(self.connectionOptions["tunnelPort"]) )
-        if self.connectionOptions["tunnelUsername"] is not None:
-            self.txtTunnelUsername.setText( self.connectionOptions["tunnelUsername"] )
-        if self.connectionOptions["tunnelPassword"] is not None:
-            self.txtTunnelPassword.setText( self.connectionOptions["tunnelPassword"] )
+        if self.connectionOptions["tunnel_port"] is not None:
+            self.txtTunnelPort.setText( str(self.connectionOptions["tunnel_port"]) )
+        if self.connectionOptions["tunnel_username"] is not None:
+            self.txtTunnelUsername.setText( self.connectionOptions["tunnel_username"] )
+        if self.connectionOptions["tunnel_password"] is not None:
+            self.txtTunnelPassword.setText( self.connectionOptions["tunnel_password"] )
 
         QObject.connect( self, SIGNAL("accepted()"), self.onAccept )
 
@@ -83,7 +83,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
         self.connectionOptions["database"] = self.txtDatabase.text()
         self.connectionOptions["username"] = self.txtUsername.text()
         self.connectionOptions["password"] = self.txtPassword.text()
-        self.connectionOptions["useTunnel"] = self.checkTunnel.isChecked()
-        self.connectionOptions["tunnelPort"] = int(self.txtTunnelPort.text())
-        self.connectionOptions["tunnelUsername"] = self.txtTunnelUsername.text()
-        self.connectionOptions["tunnelPassword"] = self.txtTunnelPassword.text()
+        self.connectionOptions["use_tunnel"] = self.checkTunnel.isChecked()
+        self.connectionOptions["tunnel_port"] = int(self.txtTunnelPort.text())
+        self.connectionOptions["tunnel_username"] = self.txtTunnelUsername.text()
+        self.connectionOptions["tunnel_password"] = self.txtTunnelPassword.text()

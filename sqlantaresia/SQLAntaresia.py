@@ -2,11 +2,18 @@
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
 
-import re, ConfigParser, os, socket, _mysql_exceptions
+import re
+import ConfigParser
+import os
+import socket
+import _mysql_exceptions
+import paramiko
+
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
+from ConfigureConnection import ConfigureConnection
 from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from SettingsDialog import SettingsDialog
 from Connections import Connections
@@ -41,9 +48,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     host = self.getConf(connectionName, "host", "localhost"),
                     port = self.getConfInt(connectionName, "port", 3306),
                     database = self.getConf(connectionName, "database", ""),
-                    use_tunnel = self.getConfBool(connectionName, "useTunnel", False),
-                    tunnel_username = self.getConf(connectionName, "tunnelUsername", None),
-                    tunnel_password = self.getConf(connectionName, "tunnelPassword", ""),
+                    use_tunnel = self.getConfBool(connectionName, "use_tunnel", False),
+                    tunnel_username = self.getConf(connectionName, "tunnel_username", None),
+                    tunnel_password = self.getConf(connectionName, "tunnel_password", ""),
+                    tunnel_port = self.getConfInt(connectionName, "tunnel_port", 22),
                 )
 
         # Setup UI
@@ -76,9 +84,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def closeEvent(self, event):
         for connectionName in self.connections:
             self.connections[connectionName].close()
+
         if "@MainWindow" not in self.config.sections():
             self.config.add_section("@MainWindow")
         self.config.set("@MainWindow", "geometry", self.saveGeometry().toBase64())
+
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
 
@@ -171,24 +181,26 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     @pyqtSignature("")
     def on_actionConfigureConnections_triggered(self):
-        dialog = Connections(self, self.configuredConnections)
+        dialog = Connections(self, self.connections)
         dialog.exec_()
 
         for section in self.config.sections():
-            if section[0] != "@" and section not in self.configuredConnections:
+            if section[0] != "@" and section not in self.connections:
                 self.config.remove_section(section)
 
-        for connection in self.configuredConnections:
-            if connection not in self.config.sections():
-                self.config.add_section(connection)
-            self.config.set(connection, "host", self.configuredConnections[connection]["host"])
-            self.config.set(connection, "port", self.configuredConnections[connection]["port"])
-            self.config.set(connection, "username", self.configuredConnections[connection]["username"])
-            self.config.set(connection, "password", self.configuredConnections[connection]["password"])
-            self.config.set(connection, "database", self.configuredConnections[connection]["database"])
-            self.config.set(connection, "useTunnel", self.configuredConnections[connection]["useTunnel"])
-            self.config.set(connection, "tunnelUsername", self.configuredConnections[connection]["tunnelUsername"])
-            self.config.set(connection, "tunnelPassword", self.configuredConnections[connection]["tunnelPassword"])
+        for name in self.connections:
+            if name not in self.config.sections():
+                self.config.add_section(name)
+            connection = self.connections[name]
+            self.config.set(name, "host", connection.host)
+            self.config.set(name, "port", connection.port)
+            self.config.set(name, "username", connection.username)
+            self.config.set(name, "password", connection.password)
+            self.config.set(name, "database", connection.database)
+            self.config.set(name, "use_tunnel", connection.use_tunnel)
+            self.config.set(name, "tunnel_username", connection.tunnel_username)
+            self.config.set(name, "tunnel_password", connection.tunnel_password)
+            self.config.set(name, "tunnel_port", connection.tunnel_port)
 
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
@@ -230,7 +242,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.tabsWidget.setCurrentIndex(index)
 
         elif _type is ConnectionTreeItem:
-            item.open()
+            try:
+                item.open()
+            except paramiko.SSHException as e:
+                QMessageBox.critical(self, "SSH connection", str(e))
 
     def on_treeView_customContextMenuRequested(self, point):
         _type = type(self.treeView.currentIndex().internalPointer())
@@ -247,6 +262,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.menuTable.addAction( self.actionRepairTable )
             self.menuTable.addAction( self.actionTruncateTable )
             self.menuTable.addAction( self.actionDropTable )
+
+        elif _type is ConnectionTreeItem:
+            self.menuTable.addAction( self.actionConfigureConnection )
 
         self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
@@ -325,3 +343,41 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionRepairTable_triggered(self):
         self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
+
+    @pyqtSignature("")
+    def on_actionConfigureConnection_triggered(self):
+        if self.treeView.selectedIndexes():
+            idx = self.treeView.selectedIndexes()[0]
+            item = idx.internalPointer()
+
+            if type(item) is ConnectionTreeItem:
+                name = item.getName()
+                connection = item.getConnection()
+                options = {
+                    "host": connection.host,
+                    "port": connection.port,
+                    "database": connection.database,
+                    "username": connection.username,
+                    "password": connection.password,
+                    "use_tunnel": connection.use_tunnel,
+                    "tunnel_port": connection.tunnel_port,
+                    "tunnel_username": connection.tunnel_username,
+                    "tunnel_password": connection.tunnel_password,
+                }
+
+                configDialog = ConfigureConnection(self, name, options)
+                if configDialog.exec_() == QDialog.Accepted:
+                    connection.host = options["host"]
+                    connection.port = options["port"]
+                    connection.database = options["database"]
+                    connection.username = options["username"]
+                    connection.password = options["password"]
+                    connection.use_tunnel = options["use_tunnel"]
+                    connection.tunnel_port = options["tunnel_port"]
+                    connection.tunnel_username = options["tunnel_username"]
+                    connection.tunnel_password = options["tunnel_password"]
+
+                    if name != configDialog.connection:
+                        self.dbmsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
+                        self.connections[configDialog.connection] = connection
+                        del self.connections[name]

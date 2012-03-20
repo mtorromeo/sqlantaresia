@@ -86,7 +86,7 @@ class SQLServerConnection(object):
     tunnel = None
     dbpool = None
 
-    def __init__(self, username = None, password = "", host = "localhost", port = 3306, database = "", use_tunnel = False, tunnel_username = None, tunnel_password = None):
+    def __init__(self, username = None, password = "", host = "localhost", port = 3306, database = "", use_tunnel = False, tunnel_username = None, tunnel_password = None, tunnel_port = 22):
         if username is None:
             try:
                 self.username = os.getlogin()
@@ -109,6 +109,7 @@ class SQLServerConnection(object):
 
         self.tunnel_username = tunnel_username
         self.tunnel_password = tunnel_password
+        self.tunnel_port = tunnel_port
 
     def connection(self):
         if not self.isOpen():
@@ -135,7 +136,7 @@ class SQLServerConnection(object):
 
     def open(self):
         if self.use_tunnel and self.tunnel is None:
-            self.tunnel = TunnelThread(username = self.tunnel_username, password = self.tunnel_password, ssh_server = self.host, remote_port = self.port)
+            self.tunnel = TunnelThread(username = self.tunnel_username, password = self.tunnel_password, ssh_server = self.host, ssh_port = self.tunnel_port, remote_port = self.port)
             self.tunnel.start()
             host = "127.0.0.1"
             port = self.tunnel.local_port

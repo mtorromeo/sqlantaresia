@@ -31,16 +31,18 @@ class Connections(QDialog, Ui_ConnectionsDialog):
             "database": None,
             "username": "root",
             "password": "",
-            "useTunnel": False,
-            "tunnelPort": 0,
-            "tunnelUsername": None,
-            "tunnelPassword": None
+            "use_tunnel": False,
+            "tunnel_port": 0,
+            "tunnel_username": None,
+            "tunnel_password": None
         }
         configDialog = ConfigureConnection(self, "", connectionOptions)
         if configDialog.exec_() == QDialog.Accepted:
-            self.connections[configDialog.connection] = connectionOptions
-            self.connectionsList.append(configDialog.connection)
-            self.refreshConnections()
+            name = configDialog.connection
+            if name not in self.connections:
+                self.connections[name] = SQLServerConnection( **connectionOptions )
+                self.connectionsList.append(name)
+                self.refreshConnections()
 
     @pyqtSignature("")
     def on_btnDel_clicked(self):
@@ -61,16 +63,38 @@ class Connections(QDialog, Ui_ConnectionsDialog):
     @pyqtSignature("")
     def on_btnProps_clicked(self):
         idx = self.listConnections.currentIndex()
-        connection = self.connectionsModel.data(idx, Qt.DisplayRole)
+        name = self.connectionsModel.data(idx, Qt.DisplayRole)
+        connection = self.connections[name]
+        options = {
+            "host": connection.host,
+            "port": connection.port,
+            "database": connection.database,
+            "username": connection.username,
+            "password": connection.password,
+            "use_tunnel": connection.use_tunnel,
+            "tunnel_port": connection.tunnel_port,
+            "tunnel_username": connection.tunnel_username,
+            "tunnel_password": connection.tunnel_password,
+        }
 
-        configDialog = ConfigureConnection(self, connection, self.connections[connection])
+        configDialog = ConfigureConnection(self, name, options)
         if configDialog.exec_() == QDialog.Accepted:
-            if connection != configDialog.connection:
+            connection.host = options["host"]
+            connection.port = options["port"]
+            connection.database = options["database"]
+            connection.username = options["username"]
+            connection.password = options["password"]
+            connection.use_tunnel = options["use_tunnel"]
+            connection.tunnel_port = options["tunnel_port"]
+            connection.tunnel_username = options["tunnel_username"]
+            connection.tunnel_password = options["tunnel_password"]
+
+            if name != configDialog.connection:
                     self.connectionsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
-                    self.connections[configDialog.connection] = self.connections[connection]
+                    self.connections[configDialog.connection] = connection
                     self.connectionsList.append(configDialog.connection)
-                    del self.connections[connection]
+                    del self.connections[name]
                     try:
-                        self.connectionsList.remove(connection)
+                        self.connectionsList.remove(name)
                     except ValueError: pass
                     self.refreshConnections()

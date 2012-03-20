@@ -317,6 +317,15 @@
     <string>F5</string>
    </property>
   </action>
+  <action name="actionConfigureConnection">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
+   </property>
+   <property name="text">
+    <string>Configure Connection</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
