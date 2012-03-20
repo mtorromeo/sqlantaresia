@@ -1,5 +1,6 @@
 <RCC>
-  <qresource prefix="16" >
+  <qresource prefix="16">
+    <file>icons/network-server-database.png</file>
     <file>icons/configure.png</file>
     <file>icons/system-run.png</file>
     <file>icons/system-users.png</file>
@@ -20,10 +21,10 @@
     <file>icons/table.png</file>
     <file>icons/view-refresh.png</file>
   </qresource>
-  <qresource prefix="64" >
+  <qresource prefix="64">
     <file>icons/qtlogo.png</file>
   </qresource>
-  <qresource prefix="32" >
+  <qresource prefix="32">
     <file>icons/kexi.png</file>
   </qresource>
 </RCC>

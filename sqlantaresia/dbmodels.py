@@ -52,6 +52,59 @@ class BaseTreeItem(object):
         """
         return 0
 
+    def getModel(self):
+        item = self
+        while item is not None and type(item) is not DBMSTreeModel:
+            item = item.parent
+        return item
+
+    def getConnection(self):
+        item = self
+        while item is not None and type(item) is not ConnectionTreeItem:
+            item = item.getParent()
+        return item.connection if type(item) is ConnectionTreeItem else None
+
+class ConnectionTreeItem(BaseTreeItem):
+    def __init__(self, row, model, name, connection):
+        self.parent = model
+        self.row = row
+        self.connection = connection
+        self.name = name
+        self.roots = []
+        self.refreshData()
+
+    def refreshData(self):
+        if self.connection.isOpen():
+            self.roots = [
+                EntityDatabasesTreeItem(0, self, self.connection),
+                EntityPrivilegesTreeItem(1, self, self.connection),
+            ]
+        else:
+            self.roots = []
+
+    def getParent(self):
+        return None
+
+    def getChildren(self):
+        return self.roots
+
+    def getRow(self):
+        return self.row
+
+    def getIcon(self, col):
+        if self.connection.isOpen():
+            return QtGui.QImage(":/16/icons/network-server-database.png")
+        else:
+            return QtGui.QImage(":/16/icons/network-disconnect.png")
+
+    def open(self):
+        if not self.connection.isOpen():
+            self.parent.layoutAboutToBeChanged.emit()
+            self.connection.open()
+            self.refreshData()
+            self.parent.layoutChanged.emit()
+
+
 class EntityDatabasesTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db):
         self.row = row
@@ -201,26 +254,23 @@ class PrivilegeTreeItem(BaseTreeItem):
         return QtGui.QImage(":/16/icons/user-properties.png")
 
 class DBMSTreeModel(QtCore.QAbstractItemModel):
-    def __init__(self, parent=None, db=None):
+    def __init__(self, parent=None, connections=None):
         QtCore.QAbstractItemModel.__init__(self, parent)
-        self.db = db
-        self.roots = []
+        self.setConnections(connections)
 
-    def setDB(self, db):
-        self.db = db
+    def setConnections(self, connections):
+        self.connections = connections
+        self.roots = []
         try:
-            self.roots = [
-                EntityDatabasesTreeItem(0, None, self.db),
-                EntityPrivilegesTreeItem(1, None, self.db)
-            ]
+            i = 0
+            for connectionName in self.connections:
+                self.roots.append( ConnectionTreeItem(i, self, connectionName, self.connections[connectionName]) )
+                i += 1
         except Exception as e:
             self.roots = []
             raise e
         finally:
             self.reset()
-
-    def refresh(self):
-        self.setDB(self.db)
 
     def rowCount(self, parentIdx):
         if parentIdx.isValid():
@@ -271,5 +321,5 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
 
     def headerData(self, col, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return "Databases"
+            return "Connections"
         return None
