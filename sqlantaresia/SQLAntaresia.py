@@ -362,7 +362,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             "username": "root",
             "password": "",
             "use_tunnel": False,
-            "tunnel_port": 0,
+            "tunnel_port": 22,
             "tunnel_username": None,
             "tunnel_password": None
         }
