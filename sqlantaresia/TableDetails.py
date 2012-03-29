@@ -3,6 +3,7 @@ from PyQt4 import QtGui
 from PyQt4.QtCore import SIGNAL, QLocale, QObject, pyqtSignature
 
 from QPySqlModels import *
+import MySQLdb
 import _mysql_exceptions
 from QueryTab import QueryTab
 
@@ -32,6 +33,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.refreshInfo()
         self.refreshData()
         self.refreshStructure()
+        self.refreshIndexes()
 
     def refreshInfo(self):
         sysLocale = QLocale.system()
@@ -75,6 +77,33 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             self.lblDataSubmitResult.setText( errmsg )
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
+
+    def refreshIndexes(self):
+        self.db.setDatabase(self.dbName)
+
+        db = self.db.connection().cursor( MySQLdb.cursors.DictCursor )
+        db.execute("SHOW INDEX FROM %s" % self.db.escapeTableName(self.tableName))
+        data = db.fetchall()
+
+        labels = ["Key", "Type", "Unique", "Column", "Cardinality", "Packed", "Collation", "Null", "Comment"]
+        modelIndexes = QtGui.QStandardItemModel(len(data), len(labels))
+
+        if data:
+            for n, row in enumerate(data):
+                modelIndexes.setItem(n, 0, QtGui.QStandardItem(row["Key_name"]))
+                modelIndexes.setItem(n, 1, QtGui.QStandardItem(row["Index_type"]))
+                modelIndexes.setItem(n, 2, QtGui.QStandardItem(str(not row["Non_unique"])))
+                modelIndexes.setItem(n, 3, QtGui.QStandardItem(row["Column_name"]))
+                modelIndexes.setItem(n, 4, QtGui.QStandardItem(str(row["Cardinality"])))
+                modelIndexes.setItem(n, 5, QtGui.QStandardItem("" if row["Packed"] is None else str(row["Packed"])))
+                modelIndexes.setItem(n, 6, QtGui.QStandardItem(row["Collation"]))
+                modelIndexes.setItem(n, 7, QtGui.QStandardItem(str(row["Null"])))
+                modelIndexes.setItem(n, 8, QtGui.QStandardItem(row["Comment"]))
+
+            modelIndexes.setHorizontalHeaderLabels( labels )
+
+        self.tableIndexes.setModel(modelIndexes)
+        self.tableIndexes.resizeColumnsToContents()
 
     def tableDataEdited(self):
         self.btnUndo.setEnabled(True)
