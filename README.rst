@@ -73,6 +73,8 @@ SQLAntaresia is free software released under the terms of the MIT license.
 
 See the LICENSE file provided with the source distribution for full details.
 
+This application uses icons from the `Farm-Fresh Web Icons <http://www.fatcow.com/free-icons>`_ icon set by FatCow Web Hosting and from the `Oxygen <http://www.oxygen-icons.org/>`_ icon set by David Vignoni.
+
 Contacts
 --------
 * Massimiliano Torromeo <massimiliano.torromeo@gmail.com>

@@ -16,7 +16,10 @@ class BaseTreeItem(object):
     def getName(self):
         return self.name
 
-    def getColumnData(self,col):
+    def getToolTip(self, col):
+        return None
+
+    def getColumnData(self, col):
         """ Return the data for a given column. """
         if 0 == col:
             return self.getName()
@@ -35,7 +38,7 @@ class BaseTreeItem(object):
     def getParent(self):
         raise NotImplementedError
 
-    def getIcon(self,col):
+    def getIcon(self, col):
         raise NotImplementedError
 
     def getRow(self):
@@ -96,9 +99,9 @@ class ConnectionTreeItem(BaseTreeItem):
 
     def getIcon(self, col):
         if self.connection.isOpen():
-            return QtGui.QImage(":/16/icons/network-server-database.png")
+            return QtGui.QImage(":/16/icons/database_server.png")
         else:
-            return QtGui.QImage(":/16/icons/network-disconnect.png")
+            return QtGui.QImage(":/16/icons/database_connect.png")
 
     def open(self):
         if not self.connection.isOpen():
@@ -143,7 +146,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/icons/db.png")
+        return QtGui.QImage(":/16/icons/database.png")
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db):
@@ -179,7 +182,7 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/icons/system-users.png")
+        return QtGui.QImage(":/16/icons/group.png")
 
 
 class DatabaseTreeItem(BaseTreeItem):
@@ -216,7 +219,7 @@ class DatabaseTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/icons/db.png")
+        return QtGui.QImage(":/16/icons/database.png")
 
 class TableTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db, name):
@@ -224,6 +227,9 @@ class TableTreeItem(BaseTreeItem):
         self.parent = parent
         self.db = db
         self.name = name
+
+    def getToolTip(self, col):
+        return "table"
 
     def getChildren(self):
         return []
@@ -235,7 +241,7 @@ class TableTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/icons/table.png")
+        return QtGui.QImage(":/16/icons/database_table.png")
 
 class PrivilegeTreeItem(BaseTreeItem):
     def __init__(self, row, parent, db, name):
@@ -254,7 +260,7 @@ class PrivilegeTreeItem(BaseTreeItem):
         return self.row
 
     def getIcon(self, col):
-        return QtGui.QImage(":/16/icons/user-properties.png")
+        return QtGui.QImage(":/16/icons/user.png")
 
 class DBMSTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, parent=None, connections=None):
@@ -307,10 +313,14 @@ class DBMSTreeModel(QtCore.QAbstractItemModel):
         if not index.isValid() or role is QtCore.Qt.EditRole:
             return None
 
+        item = index.internalPointer()
+
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.UserRole:
-            return index.internalPointer().getColumnData(index.column())
+            return item.getColumnData(index.column())
         elif role == QtCore.Qt.DecorationRole:
-            return index.internalPointer().getIcon(index.column())
+            return item.getIcon(index.column())
+        elif role == QtCore.Qt.ToolTipRole:
+            return item.getToolTip(index.column())
 
         return None
 

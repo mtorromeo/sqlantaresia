@@ -10,9 +10,6 @@
     <height>446</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>TabWidget</string>
-  </property>
   <property name="tabPosition">
    <enum>QTabWidget::West</enum>
   </property>
@@ -22,7 +19,7 @@
   <widget class="QWidget" name="tabStructure">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/schema.png</normaloff>:/16/icons/schema.png</iconset>
+     <normaloff>:/16/icons/layer_database.png</normaloff>:/16/icons/layer_database.png</iconset>
    </attribute>
    <attribute name="title">
     <string>Structure</string>
@@ -69,7 +66,7 @@
   <widget class="QWidget" name="tabData">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/table.png</normaloff>:/16/icons/table.png</iconset>
+     <normaloff>:/16/icons/database_table.png</normaloff>:/16/icons/database_table.png</iconset>
    </attribute>
    <attribute name="title">
     <string>Data</string>
@@ -117,7 +114,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
+          <normaloff>:/16/icons/database_refresh.png</normaloff>:/16/icons/database_refresh.png</iconset>
         </property>
        </widget>
       </item>
@@ -128,7 +125,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/db.png</normaloff>:/16/icons/db.png</iconset>
+          <normaloff>:/16/icons/database_edit.png</normaloff>:/16/icons/database_edit.png</iconset>
         </property>
        </widget>
       </item>

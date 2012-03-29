@@ -191,7 +191,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             if type(item) is DatabaseTreeItem:
                 dbName = item.getName()
 
-                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
@@ -203,7 +203,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             dbName = parent.getName()
             tableName = item.getName()
 
-            index = self.tabsWidget.addTab( TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/table.png"), "%s.%s" % (dbName, tableName) )
+            index = self.tabsWidget.addTab( TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName) )
             self.tabsWidget.setCurrentIndex(index)
 
         elif _type is ConnectionTreeItem:
@@ -281,7 +281,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                     QMessageBox.critical(self, "Query result", errmsg)
 
-                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/db.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

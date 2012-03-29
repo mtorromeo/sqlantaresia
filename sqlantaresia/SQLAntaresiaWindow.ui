@@ -22,7 +22,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
-    <normaloff>:/32/icons/kexi.png</normaloff>:/32/icons/kexi.png</iconset>
+    <normaloff>:/32/icons/server-database.png</normaloff>:/32/icons/server-database.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -197,7 +197,7 @@
   <action name="actionAboutSQLAntaresia">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/32/icons/kexi.png</normaloff>:/32/icons/kexi.png</iconset>
+     <normaloff>:/32/icons/server-database.png</normaloff>:/32/icons/server-database.png</iconset>
    </property>
    <property name="text">
     <string>About SQL Antaresia</string>

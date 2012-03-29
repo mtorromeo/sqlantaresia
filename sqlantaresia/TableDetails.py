@@ -129,7 +129,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
                 dbName = self.dbName,
                 query = "SELECT * FROM %s WHERE %s%s" % (self.db.escapeTableName(self.tableName), where, limit)
             ),
-            QtGui.QIcon(":/16/icons/db.png"),
+            QtGui.QIcon(":/16/icons/database_edit.png"),
             "Query on %s" % (self.dbName)
         )
         self.window().tabsWidget.setCurrentIndex(index)
