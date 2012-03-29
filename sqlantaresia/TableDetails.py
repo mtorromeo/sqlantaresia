@@ -18,6 +18,9 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableName = tableName
 
         self.setupUi(self)
+        self.tableStructure.verticalHeader().hide()
+        self.tableIndexes.verticalHeader().hide()
+
         self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.escapeTableName(self.tableName) )
         QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
