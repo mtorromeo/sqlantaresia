@@ -18,6 +18,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.dbName = dbName
 
         self.setupUi(self)
+        self.tableQueryResult.verticalHeader().hide()
 
         self.lexer = QsciLexerSQL()
 
