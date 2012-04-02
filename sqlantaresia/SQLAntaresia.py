@@ -209,8 +209,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         elif _type is ConnectionTreeItem:
             try:
                 item.open()
+            except _mysql_exceptions.OperationalError as (errnum, errmsg):
+                QMessageBox.critical(self, "MySQL error (%d)" % errnum, errmsg)
             except paramiko.SSHException as e:
-                QMessageBox.critical(self, "SSH connection", str(e))
+                QMessageBox.critical(self, "SSH error", str(e))
+            except socket.error as e:
+                QMessageBox.critical(self, "Network error", str(e))
 
     def on_treeView_customContextMenuRequested(self, point):
         item = self.treeView.currentIndex().internalPointer()

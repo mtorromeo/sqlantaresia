@@ -3,6 +3,7 @@
 import os
 import select
 import paramiko
+import socket
 import _mysql_exceptions
 import MySQLdb
 import SocketServer
@@ -120,7 +121,7 @@ class SQLServerConnection(object):
         return self.connection().cursor()
 
     def setDatabase(self, database):
-        return self.connection().cursor().execute("USE `%s`" % database)
+        return self.cursor().execute("USE `%s`" % database)
 
     def enableTunnel(self, username, password):
         self.use_tunnel = True
@@ -135,21 +136,29 @@ class SQLServerConnection(object):
         return self.dbpool is not None
 
     def open(self):
-        if self.use_tunnel and self.tunnel is None:
-            self.tunnel = TunnelThread(username = self.tunnel_username, password = self.tunnel_password, ssh_server = self.host, ssh_port = self.tunnel_port, remote_port = self.port)
-            self.tunnel.start()
-            host = "127.0.0.1"
-            port = self.tunnel.local_port
-        else:
-            host = self.host
-            port = self.port
-        self.dbpool = PersistentDB(creator = MySQLdb, host = host, port = port, user = self.username, passwd = self.password, charset = "utf8", use_unicode = True, setsession = ['SET AUTOCOMMIT = 1'])
+        try:
+            if self.use_tunnel and self.tunnel is None:
+                self.tunnel = TunnelThread(username = self.tunnel_username, password = self.tunnel_password, ssh_server = self.host, ssh_port = self.tunnel_port, remote_port = self.port)
+                self.tunnel.start()
+                host = "127.0.0.1"
+                port = self.tunnel.local_port
+            else:
+                host = self.host
+                port = self.port
+            self.dbpool = PersistentDB(creator = MySQLdb, host = host, port = port, user = self.username, passwd = self.password, charset = "utf8", use_unicode = True, setsession = ['SET AUTOCOMMIT = 1'])
+            # test connection
+            self.cursor().execute("SELECT 1")
+        except (socket.error, _mysql_exceptions.OperationalError) as e:
+            self.close()
+            raise e
+
 
     def close(self):
         if self.tunnel is not None:
             self.tunnel.join()
             del self.tunnel
             self.tunnel = None
+        self.dbpool = None
 
     def reconnect(self):
         self.close()
