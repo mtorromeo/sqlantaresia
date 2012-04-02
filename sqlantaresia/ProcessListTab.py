@@ -31,6 +31,9 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
             except ValueError:
                 pass
 
+        else:
+            self.chkShowIdle.hide()
+
         self.refresh()
 
         self.timer = QTimer(self)
@@ -58,7 +61,8 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
     def refresh(self):
         queryModel = QPySelectModel(self, self.connection)
         if self.processListInInfoSchema:
-            queryModel.setSelect( "SELECT %s FROM information_schema.PROCESSLIST ORDER BY TIME DESC" % ",".join(self.processListColumns) )
+            where = "" if self.chkShowIdle.isChecked() else "WHERE STATE != ''"
+            queryModel.setSelect( "SELECT %s FROM information_schema.PROCESSLIST %s ORDER BY TIME DESC" % (",".join(self.processListColumns), where) )
         else:
             queryModel.setSelect( "SHOW FULL PROCESSLIST" )
         queryModel.select()
