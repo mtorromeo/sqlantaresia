@@ -42,6 +42,10 @@ There is a unix shell script in the root of the distribution package named *buil
 CHANGELOG
 ---------
 
+New in version 0.4.1
+''''''''''''''''''
+* Fixed process list from information_schema query on standard mysql
+
 New in version 0.4
 ''''''''''''''''''
 * Allow multiple connections to different servers at the same time

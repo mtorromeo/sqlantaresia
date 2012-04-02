@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore", ".*md5 module is deprecated.*", DeprecationWar
 
 name = "SQLAntaresia"
 description = "Cross platform MySQL management tools aimed at both developers and system administrators"
-version = "0.4"
+version = "0.4.1"
 url = "http://github.com/mtorromeo/sqlantaresia"
 
 
