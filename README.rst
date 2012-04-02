@@ -45,6 +45,8 @@ CHANGELOG
 New in version 0.4
 ''''''''''''''''''
 * Allow multiple connections to different servers at the same time
+* New process list view
+* List of indexes displayed in the table structure view
 * Reorganized application layout
 * Allow to specify the ssh port to connect to for the tunnel
 
