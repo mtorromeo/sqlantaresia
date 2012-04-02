@@ -192,7 +192,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             if type(item) is DatabaseTreeItem:
                 dbName = item.getName()
 
-                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName) )
+                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/database_edit.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
