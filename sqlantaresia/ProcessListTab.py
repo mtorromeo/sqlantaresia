@@ -22,10 +22,6 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
         for column in cur.fetchall():
             self.processListColumns.append(column[0])
         try:
-            self.processListColumns.remove("HOST")
-        except ValueError:
-            pass
-        try:
             self.processListColumns.remove("TIME_MS")
             idx_time = self.processListColumns.index("TIME")
             self.processListColumns[idx_time] = "TIME + TIME_MS/1000 AS TIME"
