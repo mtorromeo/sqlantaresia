@@ -17,6 +17,20 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
         cur = self.connection.cursor()
         cur.execute("SHOW TABLES IN information_schema LIKE 'PROCESSLIST'")
         self.processListInInfoSchema = cur.rowcount
+        self.processListColumns = []
+        cur.execute("SHOW COLUMNS IN information_schema.PROCESSLIST")
+        for column in cur.fetchall():
+            self.processListColumns.append(column[0])
+        try:
+            self.processListColumns.remove("HOST")
+        except ValueError:
+            pass
+        try:
+            self.processListColumns.remove("TIME_MS")
+            idx_time = self.processListColumns.index("TIME")
+            self.processListColumns[idx_time] = "TIME + TIME_MS/1000 AS TIME"
+        except ValueError:
+            pass
 
         self.refresh()
 
@@ -45,7 +59,7 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
     def refresh(self):
         queryModel = QPySelectModel(self, self.connection)
         if self.processListInInfoSchema:
-            queryModel.setSelect( "SELECT ID, USER, HOST, DB, COMMAND, TIME + TIME_MS/1000 AS TIME, STATE, INFO, ROWS_SENT, ROWS_EXAMINED, ROWS_READ FROM information_schema.PROCESSLIST ORDER BY TIME DESC, TIME_MS DESC" )
+            queryModel.setSelect( "SELECT %s FROM information_schema.PROCESSLIST ORDER BY TIME DESC" % ",".join(self.processListColumns) )
         else:
             queryModel.setSelect( "SHOW FULL PROCESSLIST" )
         queryModel.select()
