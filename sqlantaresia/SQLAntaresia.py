@@ -352,10 +352,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     connection.tunnel_username = options["tunnel_username"]
                     connection.tunnel_password = options["tunnel_password"]
 
+                    self.connections[configDialog.connection] = connection
+
                     if name != configDialog.connection:
                         self.dbmsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
-                        self.connections[configDialog.connection] = connection
                         del self.connections[name]
+
+                    self.saveConfig()
 
     @pyqtSignature("")
     def on_actionAddConnection_triggered(self):
