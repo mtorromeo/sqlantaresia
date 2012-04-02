@@ -10,7 +10,7 @@ import _mysql_exceptions
 import paramiko
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar, QShortcut, QKeySequence
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection
@@ -61,6 +61,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.tabsWidget.setTabsClosable(True)
         self.tabsWidget.setMovable(True)
 
+        # Close tab shortcut
+        closeTabShortcut = QShortcut(QKeySequence("CTRL+W"), self)
+        closeTabShortcut.activated.connect(self.on_closeTabShortcut_activated)
+
         # Setup left dock with a new window with toolbar
         dockWindow = QMainWindow(self.dockWidget)
         dockWindow.setWindowFlags(Qt.Widget)
@@ -108,6 +112,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
+
+    def on_closeTabShortcut_activated(self):
+        idx = self.tabsWidget.currentIndex()
+        if idx >= 0:
+            self.tabsWidget.removeTab(idx)
 
     def getConf(self, section, name, defValue=None):
         try:
