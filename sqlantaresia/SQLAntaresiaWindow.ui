@@ -368,6 +368,15 @@
     <string>Add new server</string>
    </property>
   </action>
+  <action name="actionShowProcessList">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/control_panel.png</normaloff>:/16/icons/control_panel.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show process list</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>

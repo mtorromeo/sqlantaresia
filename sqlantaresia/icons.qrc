@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="16">
+    <file>icons/control_panel.png</file>
     <file>icons/database_refresh.png</file>
     <file>icons/layer_database.png</file>
     <file>icons/configure.png</file>

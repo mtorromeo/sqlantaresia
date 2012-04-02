@@ -18,6 +18,7 @@ from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from SettingsDialog import SettingsDialog
 from TableDetails import TableDetails
 from QueryTab import QueryTab
+from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
 
 from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem
@@ -194,6 +195,15 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
 
+    @pyqtSignature("")
+    def on_actionShowProcessList_triggered(self):
+        if self.treeView.selectedIndexes():
+            idx = self.treeView.selectedIndexes()[0]
+            connection = idx.internalPointer().getConnection()
+
+            index = self.tabsWidget.addTab( ProcessListTab(connection), QIcon(":/16/icons/database_server.png"), "Process list of %s" % (connection.host) )
+            self.tabsWidget.setCurrentIndex(index)
+
     def on_treeView_activated(self, modelIndex):
         item = modelIndex.internalPointer()
         _type = type(item)
@@ -240,6 +250,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 self.menuTable.addSeparator()
                 self.menuTable.addAction(self.actionDisconnect)
                 self.menuTable.addAction(self.actionReconnect)
+                self.menuTable.addAction( self.actionShowProcessList )
 
         self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
