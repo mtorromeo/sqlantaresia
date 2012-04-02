@@ -43,7 +43,7 @@ CHANGELOG
 ---------
 
 New in version 0.4.1
-''''''''''''''''''
+''''''''''''''''''''
 * Fixed process list from information_schema query on standard mysql
 
 New in version 0.4
