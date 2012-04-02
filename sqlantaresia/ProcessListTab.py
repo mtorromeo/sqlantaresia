@@ -17,16 +17,19 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
         cur = self.connection.cursor()
         cur.execute("SHOW TABLES IN information_schema LIKE 'PROCESSLIST'")
         self.processListInInfoSchema = cur.rowcount
-        self.processListColumns = []
-        cur.execute("SHOW COLUMNS IN information_schema.PROCESSLIST")
-        for column in cur.fetchall():
-            self.processListColumns.append(column[0])
-        try:
-            self.processListColumns.remove("TIME_MS")
-            idx_time = self.processListColumns.index("TIME")
-            self.processListColumns[idx_time] = "TIME + TIME_MS/1000 AS TIME"
-        except ValueError:
-            pass
+
+        if self.processListInInfoSchema:
+            self.processListColumns = []
+            cur.execute("SHOW COLUMNS IN information_schema.PROCESSLIST")
+            for column in cur.fetchall():
+                self.processListColumns.append(column[0])
+
+            try:
+                self.processListColumns.remove("TIME_MS")
+                idx_time = self.processListColumns.index("TIME")
+                self.processListColumns[idx_time] = "TIME + TIME_MS/1000 AS TIME"
+            except ValueError:
+                pass
 
         self.refresh()
 
