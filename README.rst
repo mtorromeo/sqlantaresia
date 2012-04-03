@@ -45,6 +45,7 @@ CHANGELOG
 New in version 0.4.2
 ''''''''''''''''''''
 * Add option to hide the idle processes on recent mysql versions
+* Close tabs with CTRL+W
 * Fixed query icon in new query tab
 * Fixed process list in older mysql versions
 * FIX: Do not hide the client hostname
