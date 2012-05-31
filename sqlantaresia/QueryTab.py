@@ -74,9 +74,9 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         queryModel = QPySelectModel(self, self.db)
         queryModel.setSelect( self.txtQuery.text() )
         try:
-            elapsed = time.clock()
+            elapsed = time.time()
             queryModel.select()
-            elapsed = time.clock() - elapsed
+            elapsed = time.time() - elapsed
             self.tableQueryResult.setModel( queryModel )
             if self.txtQuery.text().strip().lower().startswith('select'):
                 self.labelQueryError.setText("%d rows returned" % queryModel.cursor.rowcount)
