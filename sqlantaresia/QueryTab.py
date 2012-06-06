@@ -66,6 +66,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.txtQuery.setBraceMatching(self.txtQuery.SloppyBraceMatch)
 
         self.txtQuery.setLexer(self.lexer)
+        self.txtQuery.setUtf8(True)
         self.txtQuery.setText(query)
 
     @pyqtSignature("")
