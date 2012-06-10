@@ -132,7 +132,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QTableView" name="tableData">
+     <widget class="EditableTableView" name="tableData">
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -205,6 +205,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EditableTableView</class>
+   <extends>QTableView</extends>
+   <header>EditableTableView</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>tableStructure</tabstop>
   <tabstop>txtWhere</tabstop>
