@@ -34,7 +34,7 @@ class QPySelectModel(QAbstractTableModel):
         return 0 if self.cursor.description is None else len(self.cursor.description)
 
     def data(self, index, role):
-        if not self._rows or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
+        if not self._rows or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole, Qt.EditRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
             return None
 
         data = self._rows[index.row()][index.column()]
