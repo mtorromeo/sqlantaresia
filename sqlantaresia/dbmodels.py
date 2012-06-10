@@ -198,7 +198,7 @@ class DatabaseTreeItem(BaseTreeItem):
         children = []
         db = self.db.connection().cursor()
         try:
-            db.execute("SHOW TABLES IN %s" % self.db.escapeTableName(self.name))
+            db.execute("SHOW TABLES IN %s" % self.db.quoteIdentifier(self.name))
             i = 0
             for row in db.fetchall():
                 children.append( TableTreeItem( i, self, self.db, row[0] ) )

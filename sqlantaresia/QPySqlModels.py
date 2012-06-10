@@ -11,8 +11,8 @@ class QPySelectModel(QAbstractTableModel):
 
     def __init__(self, parent, db):
         QAbstractTableModel.__init__(self, parent)
-        #self.cursor = db.connection().cursor(cursorclass=SSCursor)
-        self.cursor = db.connection().cursor()
+        self.db = db
+        self.cursor = db.cursor()
 
     def __del__(self):
         self.cursor.close()
@@ -57,9 +57,38 @@ class QPySelectModel(QAbstractTableModel):
 class QPyTableModel(QPySelectModel):
     def __init__(self, parent, db):
         QPySelectModel.__init__(self, parent, db)
-        _tableName = None
-        _filter = ""
-        _limit = 0
+        self._tableName = None
+        self._filter = ""
+        self._limit = 0
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+
+        return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
+
+    def setData(self, index, value, role):
+        if index.isValid() and role == Qt.EditRole and len(self._primary_columns):
+            row = self._rows[index.row()]
+
+            where = []
+            values = [value]
+
+            for primary_column in self._primary_columns:
+                for i, column in enumerate(self.cursor.description):
+                    if column[0] == primary_column:
+                        where.append( "%s = ?" % self.db.quoteIdentifier(primary_column) )
+                        values.append( row[i] )
+                        break
+
+            query = "UPDATE %s SET %s = ? WHERE %s" % ( self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier( self.cursor.description[index.column()][0] ), " AND ".join(where))
+            cursor = self.db.cursor()
+            cursor.execute( query.replace('?', '%s'), values )
+
+            self.dataChanged.emit(index, index)
+            return True
+
+        return False
 
     def setTable(self, tableName):
         self._tableName = tableName
@@ -70,8 +99,9 @@ class QPyTableModel(QPySelectModel):
     def setLimit(self, limit=0):
         self._limit = int(limit)
 
-    def select(self):
-        statement = "SELECT * FROM `%s`" % self._tableName
+    def select(self, primary_columns = None):
+        self._primary_columns = [] if primary_columns is None else primary_columns
+        statement = "SELECT * FROM %s" % self.db.quoteIdentifier(self._tableName)
         if self._filter:
             statement += " WHERE %s" % self._filter
         if self._limit:

@@ -270,9 +270,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 dbName = idx.parent().internalPointer().getName()
                 tableName = idx.internalPointer().getName()
                 if listTables:
-                    queries.append( "%s.%s" % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+                    queries.append( "%s.%s" % (self.db.quoteIdentifier(dbName), self.db.quoteIdentifier(tableName)) )
                 else:
-                    queries.append( queryTpl % (self.db.escapeTableName(dbName), self.db.escapeTableName(tableName)) )
+                    queries.append( queryTpl % (self.db.quoteIdentifier(dbName), self.db.quoteIdentifier(tableName)) )
         if listTables:
             query = queryTpl % (", ".join(queries))
         else:
@@ -314,7 +314,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         for idx in self.treeView.selectedIndexes():
             if type(idx.internalPointer()) is DatabaseTreeItem:
                 dbName = idx.internalPointer().getName()
-                queries.append( "DROP DATABASE %s;" % self.db.escapeTableName(dbName) )
+                queries.append( "DROP DATABASE %s;" % self.db.quoteIdentifier(dbName) )
         if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 self.db.connection().cursor().execute("\n".join(queries))

@@ -22,10 +22,15 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableIndexes.verticalHeader().hide()
         self.tableData.verticalHeader().hide()
 
-        self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.escapeTableName(self.tableName) )
+        self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName) )
         QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
         self.db.setDatabase(self.dbName)
+
+        #Retrieve
+        self.refreshInfo()
+        self.refreshStructure()
+        self.refreshIndexes()
 
         #Data
         self.tableModel = QPyTableModel(self, self.db)
@@ -33,11 +38,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
         self.tableData.setModel( self.tableModel )
 
-        #Retrieve
-        self.refreshInfo()
         self.refreshData()
-        self.refreshStructure()
-        self.refreshIndexes()
 
     def refreshInfo(self):
         sysLocale = QLocale.system()
@@ -63,7 +64,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableModel.setFilter( self.txtWhere.text() )
         self.tableModel.setLimit( self.txtLimit.text() )
         try:
-            self.tableModel.select()
+            self.tableModel.select(self.primary_columns)
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):
             self.lblDataSubmitResult.setText( errmsg )
         self.tableModel.reset()
@@ -74,7 +75,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     def refreshStructure(self):
         self.db.setDatabase(self.dbName)
         modelStructure = QPySelectModel(self, self.db)
-        modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.escapeTableName(self.tableName))
+        modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.quoteIdentifier(self.tableName))
         try:
             modelStructure.select()
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):
@@ -85,15 +86,20 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     def refreshIndexes(self):
         self.db.setDatabase(self.dbName)
 
-        db = self.db.connection().cursor( MySQLdb.cursors.DictCursor )
-        db.execute("SHOW INDEX FROM %s" % self.db.escapeTableName(self.tableName))
+        db = self.db.cursor( MySQLdb.cursors.DictCursor )
+        db.execute("SHOW INDEX FROM %s" % self.db.quoteIdentifier(self.tableName))
         data = db.fetchall()
 
         labels = ["Key", "Type", "Unique", "Column", "Cardinality", "Packed", "Collation", "Null", "Comment"]
         modelIndexes = QtGui.QStandardItemModel(len(data), len(labels))
 
+        self.primary_columns = []
+
         if data:
             for n, row in enumerate(data):
+                if row["Key_name"] == "PRIMARY":
+                    self.primary_columns.append( row["Column_name"] )
+
                 modelIndexes.setItem(n, 0, QtGui.QStandardItem(row["Key_name"]))
                 modelIndexes.setItem(n, 1, QtGui.QStandardItem(row["Index_type"]))
                 modelIndexes.setItem(n, 2, QtGui.QStandardItem(str(not row["Non_unique"])))
@@ -127,7 +133,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             QueryTab(
                 db = self.db,
                 dbName = self.dbName,
-                query = "SELECT * FROM %s WHERE %s%s" % (self.db.escapeTableName(self.tableName), where, limit)
+                query = "SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit)
             ),
             QtGui.QIcon(":/16/icons/database_edit.png"),
             "Query on %s" % (self.dbName)

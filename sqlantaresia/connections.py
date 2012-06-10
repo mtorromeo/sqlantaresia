@@ -117,8 +117,8 @@ class SQLServerConnection(object):
             self.open()
         return self.dbpool.connection()
 
-    def cursor(self):
-        return self.connection().cursor()
+    def cursor(self, *args, **kwargs):
+        return self.connection().cursor(*args, **kwargs)
 
     def setDatabase(self, database):
         return self.cursor().execute("USE `%s`" % database)
@@ -164,8 +164,8 @@ class SQLServerConnection(object):
         self.close()
         self.open()
 
-    def escapeTableName(self, tableName):
-        return "`%s`" % tableName
+    def quoteIdentifier(self, identifier):
+        return "`" + identifier.replace("`", "``") + "`"
 
     def confirmQuery(self, sql):
         if QMessageBox.question(QApplication.activeWindow(), "Query confirmation request", "%s\nAre you sure?" % sql, QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
