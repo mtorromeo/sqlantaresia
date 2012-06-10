@@ -22,7 +22,7 @@ class QPySelectModel(QAbstractTableModel):
         if self._statement is not None:
             self.cursor.execute(self._statement)
             for row in self.cursor.fetchall():
-                self._rows.append(row)
+                self._rows.append( list(row) )
 
     def setSelect(self, statement):
         self._statement = statement
@@ -84,6 +84,8 @@ class QPyTableModel(QPySelectModel):
             query = "UPDATE %s SET %s = ? WHERE %s" % ( self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier( self.cursor.description[index.column()][0] ), " AND ".join(where))
             cursor = self.db.cursor()
             cursor.execute( query.replace('?', '%s'), values )
+
+            self._rows[index.row()][index.column()] = value
 
             self.dataChanged.emit(index, index)
             return True
