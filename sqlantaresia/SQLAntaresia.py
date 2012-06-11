@@ -10,6 +10,7 @@ import _mysql_exceptions
 import paramiko
 import application
 import datetime
+import MySQLdb
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray, Qt
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar, QShortcut, QKeySequence
@@ -323,12 +324,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             if type(item) is TableTreeItem:
                 db = item.getConnection()
                 dbName = idx.parent().internalPointer().getName()
+                quoteDbName = db.quoteIdentifier( dbName )
                 tableName = db.quoteIdentifier( item.getName() )
 
                 try:
                     cursor = db.cursor()
 
-                    cursor.execute("SHOW CREATE TABLE %s.%s;" % (db.quoteIdentifier(dbName), tableName))
+                    cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, tableName))
                     row = cursor.fetchone()
                     createTable = row[1]
 
@@ -338,7 +340,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
                     dump = """-- {appName} {appVersion}
 --
--- Host: localhost    Database: intranet
+-- Host: {host}    Database: {dbName}
 -- ------------------------------------------------------
 -- Server version       {serverVersion}
 
@@ -365,6 +367,8 @@ DROP TABLE IF EXISTS {tableName};
 """.format(
     appName=application.name,
     appVersion=application.version,
+    host=db.host,
+    dbName=dbName,
     tableName=tableName,
     serverVersion=serverVersion,
     createTable=createTable,
@@ -372,14 +376,20 @@ DROP TABLE IF EXISTS {tableName};
 
 
                     data = []
-                    cursor.execute("SELECT * FROM %s.%s;" % (db.quoteIdentifier(dbName), tableName))
+                    cursor.execute("SELECT * FROM %s.%s;" % (quoteDbName, tableName))
+
                     for row in cursor.fetchall():
                         datarow = []
-                        for cell in row:
-                            if isinstance(cell, basestring):
-                                datarow.append( "'%s'" % db.escapeString(cell.encode("utf-8")) )
-                            elif cell is None:
+                        for i, cell in enumerate(row):
+                            if cell is None:
                                 datarow.append( "NULL" )
+                            elif cursor.description[i][1] in MySQLdb.BINARY:
+                                datarow.append( "0x%s" % cell.encode("hex")  )
+                            elif isinstance(cell, basestring):
+                                try:
+                                    datarow.append( "'%s'" % db.escapeString(cell.encode("utf-8")) )
+                                except UnicodeDecodeError:
+                                    datarow.append( "0x%s" % cell.encode("hex")  )
                             elif isinstance(cell, (int, long, float)):
                                 datarow.append( str(cell) )
                             else:
@@ -416,7 +426,7 @@ UNLOCK TABLES;
 
                 dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (db.quoteIdentifier(dbName), tableName) )
+                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (quoteDbName, tableName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
