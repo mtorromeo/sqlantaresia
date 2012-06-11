@@ -261,6 +261,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 self.menuTable.addAction(self.actionReconnect)
                 self.menuTable.addAction( self.actionShowProcessList )
 
+        else:
+            return
+
         self.menuTable.popup( self.treeView.mapToGlobal(point) )
 
     def queryOnSelectedTables(self, queryTpl, listTables=False):
