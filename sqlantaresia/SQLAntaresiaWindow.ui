@@ -377,6 +377,18 @@
     <string>Show process list</string>
    </property>
   </action>
+  <action name="actionDumpTable">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/document-properties.png</normaloff>:/16/icons/document-properties.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dump Table</string>
+   </property>
+   <property name="toolTip">
+    <string>Dump Table</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>

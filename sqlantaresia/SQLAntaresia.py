@@ -8,6 +8,8 @@ import os
 import socket
 import _mysql_exceptions
 import paramiko
+import application
+import datetime
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray, Qt
 from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar, QShortcut, QKeySequence
@@ -247,6 +249,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         elif _type is TableTreeItem:
             self.menuTable.addAction( self.actionShowCreate )
+            self.menuTable.addAction( self.actionDumpTable )
             self.menuTable.addAction( self.actionOptimizeTable )
             self.menuTable.addAction( self.actionRepairTable )
             self.menuTable.addAction( self.actionTruncateTable )
@@ -309,6 +312,111 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     QMessageBox.critical(self, "Query result", errmsg)
 
                 index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName) )
+                self.tabsWidget.setCurrentIndex(index)
+
+    @pyqtSignature("")
+    def on_actionDumpTable_triggered(self):
+        if self.treeView.selectedIndexes():
+            idx = self.treeView.selectedIndexes()[0]
+            item = idx.internalPointer()
+
+            if type(item) is TableTreeItem:
+                db = item.getConnection()
+                dbName = idx.parent().internalPointer().getName()
+                tableName = db.quoteIdentifier( item.getName() )
+
+                try:
+                    cursor = db.cursor()
+
+                    cursor.execute("SHOW CREATE TABLE %s.%s;" % (db.quoteIdentifier(dbName), tableName))
+                    row = cursor.fetchone()
+                    createTable = row[1]
+
+                    cursor.execute("SHOW VARIABLES LIKE 'version';")
+                    row = cursor.fetchone()
+                    serverVersion = row[1]
+
+                    dump = """-- {appName} {appVersion}
+--
+-- Host: localhost    Database: intranet
+-- ------------------------------------------------------
+-- Server version       {serverVersion}
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table {tableName}
+--
+
+DROP TABLE IF EXISTS {tableName};
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+{createTable};
+/*!40101 SET character_set_client = @saved_cs_client */;
+""".format(
+    appName=application.name,
+    appVersion=application.version,
+    tableName=tableName,
+    serverVersion=serverVersion,
+    createTable=createTable,
+)
+
+
+                    data = []
+                    cursor.execute("SELECT * FROM %s.%s;" % (db.quoteIdentifier(dbName), tableName))
+                    for row in cursor.fetchall():
+                        datarow = []
+                        for cell in row:
+                            if isinstance(cell, basestring):
+                                datarow.append( "'%s'" % db.escapeString(cell.encode("utf-8")) )
+                            elif cell is None:
+                                datarow.append( "NULL" )
+                            elif isinstance(cell, (int, long, float)):
+                                datarow.append( str(cell) )
+                            else:
+                                datarow.append( "'%s'" % db.escapeString(str(cell)) )
+                                print type(cell), cell
+                        data.append( "(%s)" % ",".join(datarow) )
+
+                    if data:
+                        dump += """
+--
+-- Dumping data for table {tableName}
+--
+
+LOCK TABLES {tableName} WRITE;
+/*!40000 ALTER TABLE {tableName} DISABLE KEYS */;
+INSERT INTO {tableName} VALUES {data};
+/*!40000 ALTER TABLE {tableName} ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+""".format(
+    tableName=tableName,
+    data=",".join(data),
+)
+                except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
+                    QMessageBox.critical(self, "Query result", errmsg)
+
+                dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (db.quoteIdentifier(dbName), tableName) )
                 self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

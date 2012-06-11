@@ -167,6 +167,9 @@ class SQLServerConnection(object):
     def quoteIdentifier(self, identifier):
         return "`" + identifier.replace("`", "``") + "`"
 
+    def escapeString(self, value):
+        return self.connection()._con.escape_string(value)
+
     def confirmQuery(self, sql):
         if QMessageBox.question(QApplication.activeWindow(), "Query confirmation request", "%s\nAre you sure?" % sql, QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             db = self.connection().cursor()
