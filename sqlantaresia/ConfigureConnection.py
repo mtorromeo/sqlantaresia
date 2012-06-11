@@ -14,8 +14,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
         self.txtName.setText( self.connection )
         self.txtHost.setText( self.connectionOptions["host"] )
         self.txtPort.setText( str(self.connectionOptions["port"]) )
-        if self.connectionOptions["database"] is not None:
-            self.txtDatabase.setText( self.connectionOptions["database"] )
+        self.chkCompression.setChecked( self.connectionOptions["compression"] )
         self.txtUsername.setText( self.connectionOptions["username"] )
         self.txtPassword.setText( self.connectionOptions["password"] )
 
@@ -80,7 +79,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
         self.connection = self.txtName.text()
         self.connectionOptions["host"] = self.txtHost.text()
         self.connectionOptions["port"] = int(self.txtPort.text())
-        self.connectionOptions["database"] = self.txtDatabase.text()
+        self.connectionOptions["compression"] = self.chkCompression.isChecked()
         self.connectionOptions["username"] = self.txtUsername.text()
         self.connectionOptions["password"] = self.txtPassword.text()
         self.connectionOptions["use_tunnel"] = self.checkTunnel.isChecked()

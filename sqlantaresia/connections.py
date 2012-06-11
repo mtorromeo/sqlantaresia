@@ -87,7 +87,7 @@ class SQLServerConnection(object):
     tunnel = None
     dbpool = None
 
-    def __init__(self, username = None, password = "", host = "localhost", port = 3306, database = "", use_tunnel = False, tunnel_username = None, tunnel_password = None, tunnel_port = 22):
+    def __init__(self, username = None, password = "", host = "localhost", port = 3306, compression = False, use_tunnel = False, tunnel_username = None, tunnel_password = None, tunnel_port = 22):
         if username is None:
             try:
                 self.username = os.getlogin()
@@ -99,7 +99,7 @@ class SQLServerConnection(object):
         self.password = password
         self.host = host
         self.port = port
-        self.database = database
+        self.compression = compression
         self.use_tunnel = use_tunnel
 
         if use_tunnel and tunnel_username is None:
@@ -145,7 +145,7 @@ class SQLServerConnection(object):
             else:
                 host = self.host
                 port = self.port
-            self.dbpool = PersistentDB(creator = MySQLdb, host = host, port = port, user = self.username, passwd = self.password, charset = "utf8", use_unicode = True, setsession = ['SET AUTOCOMMIT = 1'])
+            self.dbpool = PersistentDB(creator = MySQLdb, host = host, port = port, user = self.username, passwd = self.password, charset = "utf8", use_unicode = True, compress = self.compression, setsession = ['SET AUTOCOMMIT = 1'])
             # test connection
             self.cursor().execute("SELECT 1")
         except (socket.error, _mysql_exceptions.OperationalError) as e:

@@ -33,6 +33,30 @@
       <string>MySQL Server</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="txtPort">
+        <property name="text">
+         <string>3306</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lblPassword">
+        <property name="text">
+         <string>Password:</string>
+        </property>
+        <property name="buddy">
+         <cstring>txtPassword</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="txtUsername">
+        <property name="text">
+         <string>root</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="lblHost">
         <property name="text">
@@ -50,6 +74,23 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="txtPassword">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lblUsername">
+        <property name="text">
+         <string>Username:</string>
+        </property>
+        <property name="buddy">
+         <cstring>txtUsername</cstring>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="lblPort">
         <property name="text">
@@ -60,67 +101,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="txtPort">
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="chkCompression">
         <property name="text">
-         <string>3306</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lblDatabase">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Database:</string>
-        </property>
-        <property name="buddy">
-         <cstring>txtDatabase</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="txtDatabase">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Not implemented</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lblUsername">
-        <property name="text">
-         <string>Username:</string>
-        </property>
-        <property name="buddy">
-         <cstring>txtUsername</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="txtUsername">
-        <property name="text">
-         <string>root</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lblPassword">
-        <property name="text">
-         <string>Password:</string>
-        </property>
-        <property name="buddy">
-         <cstring>txtPassword</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="txtPassword">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
+         <string>Enable compression</string>
         </property>
        </widget>
       </item>
@@ -222,7 +206,6 @@
   <tabstop>txtName</tabstop>
   <tabstop>txtHost</tabstop>
   <tabstop>txtPort</tabstop>
-  <tabstop>txtDatabase</tabstop>
   <tabstop>txtUsername</tabstop>
   <tabstop>txtPassword</tabstop>
   <tabstop>checkTunnel</tabstop>

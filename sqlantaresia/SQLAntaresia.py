@@ -47,7 +47,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                     password = self.getConf(connectionName, "password", ""),
                     host = self.getConf(connectionName, "host", "localhost"),
                     port = self.getConfInt(connectionName, "port", 3306),
-                    database = self.getConf(connectionName, "database", ""),
+                    compression = self.getConfBool(connectionName, "compression", False),
                     use_tunnel = self.getConfBool(connectionName, "use_tunnel", False),
                     tunnel_username = self.getConf(connectionName, "tunnel_username", None),
                     tunnel_password = self.getConf(connectionName, "tunnel_password", ""),
@@ -171,7 +171,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.config.set(name, "port", connection.port)
             self.config.set(name, "username", connection.username)
             self.config.set(name, "password", connection.password)
-            self.config.set(name, "database", connection.database)
+            self.config.set(name, "compression", connection.compression)
             self.config.set(name, "use_tunnel", connection.use_tunnel)
             self.config.set(name, "tunnel_username", connection.tunnel_username)
             self.config.set(name, "tunnel_password", connection.tunnel_password)
@@ -351,7 +351,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 options = {
                     "host": connection.host,
                     "port": connection.port,
-                    "database": connection.database,
+                    "compression": connection.compression,
                     "username": connection.username,
                     "password": connection.password,
                     "use_tunnel": connection.use_tunnel,
@@ -364,7 +364,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 if configDialog.exec_() == QDialog.Accepted:
                     connection.host = options["host"]
                     connection.port = options["port"]
-                    connection.database = options["database"]
+                    connection.compression = options["compression"]
                     connection.username = options["username"]
                     connection.password = options["password"]
                     connection.use_tunnel = options["use_tunnel"]
@@ -385,7 +385,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         options = {
             "host": "localhost",
             "port": 3306,
-            "database": None,
+            "compression": False,
             "username": "root",
             "password": "",
             "use_tunnel": False,
