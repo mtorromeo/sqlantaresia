@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="16">
+    <file>icons/document-save.png</file>
+    <file>icons/document-open.png</file>
     <file>icons/control_panel.png</file>
     <file>icons/database_refresh.png</file>
     <file>icons/layer_database.png</file>
@@ -21,6 +23,7 @@
     <file>icons/view-refresh.png</file>
     <file>icons/database_connect.png</file>
     <file>icons/database_edit.png</file>
+    <file>icons/document-save-as.png</file>
     <file>icons/database_server.png</file>
     <file>icons/database_table.png</file>
     <file>icons/database.png</file>

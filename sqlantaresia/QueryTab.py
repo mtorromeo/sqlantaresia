@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QTabWidget, QColor, QFont
-from PyQt4.QtCore import pyqtSignature
+from PyQt4.QtGui import QTabWidget, QColor, QFont, QToolBar, QFileDialog
+from PyQt4.QtCore import pyqtSignature, Qt
 from PyQt4.Qsci import QsciScintilla, QsciLexerSQL
 from QPySqlModels import QPySelectModel
 import _mysql_exceptions
 import time
+import codecs
 
 from Ui_QueryWidget import Ui_QueryWidget
 
@@ -16,9 +17,17 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
         self.db = db
         self.dbName = dbName
+        self.queryFile = None
 
         self.setupUi(self)
         self.tableQueryResult.verticalHeader().hide()
+
+        # toolbar
+        self.toolbar = QToolBar(self)
+        self.toolbar.addAction(self.actionLoadQuery)
+        self.toolbar.addAction(self.actionSaveQuery)
+        self.toolbar.addAction(self.actionSaveQueryAs)
+        self.toolbarLayout.insertWidget(0, self.toolbar)
 
         self.lexer = QsciLexerSQL()
 
@@ -68,6 +77,33 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.txtQuery.setLexer(self.lexer)
         self.txtQuery.setUtf8(True)
         self.txtQuery.setText(query)
+
+    @pyqtSignature("")
+    def on_actionLoadQuery_triggered(self):
+        fileName = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql)")
+        if fileName:
+            self.queryFile = fileName
+            with codecs.open(fileName, "r", "utf-8") as f:
+                sql = f.read()
+            self.txtQuery.setText(sql)
+
+    @pyqtSignature("")
+    def on_actionSaveQuery_triggered(self):
+        if not self.queryFile:
+            self.on_actionSaveQueryAs_triggered()
+        else:
+            self.saveQuery(self.queryFile)
+
+    @pyqtSignature("")
+    def on_actionSaveQueryAs_triggered(self):
+        fileName = QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql)")
+        if fileName:
+            self.queryFile = fileName
+            self.saveQuery(fileName)
+
+    def saveQuery(self, fileName):
+        with codecs.open(fileName, "w", "utf-8") as f:
+            f.write( self.txtQuery.text() )
 
     @pyqtSignature("")
     def on_btnExecuteQuery_clicked(self):

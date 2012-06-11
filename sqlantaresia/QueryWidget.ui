@@ -19,35 +19,42 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QsciScintilla" name="txtQuery">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <layout class="QVBoxLayout" name="toolbarLayout">
+         <property name="spacing">
+          <number>0</number>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="whatsThis">
-          <string/>
-         </property>
-        </widget>
+         <item>
+          <widget class="QsciScintilla" name="txtQuery">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="whatsThis">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -97,6 +104,48 @@
     </widget>
    </item>
   </layout>
+  <action name="actionLoadQuery">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/document-open.png</normaloff>:/16/icons/document-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load Query</string>
+   </property>
+   <property name="toolTip">
+    <string>Load query from file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSaveQuery">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/document-save.png</normaloff>:/16/icons/document-save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Query</string>
+   </property>
+   <property name="toolTip">
+    <string>Save query to file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSaveQueryAs">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/document-save-as.png</normaloff>:/16/icons/document-save-as.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Query As...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save query to file as..</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
