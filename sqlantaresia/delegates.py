@@ -14,7 +14,9 @@ class CustomDelegate(QItemDelegate):
 
 class DateDelegate(CustomDelegate):
     def createEditor(self, parent, option, index):
-        return QDateEdit(parent)
+        editor = QDateEdit(parent)
+        editor.setCalendarPopup(True)
+        return editor
 
     def setEditorValue(self, editor, value):
         editor.setDate( QDate.fromString(value, "yyyy-MM-dd") )
@@ -24,7 +26,9 @@ class DateDelegate(CustomDelegate):
 
 class DateTimeDelegate(CustomDelegate):
     def createEditor(self, parent, option, index):
-        return QDateTimeEdit(parent)
+        editor = QDateTimeEdit(parent)
+        editor.setCalendarPopup(True)
+        return editor
 
     def setEditorValue(self, editor, value):
         editor.setDateTime( QDateTime.fromString(value, "yyyy-MM-dd HH:mm:ss") )
