@@ -1,7 +1,5 @@
-from PyQt4.QtGui import QItemDelegate, QDateEdit
-from PyQt4.QtCore import pyqtSignature, Qt, QDate
-
-from datetime import datetime, date, time
+from PyQt4.QtGui import QItemDelegate, QDateEdit, QTimeEdit, QDateTimeEdit
+from PyQt4.QtCore import pyqtSignature, Qt, QDate, QTime, QDateTime
 
 class CustomDelegate(QItemDelegate):
     def updateEditorGeometry(self, editor, option, index):

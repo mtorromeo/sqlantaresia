@@ -6,6 +6,7 @@ from QPySqlModels import *
 import MySQLdb
 import _mysql_exceptions
 from QueryTab import QueryTab
+import delegates
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
@@ -69,6 +70,25 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             self.lblDataSubmitResult.setText( errmsg )
         self.tableModel.reset()
         self.tableData.resizeColumnsToContents()
+
+        dateDelegate = None
+        timeDelegate = None
+        datetimeDelegate = None
+
+        for i, _type in enumerate(self.tableModel._types):
+            if _type in MySQLdb.DATE:
+                if not dateDelegate:
+                    dateDelegate = delegates.DateDelegate()
+                self.tableData.setItemDelegateForColumn(i, dateDelegate)
+            elif _type in MySQLdb.TIME:
+                if not timeDelegate:
+                    timeDelegate = delegates.TimeDelegate()
+                self.tableData.setItemDelegateForColumn(i, timeDelegate)
+            elif _type in MySQLdb.DATETIME:
+                if not datetimeDelegate:
+                    datetimeDelegate = delegates.DateTimeDelegate()
+                self.tableData.setItemDelegateForColumn(i, datetimeDelegate)
+
         self.btnUndo.setEnabled(False)
         self.btnApply.setEnabled(False)
 
