@@ -91,7 +91,6 @@ class QPyTableModel(QPySelectModel):
                     values.append( row[i] )
 
             query = "UPDATE %s SET %s = ? WHERE %s LIMIT 1" % ( self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier( self.cursor.description[index.column()][0] ), " AND ".join(where))
-            print(query)
             cursor = self.db.cursor()
             cursor.execute( query.replace('?', '%s'), values )
 
