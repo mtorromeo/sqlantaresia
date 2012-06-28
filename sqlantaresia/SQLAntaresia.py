@@ -135,6 +135,16 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionRefresh_triggered(self):
         self.dbmsModel.refresh()
 
+        i = 0
+        item = self.dbmsModel.item(i)
+        while item:
+            if item.getConnection().isOpen():
+                item.open()
+                self.treeView.setExpanded(item.index(), True)
+
+            i += 1
+            item = self.dbmsModel.item(i)
+
     @pyqtSignature("")
     def on_actionReconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
@@ -470,12 +480,12 @@ UNLOCK TABLES;
                 conn.cursor().execute("\n".join(queries))
             except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
-            self.dbmsModel.refresh()
+            self.on_actionRefresh_triggered()
 
     @pyqtSignature("")
     def on_actionDropTable_triggered(self):
         if self.queryOnSelectedTables("DROP TABLE %s.%s;"):
-            self.dbmsModel.refresh()
+            self.on_actionRefresh_triggered()
 
     @pyqtSignature("")
     def on_actionTruncateTable_triggered(self):
@@ -549,7 +559,7 @@ UNLOCK TABLES;
             name = configDialog.connection
             if name not in self.connections:
                 self.connections[name] = SQLServerConnection( **options )
-                self.dbmsModel.refresh()
+                self.on_actionRefresh_triggered()
                 self.saveConfig()
 
     @pyqtSignature("")
@@ -570,5 +580,5 @@ UNLOCK TABLES;
             connection.close()
 
         del self.connections[name]
-        self.dbmsModel.refresh()
+        self.on_actionRefresh_triggered()
         self.saveConfig()
