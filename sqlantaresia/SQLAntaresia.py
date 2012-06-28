@@ -138,7 +138,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionReconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
             connection = item.getConnection()
             if connection.isOpen():
                 connection.reconnect()
@@ -146,7 +146,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionDisconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
             item.getConnection().close()
 
     @pyqtSignature("")
@@ -199,10 +199,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionNewQueryTab_triggered(self):
         if self.treeView.selectedIndexes():
             idx = self.treeView.selectedIndexes()[0]
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
 
             if type(item) is DatabaseTreeItem:
-                dbName = item.getName()
+                dbName = item.text()
 
                 index = self.tabsWidget.addTab( QueryTab(item.getConnection(), dbName), QIcon(":/16/icons/database_edit.png"), "Query on %s" % (dbName) )
                 self.tabsWidget.setCurrentIndex(index)
@@ -211,24 +211,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionShowProcessList_triggered(self):
         if self.treeView.selectedIndexes():
             idx = self.treeView.selectedIndexes()[0]
-            connection = idx.internalPointer().getConnection()
+            connection = idx.data(Qt.UserRole+1).getConnection()
 
             index = self.tabsWidget.addTab( ProcessListTab(connection), QIcon(":/16/icons/database_server.png"), "Process list of %s" % (connection.host) )
             self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
-        item = modelIndex.internalPointer()
+        item = modelIndex.data(Qt.UserRole+1)
         _type = type(item)
 
         if _type is TableTreeItem:
-            parent = modelIndex.parent().internalPointer()
-            dbName = parent.getName()
-            tableName = item.getName()
+            parent = modelIndex.parent().data(Qt.UserRole+1)
+            dbName = parent.text()
+            tableName = item.text()
 
             index = self.tabsWidget.addTab( TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName) )
             self.tabsWidget.setCurrentIndex(index)
 
-        elif _type is ConnectionTreeItem:
+        else:
             try:
                 item.open()
             except _mysql_exceptions.OperationalError as (errnum, errmsg):
@@ -239,7 +239,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 QMessageBox.critical(self, "Network error", str(e))
 
     def on_treeView_customContextMenuRequested(self, point):
-        item = self.treeView.currentIndex().internalPointer()
+        item = self.treeView.currentIndex().data(Qt.UserRole+1)
         _type = type(item)
 
         self.menuTable.clear()
@@ -272,23 +272,37 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     def queryOnSelectedTables(self, queryTpl, listTables=False):
         queries = []
+        conn = None
+
         for idx in self.treeView.selectedIndexes():
-            if idx.parent().internalPointer() is not None:
-                dbName = idx.parent().internalPointer().getName()
-                tableName = idx.internalPointer().getName()
+            item = idx.data(Qt.UserRole+1)
+            if type(item) is TableTreeItem:
+                # Use the first connection found
+                if not conn:
+                    conn = item.getConnection()
+
+                # Skip every selected db not using the same connection
+                if conn != item.getConnection():
+                    continue
+
+                dbName = item.parent().text()
+                tableName = item.text()
+
                 if listTables:
-                    queries.append( "%s.%s" % (self.db.quoteIdentifier(dbName), self.db.quoteIdentifier(tableName)) )
+                    queries.append( "%s.%s" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)) )
                 else:
-                    queries.append( queryTpl % (self.db.quoteIdentifier(dbName), self.db.quoteIdentifier(tableName)) )
+                    queries.append( queryTpl % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)) )
         if listTables:
             query = queryTpl % (", ".join(queries))
         else:
             query = "\n".join(queries)
+
         queryDesc = query if len(query)<500 else query[0:250] + "\n[...]\n" + query[-250:]
-        if QMessageBox.question(self, "Confirmation request", queryDesc+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+
+        if conn and QMessageBox.question(self, "Confirmation request", queryDesc+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
-                self.db.connection().cursor().execute(query)
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
+                conn.cursor().execute(query)
+            except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError) as (errno, errmsg): #@UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
             else:
                 return True
@@ -298,11 +312,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionShowCreate_triggered(self):
         if self.treeView.selectedIndexes():
             idx = self.treeView.selectedIndexes()[0]
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
 
             if type(item) is TableTreeItem:
-                dbName = idx.parent().internalPointer().getName()
-                tableName = item.getName()
+                dbName = idx.parent().data(Qt.UserRole+1).text()
+                tableName = item.text()
 
                 try:
                     cursor = item.getConnection().cursor()
@@ -319,13 +333,13 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionDumpTable_triggered(self):
         if self.treeView.selectedIndexes():
             idx = self.treeView.selectedIndexes()[0]
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
 
             if type(item) is TableTreeItem:
                 db = item.getConnection()
-                dbName = idx.parent().internalPointer().getName()
+                dbName = idx.parent().data(Qt.UserRole+1).text()
                 quoteDbName = db.quoteIdentifier( dbName )
-                tableName = db.quoteIdentifier( item.getName() )
+                tableName = db.quoteIdentifier( item.text() )
 
                 try:
                     cursor = db.cursor()
@@ -432,21 +446,33 @@ UNLOCK TABLES;
     @pyqtSignature("")
     def on_actionDropDatabase_triggered(self):
         queries = []
+        conn = None
+
         for idx in self.treeView.selectedIndexes():
-            if type(idx.internalPointer()) is DatabaseTreeItem:
-                dbName = idx.internalPointer().getName()
-                queries.append( "DROP DATABASE %s;" % self.db.quoteIdentifier(dbName) )
-        if QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
+            item = idx.data(Qt.UserRole+1)
+            if type(item) is DatabaseTreeItem:
+                # Use the first connection found
+                if not conn:
+                    conn = item.getConnection()
+
+                # Skip every selected db not using the same connection
+                if conn != item.getConnection():
+                    continue
+
+                dbName = item.text()
+                queries.append( "DROP DATABASE %s;" % conn.quoteIdentifier(dbName) )
+
+        if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries)+"\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
-                self.db.connection().cursor().execute("\n".join(queries))
+                conn.cursor().execute("\n".join(queries))
             except _mysql_exceptions.ProgrammingError as (errno, errmsg): #@UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
-            self.refreshTreeView()
+            self.dbmsModel.refresh()
 
     @pyqtSignature("")
     def on_actionDropTable_triggered(self):
         if self.queryOnSelectedTables("DROP TABLE %s.%s;"):
-            self.refreshTreeView()
+            self.dbmsModel.refresh()
 
     @pyqtSignature("")
     def on_actionTruncateTable_triggered(self):
@@ -464,10 +490,10 @@ UNLOCK TABLES;
     def on_actionConfigureConnection_triggered(self):
         if self.treeView.selectedIndexes():
             idx = self.treeView.selectedIndexes()[0]
-            item = idx.internalPointer()
+            item = idx.data(Qt.UserRole+1)
 
             if type(item) is ConnectionTreeItem:
-                name = item.getName()
+                name = item.text()
                 connection = item.getConnection()
                 options = {
                     "host": connection.host,
@@ -529,12 +555,12 @@ UNLOCK TABLES;
             return
 
         idx = self.treeView.selectedIndexes()[0]
-        item = idx.internalPointer()
+        item = idx.data(Qt.UserRole+1)
 
         if type(item) is not ConnectionTreeItem:
             return
 
-        name = item.getName()
+        name = item.text()
         connection = item.getConnection()
 
         if connection.isOpen():
