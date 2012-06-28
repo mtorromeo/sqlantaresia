@@ -94,6 +94,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         # Saved settings
         QueryTab.font.fromString( self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0') )
+        TableDetails.defaultLimit = self.getConfInt("@TableDetails", "defaultLimit", 100)
         if self.config.has_section("@MainWindow"):
             self.restoreGeometry( QByteArray.fromBase64( self.config.get("@MainWindow", "geometry") ) )
 
@@ -182,10 +183,15 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         d = SettingsDialog()
         d.setEditorFont(QueryTab.font)
         if d.exec_():
+            for section in ("@QueryEditor", "@TableDetails"):
+                if section not in self.config.sections():
+                    self.config.add_section(section)
+
             QueryTab.font = d.lblSelectedFont.font()
-            if "@QueryEditor" not in self.config.sections():
-                self.config.add_section("@QueryEditor")
+            TableDetails.defaultLimit = d.spinDefaultLimit.value()
             self.config.set("@QueryEditor", "font", QueryTab.font.toString())
+            self.config.set("@TableDetails", "defaultLimit", TableDetails.defaultLimit)
+
             with open(self.configFilename, "wb") as configfile:
                 self.config.write(configfile)
 

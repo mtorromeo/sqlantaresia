@@ -11,6 +11,8 @@ import delegates
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
+    defaultLimit = 100
+
     def __init__(self, db, dbName, tableName):
         QtGui.QTabWidget.__init__(self)
 
@@ -22,6 +24,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableStructure.verticalHeader().hide()
         self.tableIndexes.verticalHeader().hide()
         self.tableData.verticalHeader().hide()
+        self.txtLimit.setValue(self.defaultLimit)
 
         self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName) )
         QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
