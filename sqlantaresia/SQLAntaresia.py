@@ -85,12 +85,6 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.dockToolbar.addAction(self.actionDisconnect)
         self.dockToolbar.addAction(self.actionReconnect)
 
-        # StatusBar Widgets
-        self.lblConnectedHost = QLabel("Host:")
-        self.lblConnectionStatus = QLabel("Status:")
-        self.statusBar.addPermanentWidget(self.lblConnectedHost)
-        self.statusBar.addPermanentWidget(self.lblConnectionStatus)
-
         # TreeViewModel
         self.dbmsModel = DBMSTreeModel(self, self.connections)
         self.treeView.setModel( self.dbmsModel )

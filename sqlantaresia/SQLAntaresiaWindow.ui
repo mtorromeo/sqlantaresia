@@ -87,7 +87,6 @@
    <addaction name="menu_Settings"/>
    <addaction name="menu_Help"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget">
    <property name="minimumSize">
     <size>
@@ -411,22 +410,6 @@
     <hint type="destinationlabel">
      <x>401</x>
      <y>267</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionShowStatusbar</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>statusBar</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>401</x>
-     <y>525</y>
     </hint>
    </hints>
   </connection>
