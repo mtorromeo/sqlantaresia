@@ -138,10 +138,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionReconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
-            item = idx.data(Qt.UserRole+1)
-            connection = item.getConnection()
-            if connection.isOpen():
-                connection.reconnect()
+            item = idx.data(Qt.UserRole+1).getConnectionItem()
+            item.getConnection().reconnect()
+            item.refresh()
+            item.open()
+            self.treeView.setExpanded(idx, True)
 
     @pyqtSignature("")
     def on_actionDisconnect_triggered(self):
