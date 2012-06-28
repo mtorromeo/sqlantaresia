@@ -17,10 +17,14 @@ class BaseTreeItem(QStandardItem):
             item = item.parent
         return item
 
-    def getConnection(self):
+    def getConnectionItem(self):
         item = self
         while item is not None and type(item) is not ConnectionTreeItem:
             item = item.parent()
+        return item
+
+    def getConnection(self):
+        item = self.getConnectionItem()
         return item.connection if type(item) is ConnectionTreeItem else None
 
     def open(self):
@@ -33,9 +37,11 @@ class ConnectionTreeItem(BaseTreeItem):
     def __init__(self, name, connection):
         BaseTreeItem.__init__(self, name)
         self.connection = connection
-        self.refreshData()
+        self.refresh()
 
-    def refreshData(self):
+    def refresh(self):
+        self.setRowCount(0)
+
         if self.connection.isOpen():
             databases = EntityDatabasesTreeItem()
             privileges = EntityPrivilegesTreeItem()
@@ -45,17 +51,13 @@ class ConnectionTreeItem(BaseTreeItem):
 
             databases.refresh()
             privileges.refresh()
-        else:
-            self.setRowCount(0)
+
         self.refreshIcon()
 
     def open(self):
         if not self.connection.isOpen():
-            # self.parent.layoutAboutToBeChanged.emit()
             self.connection.open()
-            self.refreshData()
-            # self.parent.layoutChanged.emit()
-        self.refreshIcon()
+            self.refresh()
 
     def refreshIcon(self):
         if self.connection.isOpen():
