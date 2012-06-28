@@ -125,3 +125,16 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
             self.labelQueryError.setText( errmsg )
             self.labelQueryTime.setText("")
 
+        warningsModel = QPySelectModel(self, self.db)
+        warningsModel.setSelect( "SHOW WARNINGS" )
+        warningsModel.select()
+        self.tableWarnings.setModel( warningsModel )
+        self.tableWarnings.resizeRowsToContents()
+        self.tableWarnings.resizeColumnsToContents()
+
+        height = 0
+        for i in range(len(warningsModel._rows)):
+            height += self.tableWarnings.rowHeight(i)+2
+        if height:
+            height += 4
+        self.tableWarnings.setMaximumHeight(height)
