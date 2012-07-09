@@ -152,6 +152,10 @@ class SQLServerConnection(object):
             self.close()
             raise e
 
+    def pid(self):
+        cur = self.cursor()
+        cur.execute('SELECT CONNECTION_ID()')
+        return cur.fetchall()[0][0]
 
     def close(self):
         if self.tunnel is not None:
