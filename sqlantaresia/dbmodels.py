@@ -69,19 +69,21 @@ class ConnectionTreeItem(BaseTreeItem):
 class EntityDatabasesTreeItem(BaseTreeItem):
     def __init__(self):
         BaseTreeItem.__init__(self, "Databases")
+        self.setColumnCount(2)
         self.setIcon(QIcon(":/16/icons/database.png"))
 
     def getDbList(self):
         dblist = []
         db = self.getConnection().cursor()
-        db.execute("SHOW DATABASES")
+        db.execute("SELECT table_schema AS name, SUM(data_length + index_length) / 1024 / 1024 AS size FROM `information_schema`.`TABLES` GROUP BY table_schema")
+        # db.execute("SHOW DATABASES")
         for row in db.fetchall():
-            dblist.append( row[0] )
+            dblist.append( row )
         return dblist
 
     def refresh(self):
         for i, db in enumerate(self.getDbList()):
-            self.insertRow(i, DatabaseTreeItem(db))
+            self.insertRow(i, [DatabaseTreeItem(db[0]), BaseTreeItem("%d MB" % db[1])])
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self):
@@ -140,7 +142,7 @@ class DBMSTreeModel(QStandardItemModel):
         QStandardItemModel.__init__(self, parent)
         self.setConnections(connections)
         self.setColumnCount(1)
-        self.setHorizontalHeaderLabels(["Connections"])
+        self.setHorizontalHeaderLabels(["Connections", "Dimension"])
 
     def setConnections(self, connections):
         self.connections = connections

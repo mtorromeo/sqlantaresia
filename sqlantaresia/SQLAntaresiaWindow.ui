@@ -122,6 +122,12 @@
      <property name="headerHidden">
       <bool>true</bool>
      </property>
+     <attribute name="headerMinimumSectionSize">
+      <number>1</number>
+     </attribute>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
     </widget>
    </widget>
   </widget>

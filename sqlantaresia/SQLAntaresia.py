@@ -13,7 +13,7 @@ import datetime
 import MySQLdb
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QModelIndex, QByteArray, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar, QShortcut, QKeySequence
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QLabel, QDialog, QToolBar, QShortcut, QKeySequence, QHeaderView
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection
@@ -88,6 +88,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         # TreeViewModel
         self.dbmsModel = DBMSTreeModel(self, self.connections)
         self.treeView.setModel( self.dbmsModel )
+        self.treeView.header().setResizeMode(0, QHeaderView.Stretch)
+        self.treeView.header().setResizeMode(1, QHeaderView.ResizeToContents)
 
         # ContextMenu
         self.menuTable = QMenu(self.treeView)
