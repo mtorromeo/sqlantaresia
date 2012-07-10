@@ -43,6 +43,19 @@ There is a unix shell script in the root of the distribution package named *buil
 CHANGELOG
 ---------
 
+New in version 0.5
+''''''''''''''''''
+* Display database size in the treeview
+* Improved treeview refreshing
+* The default query limit for the table details view is now configurable
+* Implemented detailed warnings visualization in the query editor
+* Implemented table dumps
+* Implemented configuration of the mysql protocol compression
+* Implemented action toolbar in the query editor to load/save queries from/to files
+* Inline editing of rows in the table details view
+* Set query editor encoding to UTF-8
+* Fixed query execution time calculations
+
 New in version 0.4.2
 ''''''''''''''''''''
 * Add option to hide the idle processes on recent mysql versions
