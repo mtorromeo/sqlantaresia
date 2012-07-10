@@ -83,6 +83,32 @@ class TunnelThread(Thread):
         del self.ssh_client
         Thread.join(self)
 
+class QueryThread(Thread):
+    def __init__(self, connection, query, query_params = None, callback = None):
+        Thread.__init__(self)
+        self.connection = connection
+        self.query = query
+        self.query_params = query_params
+        self.callback = callback
+        self.running = False
+        self.daemon = True
+
+    def run(self):
+        self.cursor = self.connection.cursor()
+        self.pid = self.connection.pid()
+
+        self.running = True
+        self.cursor.execute(self.query, self.query_params)
+        self.result = self.cursor.fetchall()
+        self.running = False
+
+        if self.callback:
+            self.callback(self.result)
+
+    def kill(self):
+        if self.running:
+            self.connection.kill(self.pid)
+
 class SQLServerConnection(object):
     tunnel = None
     dbpool = None
@@ -111,6 +137,8 @@ class SQLServerConnection(object):
         self.tunnel_username = tunnel_username
         self.tunnel_password = tunnel_password
         self.tunnel_port = tunnel_port
+
+        self.async_queries = []
 
     def connection(self):
         if not self.isOpen():
@@ -157,11 +185,24 @@ class SQLServerConnection(object):
         cur.execute('SELECT CONNECTION_ID()')
         return cur.fetchall()[0][0]
 
+    def kill(self, pid):
+        return self.connection()._con.kill(pid)
+
+    def asyncQuery(self, query, query_params = None, callback = None):
+        t = QueryThread(self, query, query_params, callback)
+        t.start()
+        self.async_queries.append(t)
+
     def close(self):
+        for query in self.async_queries:
+            query.kill()
+        self.async_queries = []
+
         if self.tunnel is not None:
             self.tunnel.join()
             del self.tunnel
             self.tunnel = None
+
         self.dbpool = None
 
     def reconnect(self):
