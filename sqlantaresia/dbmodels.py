@@ -77,7 +77,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         def showDbSize(result):
             for row in result:
                 i = self.rowsByDb[ row[0] ]
-                self.setChild(i, 1, BaseTreeItem("%d MB" % row[1] / 1024 / 1024))
+                self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
 
         self.getConnection().asyncQuery("SELECT TABLE_SCHEMA, SUM(DATA_LENGTH) + SUM(INDEX_LENGTH) FROM `information_schema`.`TABLES` GROUP BY TABLE_SCHEMA", callback = showDbSize)
 
