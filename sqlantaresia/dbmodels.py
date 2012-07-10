@@ -71,19 +71,28 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         BaseTreeItem.__init__(self, "Databases")
         self.setColumnCount(2)
         self.setIcon(QIcon(":/16/icons/database.png"))
+        self.rowsByDb = {}
 
     def getDbList(self):
+        def showDbSize(result):
+            for row in result:
+                i = self.rowsByDb[ row[0] ]
+                self.setChild(i, 1, BaseTreeItem("%d MB" % row[1] / 1024 / 1024))
+
+        self.getConnection().asyncQuery("SELECT TABLE_SCHEMA, SUM(DATA_LENGTH) + SUM(INDEX_LENGTH) FROM `information_schema`.`TABLES` GROUP BY TABLE_SCHEMA", callback = showDbSize)
+
         dblist = []
         db = self.getConnection().cursor()
-        db.execute("SELECT table_schema AS name, SUM(data_length + index_length) / 1024 / 1024 AS size FROM `information_schema`.`TABLES` GROUP BY table_schema")
-        # db.execute("SHOW DATABASES")
+        db.execute("SHOW DATABASES")
         for row in db.fetchall():
-            dblist.append( row )
+            dblist.append( row[0] )
         return dblist
 
     def refresh(self):
+        self.rowsByDb = {}
         for i, db in enumerate(self.getDbList()):
-            self.insertRow(i, [DatabaseTreeItem(db[0]), BaseTreeItem("%d MB" % db[1])])
+            self.rowsByDb[ db ] = i
+            self.insertRow(i, DatabaseTreeItem(db))
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self):
