@@ -69,8 +69,8 @@ class ConnectionTreeItem(BaseTreeItem):
 class EntityDatabasesTreeItem(BaseTreeItem):
     def __init__(self):
         BaseTreeItem.__init__(self, "Databases")
-        self.setColumnCount(2)
         self.setIcon(QIcon(":/16/icons/database.png"))
+        self.setColumnCount(2)
         self.rowsByDb = {}
 
     def getDbList(self):
@@ -116,8 +116,17 @@ class DatabaseTreeItem(BaseTreeItem):
     def __init__(self, db):
         BaseTreeItem.__init__(self, db)
         self.setIcon(QIcon(":/16/icons/database.png"))
+        self.setColumnCount(2)
+        self.rowsByTable = {}
 
     def getTableList(self):
+        def showTableSize(result):
+            for row in result:
+                i = self.rowsByTable[ row[0] ]
+                self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
+
+        self.getConnection().asyncQuery("SELECT TABLE_NAME, DATA_LENGTH + INDEX_LENGTH FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA = %s", (self.text(),), callback = showTableSize)
+
         tablelist = []
 
         conn = self.getConnection()
@@ -130,7 +139,9 @@ class DatabaseTreeItem(BaseTreeItem):
         return tablelist
 
     def refresh(self):
+        self.rowsByTable = {}
         for i, table in enumerate(self.getTableList()):
+            self.rowsByTable[ table ] = i
             self.insertRow(i, TableTreeItem(table))
 
     def open(self):
