@@ -172,7 +172,7 @@ class DBMSTreeModel(QStandardItemModel):
         self.clear()
 
         try:
-            for i, connectionName in enumerate(self.connections):
+            for i, connectionName in enumerate(sorted(self.connections.iterkeys())):
                 self.insertRow(i, ConnectionTreeItem(connectionName, self.connections[connectionName]))
         except Exception as e:
             self.clear()
