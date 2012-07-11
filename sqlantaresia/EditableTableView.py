@@ -2,6 +2,7 @@
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QTableView, QAbstractItemView
 
+
 class EditableTableView(QTableView):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return and self.state() != QAbstractItemView.EditingState:

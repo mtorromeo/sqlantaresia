@@ -19,15 +19,17 @@ try:
 except ImportError:
     Random = None
 
+
 class ForwardServer(SocketServer.ThreadingTCPServer):
     daemon_threads = True
     allow_reuse_address = True
+
 
 class Handler(SocketServer.BaseRequestHandler):
     def handle(self):
         try:
             chan = self.ssh_transport.open_channel('direct-tcpip', (self.chain_host, self.chain_port), self.request.getpeername())
-        except Exception, e:
+        except Exception:
             return
 
         if chan is None:
@@ -47,6 +49,7 @@ class Handler(SocketServer.BaseRequestHandler):
                 self.request.send(data)
         chan.close()
         self.request.close()
+
 
 class TunnelThread(Thread):
     def __init__(self, ssh_server, local_port=0, ssh_port=22, remote_host="localhost", remote_port=None, username=None, password=None):
@@ -85,12 +88,13 @@ class TunnelThread(Thread):
         del self.ssh_client
         Thread.join(self)
 
+
 class QueryThread(QThread):
     query_success = pyqtSignal(object)
     query_error = pyqtSignal(int, str)
     query_terminated = pyqtSignal(object)
 
-    def __init__(self, connection, query, query_params = None, db = None):
+    def __init__(self, connection, query, query_params=None, db=None):
         QThread.__init__(self)
         self.connection = connection
         self.query = query
@@ -129,11 +133,12 @@ class QueryThread(QThread):
         if self.running:
             self.connection.kill(self.pid)
 
+
 class SQLServerConnection(object):
     tunnel = None
     dbpool = None
 
-    def __init__(self, username = None, password = "", host = "localhost", port = 3306, compression = False, use_tunnel = False, tunnel_username = None, tunnel_password = None, tunnel_port = 22):
+    def __init__(self, username=None, password="", host="localhost", port=3306, compression=False, use_tunnel=False, tunnel_username=None, tunnel_password=None, tunnel_port=22):
         if username is None:
             try:
                 self.username = os.getlogin()
@@ -186,14 +191,14 @@ class SQLServerConnection(object):
     def open(self):
         try:
             if self.use_tunnel and self.tunnel is None:
-                self.tunnel = TunnelThread(username = self.tunnel_username, password = self.tunnel_password, ssh_server = self.host, ssh_port = self.tunnel_port, remote_port = self.port)
+                self.tunnel = TunnelThread(username=self.tunnel_username, password=self.tunnel_password, ssh_server=self.host, ssh_port=self.tunnel_port, remote_port=self.port)
                 self.tunnel.start()
                 host = "127.0.0.1"
                 port = self.tunnel.local_port
             else:
                 host = self.host
                 port = self.port
-            self.dbpool = PersistentDB(creator = MySQLdb, host = host, port = port, user = self.username, passwd = self.password, charset = "utf8", use_unicode = True, compress = self.compression, setsession = ['SET AUTOCOMMIT = 1'])
+            self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=self.username, passwd=self.password, charset="utf8", use_unicode=True, compress=self.compression, setsession=['SET AUTOCOMMIT = 1'])
             # test connection
             self.cursor().execute("SELECT 1")
         except (socket.error, _mysql_exceptions.OperationalError) as e:
@@ -208,7 +213,7 @@ class SQLServerConnection(object):
     def kill(self, pid):
         return self.connection()._con.kill(pid)
 
-    def asyncQuery(self, query, query_params = None, db = None, callback = None, callback_error = None, callback_terminated = None):
+    def asyncQuery(self, query, query_params=None, db=None, callback=None, callback_error=None, callback_terminated=None):
         t = QueryThread(self, query, query_params, db)
         if callback:
             t.query_success.connect(callback)

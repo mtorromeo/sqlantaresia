@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import _mysql_exceptions
-from PyQt4.QtCore import Qt, QModelIndex
-from PyQt4.QtGui import QStandardItem, QStandardItemModel, QImage, QIcon
+from PyQt4.QtGui import QStandardItem, QStandardItemModel, QIcon
+
 
 class BaseTreeItem(QStandardItem):
     def __init__(self, name):
@@ -33,6 +32,7 @@ class BaseTreeItem(QStandardItem):
     def __repr__(self):
         return "<" + self.__class__.__name__ + " " + self.getName() + ">"
 
+
 class ConnectionTreeItem(BaseTreeItem):
     def __init__(self, name, connection):
         BaseTreeItem.__init__(self, name)
@@ -61,9 +61,9 @@ class ConnectionTreeItem(BaseTreeItem):
 
     def refreshIcon(self):
         if self.connection.isOpen():
-            self.setIcon( QIcon(":/16/icons/database_server.png") )
+            self.setIcon(QIcon(":/16/icons/database_server.png"))
         else:
-            self.setIcon( QIcon(":/16/icons/database_connect.png") )
+            self.setIcon(QIcon(":/16/icons/database_connect.png"))
 
 
 class EntityDatabasesTreeItem(BaseTreeItem):
@@ -76,23 +76,24 @@ class EntityDatabasesTreeItem(BaseTreeItem):
     def getDbList(self):
         def showDbSize(t):
             for row in t.result:
-                i = self.rowsByDb[ row[0] ]
+                i = self.rowsByDb[row[0]]
                 self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
 
-        self.getConnection().asyncQuery("SELECT TABLE_SCHEMA, SUM(DATA_LENGTH) + SUM(INDEX_LENGTH) FROM `information_schema`.`TABLES` GROUP BY TABLE_SCHEMA", callback = showDbSize)
+        self.getConnection().asyncQuery("SELECT TABLE_SCHEMA, SUM(DATA_LENGTH) + SUM(INDEX_LENGTH) FROM `information_schema`.`TABLES` GROUP BY TABLE_SCHEMA", callback=showDbSize)
 
         dblist = []
         db = self.getConnection().cursor()
         db.execute("SHOW DATABASES")
         for row in db.fetchall():
-            dblist.append( row[0] )
+            dblist.append(row[0])
         return dblist
 
     def refresh(self):
         self.rowsByDb = {}
         for i, db in enumerate(self.getDbList()):
-            self.rowsByDb[ db ] = i
+            self.rowsByDb[db] = i
             self.insertRow(i, DatabaseTreeItem(db))
+
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self):
@@ -104,7 +105,7 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
         db = self.getConnection().cursor()
         db.execute("SELECT GRANTEE FROM `information_schema`.`USER_PRIVILEGES` GROUP BY GRANTEE")
         for row in db.fetchall():
-            privlist.append( row[0] )
+            privlist.append(row[0])
         return privlist
 
     def refresh(self):
@@ -122,10 +123,10 @@ class DatabaseTreeItem(BaseTreeItem):
     def getTableList(self):
         def showTableSize(t):
             for row in t.result:
-                i = self.rowsByTable[ row[0] ]
+                i = self.rowsByTable[row[0]]
                 self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
 
-        self.getConnection().asyncQuery("SELECT TABLE_NAME, DATA_LENGTH + INDEX_LENGTH FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA = %s", (self.text(),), callback = showTableSize)
+        self.getConnection().asyncQuery("SELECT TABLE_NAME, DATA_LENGTH + INDEX_LENGTH FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA = %s", (self.text(),), callback=showTableSize)
 
         tablelist = []
 
@@ -134,28 +135,31 @@ class DatabaseTreeItem(BaseTreeItem):
 
         db.execute("SHOW TABLES IN %s" % conn.quoteIdentifier(self.text()))
         for row in db.fetchall():
-            tablelist.append( row[0] )
+            tablelist.append(row[0])
 
         return tablelist
 
     def refresh(self):
         self.rowsByTable = {}
         for i, table in enumerate(self.getTableList()):
-            self.rowsByTable[ table ] = i
+            self.rowsByTable[table] = i
             self.insertRow(i, TableTreeItem(table))
 
     def open(self):
         self.refresh()
+
 
 class TableTreeItem(BaseTreeItem):
     def __init__(self, table):
         BaseTreeItem.__init__(self, table)
         self.setIcon(QIcon(":/16/icons/database_table.png"))
 
+
 class PrivilegeTreeItem(BaseTreeItem):
     def __init__(self, priv):
         BaseTreeItem.__init__(self, priv)
         self.setIcon(QIcon(":/16/icons/user.png"))
+
 
 class DBMSTreeModel(QStandardItemModel):
     def __init__(self, parent=None, connections=None):

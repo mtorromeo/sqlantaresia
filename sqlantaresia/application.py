@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import sip, os, sys
+import sip
+import sys
+
 sip.setapi("QString", 2)
 sip.setapi("QVariant", 2)
 

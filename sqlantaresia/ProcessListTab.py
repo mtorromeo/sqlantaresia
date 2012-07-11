@@ -5,6 +5,7 @@ from QPySqlModels import QPySelectModel
 
 from Ui_ProcessListWidget import Ui_ProcessListWidget
 
+
 class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
     def __init__(self, connection):
         QTabWidget.__init__(self)
@@ -38,7 +39,7 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_timer_timeout)
-        self.on_spinSeconds_valueChanged( self.spinSeconds.value() )
+        self.on_spinSeconds_valueChanged(self.spinSeconds.value())
         self.on_chkAutoRefresh_stateChanged()
 
     def on_chkAutoRefresh_stateChanged(self):
@@ -49,7 +50,7 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
 
     @pyqtSignature("int")
     def on_spinSeconds_valueChanged(self, seconds):
-        self.timer.setInterval( seconds * 1000 )
+        self.timer.setInterval(seconds * 1000)
 
     @pyqtSignature("")
     def on_btnRefresh_clicked(self):
@@ -62,9 +63,9 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
         queryModel = QPySelectModel(self, self.connection)
         if self.processListInInfoSchema:
             where = "" if self.chkShowIdle.isChecked() else "WHERE STATE != ''"
-            queryModel.setSelect( "SELECT %s FROM information_schema.PROCESSLIST %s ORDER BY TIME DESC" % (",".join(self.processListColumns), where) )
+            queryModel.setSelect("SELECT %s FROM information_schema.PROCESSLIST %s ORDER BY TIME DESC" % (",".join(self.processListColumns), where))
         else:
-            queryModel.setSelect( "SHOW FULL PROCESSLIST" )
+            queryModel.setSelect("SHOW FULL PROCESSLIST")
         queryModel.select()
-        self.tableProcessList.setModel( queryModel )
+        self.tableProcessList.setModel(queryModel)
         self.tableProcessList.resizeColumnsToContents()

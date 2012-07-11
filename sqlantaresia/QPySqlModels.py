@@ -5,6 +5,7 @@ import operator
 
 #from MySQLdb.cursors import SSCursor
 
+
 class QPySelectModel(QAbstractTableModel):
     _rows = []
     _statement = None
@@ -31,11 +32,10 @@ class QPySelectModel(QAbstractTableModel):
         self._types = []
 
         for row in result:
-            self._rows.append( list(row) )
+            self._rows.append(list(row))
 
         if self._rows:
             self._types = [description[1] for description in cursor.description]
-
 
     def setSelect(self, statement):
         self._statement = statement
@@ -47,7 +47,7 @@ class QPySelectModel(QAbstractTableModel):
         return 0 if self.cursor.description is None else len(self.cursor.description)
 
     def data(self, index, role):
-        if not self._rows or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole, Qt.EditRole] or index.row()>=len(self._rows) or index.column()>=len(self._rows[index.row()]):
+        if not self._rows or not index.isValid() or not role in [Qt.DisplayRole, Qt.UserRole, Qt.EditRole] or index.row() >= len(self._rows) or index.column() >= len(self._rows[index.row()]):
             return None
 
         data = self._rows[index.row()][index.column()]
@@ -70,6 +70,7 @@ class QPySelectModel(QAbstractTableModel):
         self.layoutAboutToBeChanged.emit()
         self._rows = sorted(self._rows, key=operator.itemgetter(ncol), reverse=(order == Qt.DescendingOrder))
         self.layoutChanged.emit()
+
 
 class QPyTableModel(QPySelectModel):
     def __init__(self, parent, db):
@@ -94,17 +95,17 @@ class QPyTableModel(QPySelectModel):
             for primary_column in self._primary_columns:
                 for i, column in enumerate(self.cursor.description):
                     if column[0] == primary_column:
-                        where.append( "%s = ?" % self.db.quoteIdentifier(primary_column) )
-                        values.append( row[i] )
+                        where.append("%s = ?" % self.db.quoteIdentifier(primary_column))
+                        values.append(row[i])
                         break
             else:
                 for i, column in enumerate(self.cursor.description):
-                    where.append("%s = ?" % self.db.quoteIdentifier(column[0]) )
-                    values.append( row[i] )
+                    where.append("%s = ?" % self.db.quoteIdentifier(column[0]))
+                    values.append(row[i])
 
-            query = "UPDATE %s SET %s = ? WHERE %s LIMIT 1" % ( self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier( self.cursor.description[index.column()][0] ), " AND ".join(where))
+            query = "UPDATE %s SET %s = ? WHERE %s LIMIT 1" % (self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier(self.cursor.description[index.column()][0]), " AND ".join(where))
             cursor = self.db.cursor()
-            cursor.execute( query.replace('?', '%s'), values )
+            cursor.execute(query.replace('?', '%s'), values)
 
             self._rows[index.row()][index.column()] = value
 
@@ -122,7 +123,7 @@ class QPyTableModel(QPySelectModel):
     def setLimit(self, limit=0):
         self._limit = int(limit)
 
-    def select(self, primary_columns = None):
+    def select(self, primary_columns=None):
         self._primary_columns = [] if primary_columns is None else primary_columns
         statement = "SELECT * FROM %s" % self.db.quoteIdentifier(self._tableName)
         if self._filter:

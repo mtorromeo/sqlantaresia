@@ -10,6 +10,7 @@ import delegates
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
+
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     defaultLimit = 100
 
@@ -26,7 +27,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableData.verticalHeader().hide()
         self.txtLimit.setValue(self.defaultLimit)
 
-        self.lblQueryDesc.setText( "SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName) )
+        self.lblQueryDesc.setText("SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName))
         QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
 
         self.db.setDatabase(self.dbName)
@@ -38,15 +39,13 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
         #Data
         self.tableModel = QPyTableModel(self, self.db)
-        self.tableModel.setTable( self.tableName )
+        self.tableModel.setTable(self.tableName)
         QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
-        self.tableData.setModel( self.tableModel )
+        self.tableData.setModel(self.tableModel)
 
         self.refreshData()
 
     def refreshInfo(self):
-        sysLocale = QLocale.system()
-
         db = self.db.connection().cursor()
         db.execute("SELECT `TABLE_TYPE`, `ENGINE`, `ROW_FORMAT`, `TABLE_ROWS`, `DATA_LENGTH`, `AUTO_INCREMENT`, `CREATE_TIME`, `UPDATE_TIME`, `CHECK_TIME`, `TABLE_COLLATION` FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s", (self.dbName, self.tableName))
         result = db.fetchone()
@@ -65,12 +64,12 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
     def refreshData(self):
         self.db.setDatabase(self.dbName)
-        self.tableModel.setFilter( self.txtWhere.text() )
-        self.tableModel.setLimit( self.txtLimit.text() )
+        self.tableModel.setFilter(self.txtWhere.text())
+        self.tableModel.setLimit(self.txtLimit.text())
         try:
             self.tableModel.select(self.primary_columns)
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):
-            self.lblDataSubmitResult.setText( errmsg )
+            self.lblDataSubmitResult.setText(errmsg)
         self.tableModel.reset()
         self.tableData.resizeColumnsToContents()
 
@@ -102,14 +101,14 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         try:
             modelStructure.select()
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):
-            self.lblDataSubmitResult.setText( errmsg )
+            self.lblDataSubmitResult.setText(errmsg)
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
 
     def refreshIndexes(self):
         self.db.setDatabase(self.dbName)
 
-        db = self.db.cursor( MySQLdb.cursors.DictCursor )
+        db = self.db.cursor(MySQLdb.cursors.DictCursor)
         db.execute("SHOW INDEX FROM %s" % self.db.quoteIdentifier(self.tableName))
         data = db.fetchall()
 
@@ -121,7 +120,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         if data:
             for n, row in enumerate(data):
                 if row["Key_name"] == "PRIMARY":
-                    self.primary_columns.append( row["Column_name"] )
+                    self.primary_columns.append(row["Column_name"])
 
                 modelIndexes.setItem(n, 0, QtGui.QStandardItem(row["Key_name"]))
                 modelIndexes.setItem(n, 1, QtGui.QStandardItem(row["Index_type"]))
@@ -133,7 +132,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
                 modelIndexes.setItem(n, 7, QtGui.QStandardItem(str(row["Null"])))
                 modelIndexes.setItem(n, 8, QtGui.QStandardItem(row["Comment"]))
 
-            modelIndexes.setHorizontalHeaderLabels( labels )
+            modelIndexes.setHorizontalHeaderLabels(labels)
 
         self.tableIndexes.setModel(modelIndexes)
         self.tableIndexes.resizeColumnsToContents()
@@ -147,16 +146,16 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         where = self.txtWhere.text()
         if not where:
             where = "1"
-        limit = int( self.txtLimit.text() )
+        limit = int(self.txtLimit.text())
         if limit:
             limit = " LIMIT %d" % limit
         else:
             limit = ""
         index = self.window().tabsWidget.addTab(
             QueryTab(
-                db = self.db,
-                dbName = self.dbName,
-                query = "SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit)
+                db=self.db,
+                dbName=self.dbName,
+                query="SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit)
             ),
             QtGui.QIcon(":/16/icons/database_edit.png"),
             "Query on %s" % (self.dbName)
@@ -171,7 +170,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     def on_btnApply_clicked(self):
         self.tableModel.submitAll()
         if self.tableModel.lastError().isValid():
-            self.lblDataSubmitResult.setText( self.tableModel.lastError().databaseText() )
+            self.lblDataSubmitResult.setText(self.tableModel.lastError().databaseText())
         self.btnUndo.setEnabled(False)
         self.btnApply.setEnabled(False)
 

@@ -3,6 +3,7 @@ from PyQt4.QtGui import QDialog, QFontDialog
 
 from Ui_SettingsDialog import Ui_SettingsDialog
 
+
 class SettingsDialog(QDialog, Ui_SettingsDialog):
     def __init__(self):
         QDialog.__init__(self)

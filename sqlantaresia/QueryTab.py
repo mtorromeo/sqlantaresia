@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import QTabWidget, QColor, QFont, QToolBar, QFileDialog
-from PyQt4.QtCore import pyqtSignature, Qt
+from PyQt4.QtCore import pyqtSignature
 from PyQt4.Qsci import QsciScintilla, QsciLexerSQL
 from QPySqlModels import QPySelectModel
-import _mysql_exceptions
-import time
 import codecs
 
 from Ui_QueryWidget import Ui_QueryWidget
+
 
 class QueryTab(QTabWidget, Ui_QueryWidget):
     font = QFont("fixed")
@@ -36,21 +35,21 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.lexer.setFont(self.font)
         self.txtQuery.setMarginsFont(self.font)
 
-        fgColor = QColor(190,190,190,255)
-        bgColor = QColor(30,36,38,255)
-        black = QColor(0,0,0,255)
-        comment = QColor(101,103,99,255)
+        fgColor = QColor(190, 190, 190, 255)
+        bgColor = QColor(30, 36, 38, 255)
+        black = QColor(0, 0, 0, 255)
+        comment = QColor(101, 103, 99, 255)
 
         self.lexer.setDefaultColor(fgColor)
         self.lexer.setColor(fgColor, self.lexer.Default)
         self.lexer.setColor(comment, self.lexer.Comment)
         self.lexer.setColor(comment, self.lexer.CommentLine)
         self.lexer.setColor(comment, self.lexer.CommentDoc)
-        self.lexer.setColor(QColor(204,33,33,255), self.lexer.Number)
-        self.lexer.setColor(QColor(114,160,207,255), self.lexer.Keyword)
-        self.lexer.setColor(QColor(139,226,51,255), self.lexer.DoubleQuotedString)
-        self.lexer.setColor(QColor(139,226,51,255), self.lexer.SingleQuotedString)
-        self.lexer.setColor(QColor(252,163,61,255), self.lexer.PlusKeyword)
+        self.lexer.setColor(QColor(204, 33, 33, 255), self.lexer.Number)
+        self.lexer.setColor(QColor(114, 160, 207, 255), self.lexer.Keyword)
+        self.lexer.setColor(QColor(139, 226, 51, 255), self.lexer.DoubleQuotedString)
+        self.lexer.setColor(QColor(139, 226, 51, 255), self.lexer.SingleQuotedString)
+        self.lexer.setColor(QColor(252, 163, 61, 255), self.lexer.PlusKeyword)
         self.lexer.setColor(fgColor, self.lexer.Operator)
         self.lexer.setColor(fgColor, self.lexer.Identifier)
         self.lexer.setColor(comment, self.lexer.PlusComment)
@@ -62,11 +61,11 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.txtQuery.setCaretForegroundColor(fgColor)
         self.txtQuery.setSelectionBackgroundColor(black)
         self.txtQuery.setCaretLineVisible(True)
-        self.txtQuery.setCaretLineBackgroundColor(QColor(44,53,56,255))
+        self.txtQuery.setCaretLineBackgroundColor(QColor(44, 53, 56, 255))
         self.txtQuery.setMarginsForegroundColor(bgColor)
         self.txtQuery.setMarginsBackgroundColor(black)
         self.txtQuery.setMatchedBraceForegroundColor(fgColor)
-        self.txtQuery.setMatchedBraceBackgroundColor(QColor(89,71,47,255))
+        self.txtQuery.setMatchedBraceBackgroundColor(QColor(89, 71, 47, 255))
 
         self.txtQuery.setAutoIndent(True)
         self.txtQuery.setFolding(QsciScintilla.NoFoldStyle)
@@ -106,13 +105,12 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
     def saveQuery(self, fileName):
         with codecs.open(fileName, "w", "utf-8") as f:
-            f.write( self.txtQuery.text() )
+            f.write(self.txtQuery.text())
 
     @pyqtSignature("")
     def on_btnExecuteQuery_clicked(self):
         self.db.setDatabase(self.dbName)
         queryModel = QPySelectModel(self, self.db)
-
 
         def queryTerminated():
             self.btnExecuteQuery.setVisible(True)
@@ -120,7 +118,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
         def queryExecuted(t):
             queryModel.setResult(t.result, t.cursor)
-            self.tableQueryResult.setModel( queryModel )
+            self.tableQueryResult.setModel(queryModel)
 
             if self.txtQuery.text().strip().lower().startswith('select'):
                 self.labelQueryError.setText("%d rows returned" % t.cursor.rowcount)
@@ -131,15 +129,15 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
             self.tableQueryResult.resizeColumnsToContents()
 
             warningsModel = QPySelectModel(self, self.db)
-            warningsModel.setSelect( "SHOW WARNINGS" )
+            warningsModel.setSelect("SHOW WARNINGS")
             warningsModel.select()
-            self.tableWarnings.setModel( warningsModel )
+            self.tableWarnings.setModel(warningsModel)
             self.tableWarnings.resizeRowsToContents()
             self.tableWarnings.resizeColumnsToContents()
 
             height = 0
             for i in range(len(warningsModel._rows)):
-                height += self.tableWarnings.rowHeight(i)+2
+                height += self.tableWarnings.rowHeight(i) + 2
             if height:
                 height += 4
             self.tableWarnings.setMaximumHeight(height)
@@ -147,17 +145,16 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
             queryTerminated()
 
         def queryError(errno, errmsg):
-            self.labelQueryError.setText( errmsg )
+            self.labelQueryError.setText(errmsg)
             self.labelQueryTime.setText("")
             queryTerminated()
-
 
         self.labelQueryError.setText("Running query...")
         self.labelQueryTime.setText("")
         self.btnExecuteQuery.setVisible(False)
         self.btnKillQuery.setVisible(True)
 
-        self.queryThread = self.db.asyncQuery( self.txtQuery.text(), db=self.dbName, callback=queryExecuted, callback_error=queryError )
+        self.queryThread = self.db.asyncQuery(self.txtQuery.text(), db=self.dbName, callback=queryExecuted, callback_error=queryError)
 
     @pyqtSignature("")
     def on_btnKillQuery_clicked(self):
