@@ -18,6 +18,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.db = db
         self.dbName = dbName
         self.queryFile = None
+        self.queryThread = None
 
         self.setupUi(self)
         self.tableQueryResult.verticalHeader().hide()
@@ -78,6 +79,8 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
         self.txtQuery.setUtf8(True)
         self.txtQuery.setText(query)
 
+        self.btnKillQuery.setVisible(False)
+
     @pyqtSignature("")
     def on_actionLoadQuery_triggered(self):
         fileName = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql)")
@@ -109,32 +112,54 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
     def on_btnExecuteQuery_clicked(self):
         self.db.setDatabase(self.dbName)
         queryModel = QPySelectModel(self, self.db)
-        queryModel.setSelect( self.txtQuery.text() )
-        try:
-            elapsed = time.time()
-            queryModel.select()
-            elapsed = time.time() - elapsed
+
+
+        def queryTerminated():
+            self.btnExecuteQuery.setVisible(True)
+            self.btnKillQuery.setVisible(False)
+
+        def queryExecuted(t):
+            queryModel.setResult(t.result, t.cursor)
             self.tableQueryResult.setModel( queryModel )
+
             if self.txtQuery.text().strip().lower().startswith('select'):
-                self.labelQueryError.setText("%d rows returned" % queryModel.cursor.rowcount)
+                self.labelQueryError.setText("%d rows returned" % t.cursor.rowcount)
             else:
-                self.labelQueryError.setText("%d rows affected" % queryModel.cursor.rowcount)
-            self.labelQueryTime.setText("Query took %f sec" % elapsed)
+                self.labelQueryError.setText("%d rows affected" % t.cursor.rowcount)
+
+            self.labelQueryTime.setText("Query took %f sec" % t.elapsed_time)
             self.tableQueryResult.resizeColumnsToContents()
-        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError) as (errno, errmsg):
+
+            warningsModel = QPySelectModel(self, self.db)
+            warningsModel.setSelect( "SHOW WARNINGS" )
+            warningsModel.select()
+            self.tableWarnings.setModel( warningsModel )
+            self.tableWarnings.resizeRowsToContents()
+            self.tableWarnings.resizeColumnsToContents()
+
+            height = 0
+            for i in range(len(warningsModel._rows)):
+                height += self.tableWarnings.rowHeight(i)+2
+            if height:
+                height += 4
+            self.tableWarnings.setMaximumHeight(height)
+
+            queryTerminated()
+
+        def queryError(errno, errmsg):
             self.labelQueryError.setText( errmsg )
             self.labelQueryTime.setText("")
+            queryTerminated()
 
-        warningsModel = QPySelectModel(self, self.db)
-        warningsModel.setSelect( "SHOW WARNINGS" )
-        warningsModel.select()
-        self.tableWarnings.setModel( warningsModel )
-        self.tableWarnings.resizeRowsToContents()
-        self.tableWarnings.resizeColumnsToContents()
 
-        height = 0
-        for i in range(len(warningsModel._rows)):
-            height += self.tableWarnings.rowHeight(i)+2
-        if height:
-            height += 4
-        self.tableWarnings.setMaximumHeight(height)
+        self.labelQueryError.setText("Running query...")
+        self.labelQueryTime.setText("")
+        self.btnExecuteQuery.setVisible(False)
+        self.btnKillQuery.setVisible(True)
+
+        self.queryThread = self.db.asyncQuery( self.txtQuery.text(), db=self.dbName, callback=queryExecuted, callback_error=queryError )
+
+    @pyqtSignature("")
+    def on_btnKillQuery_clicked(self):
+        if self.queryThread:
+            self.queryThread.kill()

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
 import select
 import paramiko
 import socket
@@ -9,6 +10,7 @@ import MySQLdb
 import SocketServer
 
 from threading import Thread
+from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QMessageBox, QApplication
 from DBUtils.PersistentDB import PersistentDB
 
@@ -83,27 +85,45 @@ class TunnelThread(Thread):
         del self.ssh_client
         Thread.join(self)
 
-class QueryThread(Thread):
-    def __init__(self, connection, query, query_params = None, callback = None):
-        Thread.__init__(self)
+class QueryThread(QThread):
+    query_success = pyqtSignal(object)
+    query_error = pyqtSignal(int, str)
+    query_terminated = pyqtSignal(object)
+
+    def __init__(self, connection, query, query_params = None, db = None):
+        QThread.__init__(self)
         self.connection = connection
         self.query = query
         self.query_params = query_params
-        self.callback = callback
+        self.db = db
         self.running = False
         self.daemon = True
+        self.elapsed_time = -1
 
     def run(self):
+        if self.db:
+            self.connection.setDatabase(self.db)
         self.cursor = self.connection.cursor()
         self.pid = self.connection.pid()
+        self.elapsed_time = -1
 
-        self.running = True
-        self.cursor.execute(self.query, self.query_params)
-        self.result = self.cursor.fetchall()
-        self.running = False
+        try:
+            self.running = True
+            elapsed = time.time()
+            self.cursor.execute(self.query, self.query_params)
+            self.result = self.cursor.fetchall()
+            elapsed = time.time() - elapsed
 
-        if self.callback:
-            self.callback(self.result)
+        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError) as (errno, errmsg):
+            self.query_error.emit(errno, errmsg)
+
+        else:
+            self.elapsed_time = elapsed
+            self.query_success.emit(self)
+
+        finally:
+            self.running = False
+            self.query_terminated.emit(self)
 
     def kill(self):
         if self.running:
@@ -188,10 +208,17 @@ class SQLServerConnection(object):
     def kill(self, pid):
         return self.connection()._con.kill(pid)
 
-    def asyncQuery(self, query, query_params = None, callback = None):
-        t = QueryThread(self, query, query_params, callback)
+    def asyncQuery(self, query, query_params = None, db = None, callback = None, callback_error = None, callback_terminated = None):
+        t = QueryThread(self, query, query_params, db)
+        if callback:
+            t.query_success.connect(callback)
+        if callback_error:
+            t.query_error.connect(callback_error)
+        if callback_terminated:
+            t.query_terminated.connect(callback_terminated)
         t.start()
         self.async_queries.append(t)
+        return t
 
     def close(self):
         for query in self.async_queries:

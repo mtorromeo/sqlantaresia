@@ -74,8 +74,8 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         self.rowsByDb = {}
 
     def getDbList(self):
-        def showDbSize(result):
-            for row in result:
+        def showDbSize(t):
+            for row in t.result:
                 i = self.rowsByDb[ row[0] ]
                 self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
 
@@ -120,8 +120,8 @@ class DatabaseTreeItem(BaseTreeItem):
         self.rowsByTable = {}
 
     def getTableList(self):
-        def showTableSize(result):
-            for row in result:
+        def showTableSize(t):
+            for row in t.result:
                 i = self.rowsByTable[ row[0] ]
                 self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
 

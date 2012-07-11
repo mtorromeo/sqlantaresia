@@ -102,6 +102,17 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="btnKillQuery">
+           <property name="text">
+            <string>&amp;Kill</string>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>

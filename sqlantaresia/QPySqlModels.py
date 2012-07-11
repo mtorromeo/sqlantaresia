@@ -23,11 +23,19 @@ class QPySelectModel(QAbstractTableModel):
 
         if self._statement is not None:
             self.cursor.execute(self._statement)
-            for row in self.cursor.fetchall():
-                self._rows.append( list(row) )
+            self.setResult(self.cursor.fetchall(), self.cursor)
 
-            if self._rows:
-                self._types = [description[1] for description in self.cursor.description]
+    def setResult(self, result, cursor):
+        self.cursor = cursor
+        self._rows = []
+        self._types = []
+
+        for row in result:
+            self._rows.append( list(row) )
+
+        if self._rows:
+            self._types = [description[1] for description in cursor.description]
+
 
     def setSelect(self, statement):
         self._statement = statement
