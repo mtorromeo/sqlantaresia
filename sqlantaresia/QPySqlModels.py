@@ -51,7 +51,11 @@ class QPySelectModel(QAbstractTableModel):
             return None
 
         data = self._rows[index.row()][index.column()]
-        return "NULL" if data is None else unicode(data)
+        try:
+            data = "NULL" if data is None else unicode(data)
+        except UnicodeDecodeError:
+            data = "BLOB"
+        return data
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole or orientation == Qt.Vertical:
