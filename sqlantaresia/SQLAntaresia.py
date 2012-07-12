@@ -261,7 +261,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         elif _type in [ProcedureTreeItem, FunctionTreeItem]:
             parent = modelIndex.parent().data(Qt.UserRole + 1)
             dbName = parent.text()
-            procName = item.text()
+            procName = item.name
 
             try:
                 conn = item.getConnection()

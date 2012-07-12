@@ -205,14 +205,16 @@ class PrivilegeTreeItem(BaseTreeItem):
 
 
 class ProcedureTreeItem(BaseTreeItem):
-    def __init__(self, priv):
-        BaseTreeItem.__init__(self, priv)
+    def __init__(self, proc):
+        BaseTreeItem.__init__(self, proc + "()")
+        self.name = proc
         self.setIcon(QIcon(":/16/icons/code.png"))
 
 
 class FunctionTreeItem(BaseTreeItem):
-    def __init__(self, priv):
-        BaseTreeItem.__init__(self, priv)
+    def __init__(self, func):
+        BaseTreeItem.__init__(self, func + "()")
+        self.name = func
         self.setIcon(QIcon(":/16/icons/code.png"))
 
 
