@@ -162,9 +162,12 @@ class DatabaseTreeItem(BaseTreeItem):
     def refresh(self):
         BaseTreeItem.refresh(self)
 
+        i = None
         for i, proc in enumerate(self.getProcedureList()):
             self.insertRow(i, ProcedureTreeItem(proc))
 
+        if i is None:
+            i = -1
         self.rowsByTable = {}
         for table in self.getTableList():
             i += 1
