@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
+    <width>885</width>
     <height>600</height>
    </rect>
   </property>
@@ -57,7 +57,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>885</width>
      <height>18</height>
     </rect>
    </property>
@@ -90,7 +90,7 @@
   <widget class="QDockWidget" name="dockWidget">
    <property name="minimumSize">
     <size>
-     <width>180</width>
+     <width>250</width>
      <height>180</height>
     </size>
    </property>

@@ -127,8 +127,12 @@ class DatabaseTreeItem(BaseTreeItem):
     def getTableList(self):
         def showTableSize(t):
             for row in t.result:
+                size = row[1]
+                if size is None:
+                    size = 0
+
                 i = self.rowsByTable[row[0]]
-                self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
+                self.setChild(i, 1, BaseTreeItem("%d MB" % (size / 1024 / 1024)))
 
         self.getConnection().asyncQuery("SELECT TABLE_NAME, DATA_LENGTH + INDEX_LENGTH FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA = %s", (self.text(),), callback=showTableSize)
 
