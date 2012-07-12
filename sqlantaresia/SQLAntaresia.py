@@ -281,6 +281,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         elif _type is TableTreeItem:
             self.menuTable.addAction(self.actionShowCreate)
             self.menuTable.addAction(self.actionDumpTable)
+            self.menuTable.addAction(self.actionAnalyzeTable)
             self.menuTable.addAction(self.actionOptimizeTable)
             self.menuTable.addAction(self.actionRepairTable)
             self.menuTable.addAction(self.actionTruncateTable)
@@ -521,6 +522,10 @@ UNLOCK TABLES;
     @pyqtSignature("")
     def on_actionTruncateTable_triggered(self):
         self.queryOnSelectedTables("TRUNCATE TABLE %s.%s;")
+
+    @pyqtSignature("")
+    def on_actionAnalyzeTable_triggered(self):
+        self.queryOnSelectedTables("ANALYZE TABLE %s;", listTables=True)
 
     @pyqtSignature("")
     def on_actionOptimizeTable_triggered(self):

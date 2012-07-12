@@ -394,6 +394,14 @@
     <string>Dump Table</string>
    </property>
   </action>
+  <action name="actionAnalyzeTable">
+   <property name="text">
+    <string>Analyze Table</string>
+   </property>
+   <property name="toolTip">
+    <string>Analyze Table</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
