@@ -276,6 +276,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         if _type is DatabaseTreeItem:
             self.menuTable.addAction(self.actionNewQueryTab)
+            self.menuTable.addAction(self.actionShowCreate)
             self.menuTable.addAction(self.actionDropDatabase)
 
         elif _type is TableTreeItem:
@@ -337,13 +338,19 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             idx = self.treeView.selectedIndexes()[0]
             item = idx.data(Qt.UserRole + 1)
 
-            if type(item) is TableTreeItem:
-                dbName = idx.parent().data(Qt.UserRole + 1).text()
-                tableName = item.text()
-
+            if type(item) in [DatabaseTreeItem, TableTreeItem]:
                 try:
-                    cursor = item.getConnection().cursor()
-                    cursor.execute("SHOW CREATE TABLE `%s`.`%s`;" % (dbName, tableName))
+                    conn = item.getConnection()
+                    cursor = conn.cursor()
+
+                    if type(item) is TableTreeItem:
+                        dbName = idx.parent().data(Qt.UserRole + 1).text()
+                        tableName = item.text()
+                        cursor.execute("SHOW CREATE TABLE %s.%s;" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
+                    else:
+                        dbName = item.text()
+                        cursor.execute("SHOW CREATE DATABASE %s;" % (conn.quoteIdentifier(dbName)))
+
                     row = cursor.fetchone()
                     create = row[1]
                 except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
