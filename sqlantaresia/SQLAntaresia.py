@@ -214,37 +214,43 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionConfigureSQLAntaresia_triggered(self):
         d = SettingsDialog()
         d.setEditorFont(QueryTab.font)
-        if d.exec_():
-            for section in ("@QueryEditor", "@TableDetails"):
-                if section not in self.config.sections():
-                    self.config.add_section(section)
+        if not d.exec_():
+            return
 
-            QueryTab.font = d.lblSelectedFont.font()
-            TableDetails.defaultLimit = d.spinDefaultLimit.value()
-            self.config.set("@QueryEditor", "font", QueryTab.font.toString())
-            self.config.set("@TableDetails", "defaultLimit", TableDetails.defaultLimit)
+        for section in ("@QueryEditor", "@TableDetails"):
+            if section not in self.config.sections():
+                self.config.add_section(section)
 
-            with open(self.configFilename, "wb") as configfile:
-                self.config.write(configfile)
+        QueryTab.font = d.lblSelectedFont.font()
+        TableDetails.defaultLimit = d.spinDefaultLimit.value()
+        self.config.set("@QueryEditor", "font", QueryTab.font.toString())
+        self.config.set("@TableDetails", "defaultLimit", TableDetails.defaultLimit)
+
+        with open(self.configFilename, "wb") as configfile:
+            self.config.write(configfile)
 
     @pyqtSignature("")
     def on_actionNewQueryTab_triggered(self):
-        if self.treeView.selectedIndexes():
-            idx = self.treeView.selectedIndexes()[0]
-            item = idx.data(Qt.UserRole + 1)
+        if not self.treeView.selectedIndexes():
+            return
 
-            if type(item) is DatabaseTreeItem:
-                dbName = item.text()
-                self.addQueryTab(item.getConnection(), dbName)
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.data(Qt.UserRole + 1)
+
+        if type(item) is DatabaseTreeItem:
+            dbName = item.text()
+            self.addQueryTab(item.getConnection(), dbName)
 
     @pyqtSignature("")
     def on_actionShowProcessList_triggered(self):
-        if self.treeView.selectedIndexes():
-            idx = self.treeView.selectedIndexes()[0]
-            connection = idx.data(Qt.UserRole + 1).getConnection()
+        if not self.treeView.selectedIndexes():
+            return
 
-            index = self.tabsWidget.addTab(ProcessListTab(connection), QIcon(":/16/icons/database_server.png"), "Process list of %s" % (connection.host))
-            self.tabsWidget.setCurrentIndex(index)
+        idx = self.treeView.selectedIndexes()[0]
+        connection = idx.data(Qt.UserRole + 1).getConnection()
+
+        index = self.tabsWidget.addTab(ProcessListTab(connection), QIcon(":/16/icons/database_server.png"), "Process list of %s" % (connection.host))
+        self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
         item = modelIndex.data(Qt.UserRole + 1)
@@ -325,22 +331,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         for idx in self.treeView.selectedIndexes():
             item = idx.data(Qt.UserRole + 1)
-            if type(item) is TableTreeItem:
-                # Use the first connection found
-                if not conn:
-                    conn = item.getConnection()
+            if type(item) is not TableTreeItem:
+                continue
 
-                # Skip every selected db not using the same connection
-                if conn != item.getConnection():
-                    continue
+            # Use the first connection found
+            if not conn:
+                conn = item.getConnection()
 
-                dbName = item.parent().text()
-                tableName = item.text()
+            # Skip every selected db not using the same connection
+            if conn != item.getConnection():
+                continue
 
-                if listTables:
-                    queries.append("%s.%s" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
-                else:
-                    queries.append(queryTpl % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
+            dbName = item.parent().text()
+            tableName = item.text()
+
+            if listTables:
+                queries.append("%s.%s" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
+            else:
+                queries.append(queryTpl % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
 
         if listTables:
             query = queryTpl % (", ".join(queries))
@@ -351,55 +359,63 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
     @pyqtSignature("")
     def on_actionShowCreate_triggered(self):
-        if self.treeView.selectedIndexes():
-            idx = self.treeView.selectedIndexes()[0]
-            item = idx.data(Qt.UserRole + 1)
+        if not self.treeView.selectedIndexes():
+            return
 
-            if type(item) in [DatabaseTreeItem, TableTreeItem]:
-                try:
-                    conn = item.getConnection()
-                    cursor = conn.cursor()
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.data(Qt.UserRole + 1)
 
-                    if type(item) is TableTreeItem:
-                        dbName = idx.parent().data(Qt.UserRole + 1).text()
-                        tableName = item.text()
-                        cursor.execute("SHOW CREATE TABLE %s.%s;" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
-                    else:
-                        dbName = item.text()
-                        cursor.execute("SHOW CREATE DATABASE %s;" % (conn.quoteIdentifier(dbName)))
+        if type(item) not in [DatabaseTreeItem, TableTreeItem]:
+            return
 
-                    row = cursor.fetchone()
-                    create = row[1]
-                except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
-                    QMessageBox.critical(self, "Query result", errmsg)
+        try:
+            conn = item.getConnection()
+            cursor = conn.cursor()
 
-                index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName))
-                self.tabsWidget.setCurrentIndex(index)
+            if type(item) is TableTreeItem:
+                dbName = idx.parent().data(Qt.UserRole + 1).text()
+                tableName = item.text()
+                cursor.execute("SHOW CREATE TABLE %s.%s;" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(tableName)))
+            else:
+                dbName = item.text()
+                cursor.execute("SHOW CREATE DATABASE %s;" % (conn.quoteIdentifier(dbName)))
+
+            row = cursor.fetchone()
+            create = row[1]
+        except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            QMessageBox.critical(self, "Query result", errmsg)
+
+        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName))
+        self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
     def on_actionDumpTable_triggered(self):
-        if self.treeView.selectedIndexes():
-            idx = self.treeView.selectedIndexes()[0]
-            item = idx.data(Qt.UserRole + 1)
+        if not self.treeView.selectedIndexes():
+            return
 
-            if type(item) is TableTreeItem:
-                db = item.getConnection()
-                dbName = idx.parent().data(Qt.UserRole + 1).text()
-                quoteDbName = db.quoteIdentifier(dbName)
-                tableName = db.quoteIdentifier(item.text())
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.data(Qt.UserRole + 1)
 
-                try:
-                    cursor = db.cursor()
+        if type(item) is not TableTreeItem:
+            return
 
-                    cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, tableName))
-                    row = cursor.fetchone()
-                    createTable = row[1]
+        db = item.getConnection()
+        dbName = idx.parent().data(Qt.UserRole + 1).text()
+        quoteDbName = db.quoteIdentifier(dbName)
+        tableName = db.quoteIdentifier(item.text())
 
-                    cursor.execute("SHOW VARIABLES LIKE 'version';")
-                    row = cursor.fetchone()
-                    serverVersion = row[1]
+        try:
+            cursor = db.cursor()
 
-                    dump = """-- {appName} {appVersion}
+            cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, tableName))
+            row = cursor.fetchone()
+            createTable = row[1]
+
+            cursor.execute("SHOW VARIABLES LIKE 'version';")
+            row = cursor.fetchone()
+            serverVersion = row[1]
+
+            dump = """-- {appName} {appVersion}
 --
 -- Host: {host}    Database: {dbName}
 -- ------------------------------------------------------
@@ -435,30 +451,30 @@ DROP TABLE IF EXISTS {tableName};
     createTable=createTable,
 )
 
-                    data = []
-                    cursor.execute("SELECT * FROM %s.%s;" % (quoteDbName, tableName))
+            data = []
+            cursor.execute("SELECT * FROM %s.%s;" % (quoteDbName, tableName))
 
-                    for row in cursor.fetchall():
-                        datarow = []
-                        for i, cell in enumerate(row):
-                            if cell is None:
-                                datarow.append("NULL")
-                            elif cursor.description[i][1] in MySQLdb.BINARY:
-                                datarow.append("0x%s" % cell.encode("hex"))
-                            elif isinstance(cell, basestring):
-                                try:
-                                    datarow.append("'%s'" % db.escapeString(cell.encode("utf-8")))
-                                except UnicodeDecodeError:
-                                    datarow.append("0x%s" % cell.encode("hex"))
-                            elif isinstance(cell, (int, long, float)):
-                                datarow.append(str(cell))
-                            else:
-                                datarow.append("'%s'" % db.escapeString(str(cell)))
-                                print type(cell), cell
-                        data.append("(%s)" % ",".join(datarow))
+            for row in cursor.fetchall():
+                datarow = []
+                for i, cell in enumerate(row):
+                    if cell is None:
+                        datarow.append("NULL")
+                    elif cursor.description[i][1] in MySQLdb.BINARY:
+                        datarow.append("0x%s" % cell.encode("hex"))
+                    elif isinstance(cell, basestring):
+                        try:
+                            datarow.append("'%s'" % db.escapeString(cell.encode("utf-8")))
+                        except UnicodeDecodeError:
+                            datarow.append("0x%s" % cell.encode("hex"))
+                    elif isinstance(cell, (int, long, float)):
+                        datarow.append(str(cell))
+                    else:
+                        datarow.append("'%s'" % db.escapeString(str(cell)))
+                        print type(cell), cell
+                data.append("(%s)" % ",".join(datarow))
 
-                    if data:
-                        dump += """
+            if data:
+                dump += """
 --
 -- Dumping data for table {tableName}
 --
@@ -481,13 +497,13 @@ UNLOCK TABLES;
     tableName=tableName,
     data=",".join(data),
 )
-                except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
-                    QMessageBox.critical(self, "Query result", errmsg)
+        except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            QMessageBox.critical(self, "Query result", errmsg)
 
-                dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (quoteDbName, tableName))
-                self.tabsWidget.setCurrentIndex(index)
+        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (quoteDbName, tableName))
+        self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
     def on_actionDropDatabase_triggered(self):
@@ -496,17 +512,20 @@ UNLOCK TABLES;
 
         for idx in self.treeView.selectedIndexes():
             item = idx.data(Qt.UserRole + 1)
-            if type(item) is DatabaseTreeItem:
-                # Use the first connection found
-                if not conn:
-                    conn = item.getConnection()
 
-                # Skip every selected db not using the same connection
-                if conn != item.getConnection():
-                    continue
+            if type(item) is not DatabaseTreeItem:
+                continue
 
-                dbName = item.text()
-                queries.append("DROP DATABASE %s;" % conn.quoteIdentifier(dbName))
+            # Use the first connection found
+            if not conn:
+                conn = item.getConnection()
+
+            # Skip every selected db not using the same connection
+            if conn != item.getConnection():
+                continue
+
+            dbName = item.text()
+            queries.append("DROP DATABASE %s;" % conn.quoteIdentifier(dbName))
 
         if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries) + "\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
@@ -561,44 +580,50 @@ UNLOCK TABLES;
 
     @pyqtSignature("")
     def on_actionConfigureConnection_triggered(self):
-        if self.treeView.selectedIndexes():
-            idx = self.treeView.selectedIndexes()[0]
-            item = idx.data(Qt.UserRole + 1)
+        if not self.treeView.selectedIndexes():
+            return
 
-            if type(item) is ConnectionTreeItem:
-                name = item.text()
-                connection = item.getConnection()
-                options = {
-                    "host": connection.host,
-                    "port": connection.port,
-                    "compression": connection.compression,
-                    "username": connection.username,
-                    "password": connection.password,
-                    "use_tunnel": connection.use_tunnel,
-                    "tunnel_port": connection.tunnel_port,
-                    "tunnel_username": connection.tunnel_username,
-                    "tunnel_password": connection.tunnel_password,
-                }
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.data(Qt.UserRole + 1)
 
-                configDialog = ConfigureConnection(self, name, options)
-                if configDialog.exec_() == QDialog.Accepted:
-                    connection.host = options["host"]
-                    connection.port = options["port"]
-                    connection.compression = options["compression"]
-                    connection.username = options["username"]
-                    connection.password = options["password"]
-                    connection.use_tunnel = options["use_tunnel"]
-                    connection.tunnel_port = options["tunnel_port"]
-                    connection.tunnel_username = options["tunnel_username"]
-                    connection.tunnel_password = options["tunnel_password"]
+        if type(item) is not ConnectionTreeItem:
+            return
 
-                    self.connections[configDialog.connection] = connection
+        name = item.text()
+        connection = item.getConnection()
+        options = {
+            "host": connection.host,
+            "port": connection.port,
+            "compression": connection.compression,
+            "username": connection.username,
+            "password": connection.password,
+            "use_tunnel": connection.use_tunnel,
+            "tunnel_port": connection.tunnel_port,
+            "tunnel_username": connection.tunnel_username,
+            "tunnel_password": connection.tunnel_password,
+        }
 
-                    if name != configDialog.connection:
-                        self.dbmsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
-                        del self.connections[name]
+        configDialog = ConfigureConnection(self, name, options)
+        if configDialog.exec_() != QDialog.Accepted:
+            return
 
-                    self.saveConfig()
+        connection.host = options["host"]
+        connection.port = options["port"]
+        connection.compression = options["compression"]
+        connection.username = options["username"]
+        connection.password = options["password"]
+        connection.use_tunnel = options["use_tunnel"]
+        connection.tunnel_port = options["tunnel_port"]
+        connection.tunnel_username = options["tunnel_username"]
+        connection.tunnel_password = options["tunnel_password"]
+
+        self.connections[configDialog.connection] = connection
+
+        if name != configDialog.connection:
+            self.dbmsModel.setData(idx, configDialog.connection,  Qt.DisplayRole)
+            del self.connections[name]
+
+        self.saveConfig()
 
     @pyqtSignature("")
     def on_actionAddConnection_triggered(self):
@@ -615,12 +640,14 @@ UNLOCK TABLES;
         }
 
         configDialog = ConfigureConnection(self, "", options)
-        if configDialog.exec_() == QDialog.Accepted:
-            name = configDialog.connection
-            if name not in self.connections:
-                self.connections[name] = SQLServerConnection(**options)
-                self.on_actionRefresh_triggered()
-                self.saveConfig()
+        if configDialog.exec_() != QDialog.Accepted:
+            return
+
+        name = configDialog.connection
+        if name not in self.connections:
+            self.connections[name] = SQLServerConnection(**options)
+            self.on_actionRefresh_triggered()
+            self.saveConfig()
 
     @pyqtSignature("")
     def on_actionRemoveConnection_triggered(self):
