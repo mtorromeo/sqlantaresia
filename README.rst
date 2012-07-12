@@ -45,6 +45,7 @@ CHANGELOG
 
 New in version 0.5
 ''''''''''''''''''
+* The query editor now runs the queries in a separate thread without blocking the GUI and allowing the user to kill them before they finish.
 * Display database size in the treeview
 * Improved treeview refreshing
 * The default query limit for the table details view is now configurable
