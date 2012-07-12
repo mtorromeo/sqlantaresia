@@ -23,7 +23,7 @@ from QueryTab import QueryTab
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
 
-from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem
+from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem
 
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
@@ -258,7 +258,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             index = self.tabsWidget.addTab(TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName))
             self.tabsWidget.setCurrentIndex(index)
 
-        elif _type is ProcedureTreeItem:
+        elif _type in [ProcedureTreeItem, FunctionTreeItem]:
             parent = modelIndex.parent().data(Qt.UserRole + 1)
             dbName = parent.text()
             procName = item.text()
@@ -267,7 +267,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 conn = item.getConnection()
                 cursor = conn.cursor()
 
-                cursor.execute("SHOW CREATE PROCEDURE %s.%s;" % (conn.quoteIdentifier(dbName), conn.quoteIdentifier(procName)))
+                cursor.execute("SHOW CREATE %s %s.%s;" % ("PROCEDURE" if _type is ProcedureTreeItem else "FUNCTION", conn.quoteIdentifier(dbName), conn.quoteIdentifier(procName)))
                 row = cursor.fetchone()
                 create = row[2]
             except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable

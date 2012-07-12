@@ -159,6 +159,18 @@ class DatabaseTreeItem(BaseTreeItem):
 
         return proclist
 
+    def getFunctionList(self):
+        funclist = []
+
+        conn = self.getConnection()
+        db = conn.cursor()
+
+        db.execute("SHOW FUNCTION STATUS WHERE Db=%s", self.text())
+        for row in db.fetchall():
+            funclist.append(row[1])
+
+        return funclist
+
     def refresh(self):
         BaseTreeItem.refresh(self)
 
@@ -168,6 +180,11 @@ class DatabaseTreeItem(BaseTreeItem):
 
         if i is None:
             i = -1
+
+        for func in self.getFunctionList():
+            i += 1
+            self.insertRow(i, FunctionTreeItem(func))
+
         self.rowsByTable = {}
         for table in self.getTableList():
             i += 1
@@ -188,6 +205,12 @@ class PrivilegeTreeItem(BaseTreeItem):
 
 
 class ProcedureTreeItem(BaseTreeItem):
+    def __init__(self, priv):
+        BaseTreeItem.__init__(self, priv)
+        self.setIcon(QIcon(":/16/icons/code.png"))
+
+
+class FunctionTreeItem(BaseTreeItem):
     def __init__(self, priv):
         BaseTreeItem.__init__(self, priv)
         self.setIcon(QIcon(":/16/icons/code.png"))
