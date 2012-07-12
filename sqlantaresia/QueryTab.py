@@ -126,6 +126,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
                 self.labelQueryError.setText("%d rows affected" % t.cursor.rowcount)
 
             self.labelQueryTime.setText("Query took %f sec" % t.elapsed_time)
+            self.tableQueryResult.resizeRowsToContents()
             self.tableQueryResult.resizeColumnsToContents()
 
             warningsModel = QPySelectModel(self, self.db)
