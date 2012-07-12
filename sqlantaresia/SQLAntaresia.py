@@ -533,7 +533,7 @@ UNLOCK TABLES;
 
     @pyqtSignature("")
     def on_actionRepairTable_triggered(self):
-        self.queryOnSelectedTables("REPAIR TABLE %s.%s;")
+        self.queryOnSelectedTables("REPAIR TABLE %s;", listTables=True)
 
     @pyqtSignature("")
     def on_actionConfigureConnection_triggered(self):
