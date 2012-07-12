@@ -118,7 +118,7 @@ class QueryThread(QThread):
             self.result = self.cursor.fetchall()
             elapsed = time.time() - elapsed
 
-        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError) as (errno, errmsg):
+        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError, _mysql_exceptions.NotSupportedError) as (errno, errmsg):
             self.query_error.emit(errno, errmsg)
 
         else:
