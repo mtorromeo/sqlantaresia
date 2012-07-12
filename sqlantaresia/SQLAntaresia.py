@@ -235,7 +235,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
             if type(item) is DatabaseTreeItem:
                 dbName = item.text()
-                self.addQueryTab("Query on %s" % dbName, item.getConnection(), dbName)
+                self.addQueryTab(item.getConnection(), dbName)
 
     @pyqtSignature("")
     def on_actionShowProcessList_triggered(self):
