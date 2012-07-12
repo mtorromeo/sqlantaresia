@@ -147,11 +147,27 @@ class DatabaseTreeItem(BaseTreeItem):
 
         return tablelist
 
+    def getProcedureList(self):
+        proclist = []
+
+        conn = self.getConnection()
+        db = conn.cursor()
+
+        db.execute("SHOW PROCEDURE STATUS WHERE Db=%s", self.text())
+        for row in db.fetchall():
+            proclist.append(row[1])
+
+        return proclist
+
     def refresh(self):
         BaseTreeItem.refresh(self)
 
+        for i, proc in enumerate(self.getProcedureList()):
+            self.insertRow(i, ProcedureTreeItem(proc))
+
         self.rowsByTable = {}
-        for i, table in enumerate(self.getTableList()):
+        for table in self.getTableList():
+            i += 1
             self.rowsByTable[table] = i
             self.insertRow(i, TableTreeItem(table))
 
@@ -166,6 +182,12 @@ class PrivilegeTreeItem(BaseTreeItem):
     def __init__(self, priv):
         BaseTreeItem.__init__(self, priv)
         self.setIcon(QIcon(":/16/icons/user.png"))
+
+
+class ProcedureTreeItem(BaseTreeItem):
+    def __init__(self, priv):
+        BaseTreeItem.__init__(self, priv)
+        self.setIcon(QIcon(":/16/icons/code.png"))
 
 
 class DBMSTreeModel(QStandardItemModel):

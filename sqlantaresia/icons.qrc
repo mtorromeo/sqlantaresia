@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="16">
+    <file>icons/code.png</file>
     <file>icons/document-save.png</file>
     <file>icons/document-open.png</file>
     <file>icons/control_panel.png</file>
