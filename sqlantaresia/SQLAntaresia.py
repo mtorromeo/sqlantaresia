@@ -20,6 +20,7 @@ from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from SettingsDialog import SettingsDialog
 from TableDetails import TableDetails
 from QueryTab import QueryTab
+from DumpTab import DumpTab
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
 
@@ -300,6 +301,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         if _type is DatabaseTreeItem:
             self.menuTable.addAction(self.actionNewQueryTab)
             self.menuTable.addAction(self.actionShowCreate)
+            self.menuTable.addAction(self.actionDumpDatabase)
             self.menuTable.addAction(self.actionDropDatabase)
 
         elif _type is TableTreeItem:
@@ -385,7 +387,24 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
             QMessageBox.critical(self, "Query result", errmsg)
 
-        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % (dbName))
+        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % dbName)
+        self.tabsWidget.setCurrentIndex(index)
+
+    @pyqtSignature("")
+    def on_actionDumpDatabase_triggered(self):
+        if not self.treeView.selectedIndexes():
+            return
+
+        idx = self.treeView.selectedIndexes()[0]
+        item = idx.data(Qt.UserRole + 1)
+
+        if type(item) is not DatabaseTreeItem:
+            return
+
+        dbName = item.text()
+        conn = item.getConnection()
+
+        index = self.tabsWidget.addTab(DumpTab(conn, dbName), QIcon(":/16/icons/save.png"), "Dump of %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

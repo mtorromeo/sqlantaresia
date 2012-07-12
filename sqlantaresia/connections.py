@@ -114,8 +114,7 @@ class QueryThread(QThread):
         try:
             self.running = True
             elapsed = time.time()
-            self.cursor.execute(self.query, self.query_params)
-            self.result = self.cursor.fetchall()
+            self.dbworker()
             elapsed = time.time() - elapsed
 
         except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError, _mysql_exceptions.NotSupportedError) as (errno, errmsg):
@@ -128,6 +127,10 @@ class QueryThread(QThread):
         finally:
             self.running = False
             self.query_terminated.emit(self)
+
+    def dbworker(self):
+        self.cursor.execute(self.query, self.query_params)
+        self.result = self.cursor.fetchall()
 
     def kill(self):
         if self.running:
