@@ -258,7 +258,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             index = self.tabsWidget.addTab(TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName))
             self.tabsWidget.setCurrentIndex(index)
 
-        else:
+        elif not self.treeView.isExpanded(modelIndex):
             try:
                 item.open()
             except _mysql_exceptions.OperationalError as (errnum, errmsg):
