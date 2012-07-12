@@ -27,7 +27,10 @@ class BaseTreeItem(QStandardItem):
         return item.connection if type(item) is ConnectionTreeItem else None
 
     def open(self):
-        pass
+        self.refresh()
+
+    def refresh(self):
+        self.setRowCount(0)
 
     def __repr__(self):
         return "<" + self.__class__.__name__ + " " + self.getName() + ">"
@@ -40,7 +43,7 @@ class ConnectionTreeItem(BaseTreeItem):
         self.refresh()
 
     def refresh(self):
-        self.setRowCount(0)
+        BaseTreeItem.refresh(self)
 
         if self.connection.isOpen():
             databases = EntityDatabasesTreeItem()
@@ -49,15 +52,12 @@ class ConnectionTreeItem(BaseTreeItem):
             self.insertRow(0, databases)
             self.insertRow(1, privileges)
 
-            databases.refresh()
-            privileges.refresh()
-
         self.refreshIcon()
 
     def open(self):
         if not self.connection.isOpen():
             self.connection.open()
-            self.refresh()
+            BaseTreeItem.open(self)
 
     def refreshIcon(self):
         if self.connection.isOpen():
@@ -89,6 +89,8 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         return dblist
 
     def refresh(self):
+        BaseTreeItem.refresh(self)
+
         self.rowsByDb = {}
         for i, db in enumerate(self.getDbList()):
             self.rowsByDb[db] = i
@@ -109,6 +111,8 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
         return privlist
 
     def refresh(self):
+        BaseTreeItem.refresh(self)
+
         for i, priv in enumerate(self.getPrivList()):
             self.insertRow(i, PrivilegeTreeItem(priv))
 
@@ -140,13 +144,12 @@ class DatabaseTreeItem(BaseTreeItem):
         return tablelist
 
     def refresh(self):
+        BaseTreeItem.refresh(self)
+
         self.rowsByTable = {}
         for i, table in enumerate(self.getTableList()):
             self.rowsByTable[table] = i
             self.insertRow(i, TableTreeItem(table))
-
-    def open(self):
-        self.refresh()
 
 
 class TableTreeItem(BaseTreeItem):
