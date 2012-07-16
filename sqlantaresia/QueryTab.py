@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QTabWidget, QToolBar, QFileDialog
+from PyQt4.QtGui import QTabWidget, QToolBar
 from PyQt4.QtCore import pyqtSignature
 from QPySqlModels import QPySelectModel
-import codecs
 
 from Ui_QueryWidget import Ui_QueryWidget
 
@@ -13,7 +12,6 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
         self.db = db
         self.dbName = dbName
-        self.queryFile = None
         self.queryThread = None
 
         self.setupUi(self)
@@ -32,30 +30,15 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
     @pyqtSignature("")
     def on_actionLoadQuery_triggered(self):
-        fileName = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql)")
-        if fileName:
-            self.queryFile = fileName
-            with codecs.open(fileName, "r", "utf-8") as f:
-                sql = f.read()
-            self.txtQuery.setText(sql)
+        self.txtQuery.loadDialog()
 
     @pyqtSignature("")
     def on_actionSaveQuery_triggered(self):
-        if not self.queryFile:
-            self.on_actionSaveQueryAs_triggered()
-        else:
-            self.saveQuery(self.queryFile)
+        self.txtQuery.save()
 
     @pyqtSignature("")
     def on_actionSaveQueryAs_triggered(self):
-        fileName = QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql)")
-        if fileName:
-            self.queryFile = fileName
-            self.saveQuery(fileName)
-
-    def saveQuery(self, fileName):
-        with codecs.open(fileName, "w", "utf-8") as f:
-            f.write(self.txtQuery.text())
+        self.txtQuery.saveAsDialog()
 
     @pyqtSignature("")
     def on_btnExecuteQuery_clicked(self):

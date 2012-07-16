@@ -1,6 +1,8 @@
 from PyQt4 import QtGui
 from PyQt4 import Qsci
 
+import codecs
+
 
 class SQLEditor(Qsci.QsciScintilla):
     font = QtGui.QFont("fixed")
@@ -55,3 +57,29 @@ class SQLEditor(Qsci.QsciScintilla):
 
         self.setLexer(self.lexer)
         self.setUtf8(True)
+
+        self.filename = None
+
+    def loadDialog(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql)")
+        if filename:
+            self.filename = filename
+            with codecs.open(self.filename, "r", "utf-8") as f:
+                sql = f.read()
+            self.setText(sql)
+
+    def saveAsDialog(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql)")
+        if filename:
+            self.filename = filename
+            self.saveQuery(self.filename)
+
+    def save(self):
+        if not self.queryFile:
+            self.saveAsDialog()
+        else:
+            self.saveQuery(self.queryFile)
+
+    def saveQuery(self, filename):
+        with codecs.open(filename, "w", "utf-8") as f:
+            f.write(self.text())
