@@ -232,12 +232,14 @@ DROP TABLE IF EXISTS {table};
                                 if cell is None:
                                     datarow.append("NULL")
                                 elif cursor.description[i][1] in MySQLdb.BINARY:
+                                    if type(cell) is unicode:
+                                        cell = cell.encode("utf-8")
                                     datarow.append("0x%s" % cell.encode("hex"))
                                 elif isinstance(cell, basestring):
                                     try:
                                         datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
                                     except UnicodeDecodeError:
-                                        datarow.append("0x%s" % cell.encode("hex"))
+                                        datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
                                 elif isinstance(cell, (int, long, float)):
                                     datarow.append(str(cell))
                                 else:
