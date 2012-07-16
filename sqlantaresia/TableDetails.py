@@ -72,6 +72,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             self.lblDataSubmitResult.setText(errmsg)
         self.tableModel.reset()
         self.tableData.resizeColumnsToContents()
+        self.tableData.resizeRowsToContents()
 
         dateDelegate = None
         timeDelegate = None
@@ -104,6 +105,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             self.lblDataSubmitResult.setText(errmsg)
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
+        self.tableStructure.resizeRowsToContents()
 
     def refreshIndexes(self):
         self.db.setDatabase(self.dbName)
@@ -136,6 +138,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
         self.tableIndexes.setModel(modelIndexes)
         self.tableIndexes.resizeColumnsToContents()
+        self.tableIndexes.resizeRowsToContents()
 
     def tableDataEdited(self):
         self.btnUndo.setEnabled(True)
