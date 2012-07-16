@@ -1,6 +1,10 @@
 from PyQt4 import QtGui
 from PyQt4 import Qsci
 
+from zipfile import ZipFile
+from gzip import GzipFile
+from bz2 import BZ2File
+
 import codecs
 
 
@@ -61,25 +65,45 @@ class SQLEditor(Qsci.QsciScintilla):
         self.filename = None
 
     def loadDialog(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql)")
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
-            with codecs.open(self.filename, "r", "utf-8") as f:
+
+            if self.filename.endswith(".gz"):
+                opener = GzipFile
+            elif self.filename.endswith(".bz2"):
+                opener = BZ2File
+            elif self.filename.endswith(".zip"):
+                opener = ZipFile
+            else:
+                opener = open
+
+            with codecs.EncodedFile(opener(self.filename, "r"), "utf-8") as f:
                 sql = f.read()
+
             self.setText(sql)
 
     def saveAsDialog(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql)")
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
             self.saveQuery(self.filename)
 
     def save(self):
-        if not self.queryFile:
+        if not self.filename:
             self.saveAsDialog()
         else:
-            self.saveQuery(self.queryFile)
+            self.saveQuery(self.filename)
 
     def saveQuery(self, filename):
-        with codecs.open(filename, "w", "utf-8") as f:
+        if filename.endswith(".gz"):
+            opener = GzipFile
+        elif filename.endswith(".bz2"):
+            opener = BZ2File
+        elif filename.endswith(".zip"):
+            opener = ZipFile
+        else:
+            opener = open
+
+        with codecs.EncodedFile(opener(self.filename, "w"), "utf-8") as f:
             f.write(self.text())
