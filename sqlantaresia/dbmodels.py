@@ -147,6 +147,18 @@ class DatabaseTreeItem(BaseTreeItem):
 
         return tablelist
 
+    def getTriggerList(self):
+        triglist = []
+
+        conn = self.getConnection()
+        db = conn.cursor()
+
+        db.execute("SHOW TRIGGERS FROM %s" % conn.quoteIdentifier(self.text()))
+        for row in db.fetchall():
+            triglist.append(row[0])
+
+        return triglist
+
     def getProcedureList(self):
         proclist = []
 
@@ -185,6 +197,10 @@ class DatabaseTreeItem(BaseTreeItem):
             i += 1
             self.insertRow(i, FunctionTreeItem(func))
 
+        for trig in self.getTriggerList():
+            i += 1
+            self.insertRow(i, TriggerTreeItem(trig))
+
         self.rowsByTable = {}
         for table in self.getTableList():
             i += 1
@@ -216,6 +232,12 @@ class FunctionTreeItem(BaseTreeItem):
         BaseTreeItem.__init__(self, func + "()")
         self.name = func
         self.setIcon(QIcon(":/16/icons/code.png"))
+
+
+class TriggerTreeItem(BaseTreeItem):
+    def __init__(self, trig):
+        BaseTreeItem.__init__(self, trig)
+        self.setIcon(QIcon(":/16/icons/database_lightning.png"))
 
 
 class DBMSTreeModel(QStandardItemModel):

@@ -25,7 +25,7 @@ from DumpTab import DumpTab
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
 
-from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem
+from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem, TriggerTreeItem
 
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
@@ -266,6 +266,38 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             index = self.tabsWidget.addTab(TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName))
             self.tabsWidget.setCurrentIndex(index)
 
+        elif _type is TriggerTreeItem:
+            parent = modelIndex.parent().data(Qt.UserRole + 1)
+            dbName = parent.text()
+            trigName = item.text()
+
+            try:
+                conn = item.getConnection()
+                cursor = conn.cursor()
+
+                query = "SHOW TRIGGERS IN %s WHERE `Trigger` = ?;" % (conn.quoteIdentifier(dbName),)
+                cursor.execute(query.replace("?", "%s"), trigName)
+                row = cursor.fetchone()
+                statement = row[3]
+            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+                QMessageBox.critical(self, "Query result", errmsg)
+                return
+
+            create = """DROP TRIGGER {trigger};
+
+CREATE TRIGGER {trigger} {timing} {event} ON {table}
+FOR EACH ROW
+{statement};
+""".format(
+    trigger=conn.quoteIdentifier(trigName),
+    timing=row[4],
+    event=row[1],
+    table=conn.quoteIdentifier(row[2]),
+    statement=statement,
+)
+
+            self.addQueryTab(conn, dbName, create)
+
         elif _type in [ProcedureTreeItem, FunctionTreeItem]:
             parent = modelIndex.parent().data(Qt.UserRole + 1)
             dbName = parent.text()
@@ -280,6 +312,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 create = row[2]
             except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
+                return
 
             self.addQueryTab(conn, dbName, create)
 
