@@ -402,6 +402,18 @@
     <string>Analyze Table</string>
    </property>
   </action>
+  <action name="actionDumpDatabase">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/16/icons/document-save.png</normaloff>:/16/icons/document-save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dump Database</string>
+   </property>
+   <property name="toolTip">
+    <string>Dump Database</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
