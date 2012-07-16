@@ -33,7 +33,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QsciScintilla" name="txtQuery">
+          <widget class="SQLEditor" name="txtQuery">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
              <horstretch>0</horstretch>
@@ -51,12 +51,6 @@
              <width>0</width>
              <height>100</height>
             </size>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="whatsThis">
-            <string/>
            </property>
           </widget>
          </item>
@@ -243,9 +237,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QsciScintilla</class>
-   <extends>QFrame</extends>
-   <header>Qsci/qsciscintilla.h</header>
+   <class>SQLEditor</class>
+   <extends>QTextEdit</extends>
+   <header>editor</header>
   </customwidget>
  </customwidgets>
  <resources>

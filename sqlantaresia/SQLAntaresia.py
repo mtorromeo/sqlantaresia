@@ -20,6 +20,7 @@ from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
 from SettingsDialog import SettingsDialog
 from TableDetails import TableDetails
 from QueryTab import QueryTab
+from editor import SQLEditor
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
 
@@ -95,7 +96,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.menuTable = QMenu(self.treeView)
 
         # Saved settings
-        QueryTab.font.fromString(self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0'))
+        SQLEditor.font.fromString(self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0'))
         TableDetails.defaultLimit = self.getConfInt("@TableDetails", "defaultLimit", 100)
         if self.config.has_section("@MainWindow"):
             self.restoreGeometry(QByteArray.fromBase64(self.config.get("@MainWindow", "geometry")))
