@@ -168,6 +168,14 @@ class SQLServerConnection(object):
 
         self.async_queries = []
 
+    def iterdb(self, cursor, arraysize=10):
+        while True:
+            results = cursor.fetchmany(arraysize)
+            if not results:
+                break
+            for result in results:
+                yield result
+
     def connection(self):
         if not self.isOpen():
             self.open()
@@ -175,6 +183,12 @@ class SQLServerConnection(object):
 
     def cursor(self, *args, **kwargs):
         return self.connection().cursor(*args, **kwargs)
+
+    def iterall(self, query, query_params=None, cursor=None):
+        if not cursor:
+            cursor = self.cursor()
+        cursor.execute(query, query_params)
+        return self.iterdb(cursor)
 
     def setDatabase(self, database):
         return self.cursor().execute("USE `%s`" % database)

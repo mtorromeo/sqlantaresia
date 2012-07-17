@@ -198,9 +198,10 @@ DROP TABLE IF EXISTS {table};
 
                         data = []
                         limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
-                        cursor.execute("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit))
+                        rownum = 0
+                        for row in self.connection.iterall("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit), cursor=cursor):
+                            rownum += 1
 
-                        for rownum, row in enumerate(cursor.fetchall()):
                             datarow = []
                             for i, cell in enumerate(row):
                                 if cell is None:
