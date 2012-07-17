@@ -216,7 +216,7 @@ DELIMITER ;
     definer=self.connection.quoteIdentifier(definer[0]),
     definerHost=self.connection.quoteIdentifier(definer[1]),
     table=quoteTable,
-    statement=self.connection.quoteIdentifier(trigger[3]),
+    statement=trigger[3],
     timing=trigger[4],
     event=trigger[1],
 ))
