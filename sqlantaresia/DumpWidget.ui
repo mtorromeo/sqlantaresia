@@ -153,11 +153,17 @@
    <item>
     <layout class="QHBoxLayout" name="layoutSave">
      <item>
-      <widget class="QProgressBar" name="progressBar">
-       <property name="value">
-        <number>0</number>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="btnSave">
@@ -171,6 +177,25 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupProgress">
+     <property name="title">
+      <string>Progress</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QProgressBar" name="mainProgressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="subProgressBar"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -196,7 +221,6 @@
   <tabstop>groupData</tabstop>
   <tabstop>chkLimit</tabstop>
   <tabstop>spinLimit</tabstop>
-  <tabstop>btnSave</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>

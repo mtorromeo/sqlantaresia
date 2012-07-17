@@ -25,9 +25,7 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
         self.dbName = dbName
 
         self.setupUi(self)
-        self.progressBar.setVisible(False)
-        self.saveSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.layoutSave.insertItem(0, self.saveSpacer)
+        self.groupProgress.setVisible(False)
 
     @pyqtSignature("")
     def on_btnSave_clicked(self):
@@ -48,8 +46,7 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
         if not fileName:
             return
 
-        self.progressBar.setVisible(True)
-        self.layoutSave.removeItem(self.saveSpacer)
+        self.groupProgress.setVisible(True)
         self.groupSchema.setEnabled(False)
         self.groupData.setEnabled(False)
         self.groupCompression.setEnabled(False)
@@ -60,20 +57,27 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
                                  compression, self.groupSchema.isChecked(),
                                  self.groupData.isChecked(), self.chkTables.isChecked(),
                                  self.chkViews.isChecked(), limitDumpData)
-        self.thread.progress.connect(self.on_progress)
+        self.thread.progress.connect(self.on_dumpProgress)
+        self.thread.subProgress.connect(self.on_dumpSubProgress)
         self.thread.query_terminated.connect(self.on_dumpTerminated)
         self.thread.start()
 
-    def on_progress(self, step, steps, statusMessage):
-        self.progressBar.setFormat(statusMessage + " (%p%)")
-        self.progressBar.setMaximum(steps)
-        self.progressBar.setValue(step)
+    def on_dumpProgress(self, step, steps, statusMessage):
+        self.mainProgressBar.setFormat(statusMessage + " (%p%)")
+        self.mainProgressBar.setMaximum(steps)
+        self.mainProgressBar.setValue(step)
+
+    def on_dumpSubProgress(self, step, steps, statusMessage):
+        self.subProgressBar.setFormat(statusMessage + " (%p%)")
+        self.subProgressBar.setMaximum(steps)
+        self.subProgressBar.setValue(step)
 
     def on_dumpTerminated(self, thread):
-        self.progressBar.setVisible(False)
-        self.progressBar.setFormat("%p%")
-        self.progressBar.setValue(0)
-        self.layoutSave.insertItem(0, self.saveSpacer)
+        self.groupProgress.setVisible(False)
+        self.mainProgressBar.setFormat("%p%")
+        self.mainProgressBar.setValue(0)
+        self.subProgressBar.setFormat("%p%")
+        self.subProgressBar.setValue(0)
         self.groupSchema.setEnabled(True)
         self.groupData.setEnabled(True)
         self.groupCompression.setEnabled(True)
@@ -81,6 +85,7 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
 
 class DumpThread(QueryThread):
     progress = pyqtSignal(int, int, str)
+    subProgress = pyqtSignal(int, int, str)
 
     def __init__(self, connection, db, destfile, compression, dumpSchema, dumpData, dumpTables,
                  dumpViews, limitDumpData):
@@ -123,8 +128,6 @@ class DumpThread(QueryThread):
                 self.steps = 1
                 if self.dumpTables:
                     self.steps += len(tables)
-                if self.dumpData:
-                    self.steps += len(tables)
 
                 if self.dumpViews:
                     cursor.execute("SHOW FULL TABLES IN %s WHERE Table_type='VIEW'" % quoteDbName)
@@ -132,8 +135,6 @@ class DumpThread(QueryThread):
                     self.steps += len(views)
                 else:
                     views = []
-
-                self.advance("Dumping %d tables" % len(tables))
 
                 cursor.execute("SHOW VARIABLES LIKE 'version';")
                 row = cursor.fetchone()
@@ -162,9 +163,11 @@ class DumpThread(QueryThread):
     serverVersion=serverVersion,
 ))
 
-                if self.dumpSchema:
-                    for table in tables:
-                        table = self.connection.quoteIdentifier(table)
+                for table in tables:
+                    table = self.connection.quoteIdentifier(table)
+                    self.advance("Dumping table %s" % table)
+
+                    if self.dumpSchema:
                         cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, table))
                         row = cursor.fetchone()
                         create = row[1]
@@ -185,10 +188,62 @@ DROP TABLE IF EXISTS {table};
     create=create,
 ))
 
-                        self.advance("Generated table schema dump for %s" % table)
+                    if self.dumpData:
+                        cursor.execute("SELECT COUNT(*) FROM %s.%s;" % (quoteDbName, table))
+                        count = cursor.fetchone()[0]
+                        if self.limitDumpData:
+                            count = min(count, self.limitDumpData)
 
+                        self.subProgress.emit(0, count, "Dumping rows of table %s" % table)
+
+                        data = []
+                        limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
+                        cursor.execute("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit))
+
+                        for rownum, row in enumerate(cursor.fetchall()):
+                            datarow = []
+                            for i, cell in enumerate(row):
+                                if cell is None:
+                                    datarow.append("NULL")
+                                elif cursor.description[i][1] in MySQLdb.BINARY:
+                                    if type(cell) is unicode:
+                                        cell = cell.encode("utf-8")
+                                    datarow.append("0x%s" % cell.encode("hex"))
+                                elif isinstance(cell, basestring):
+                                    try:
+                                        datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
+                                    except UnicodeDecodeError:
+                                        datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
+                                elif isinstance(cell, (int, long, float)):
+                                    datarow.append(str(cell))
+                                else:
+                                    datarow.append("'%s'" % self.connection.escapeString(str(cell)))
+                            data.append("(%s)" % ",".join(datarow))
+
+                            self.subProgress.emit(rownum, count, "Dumping rows of table %s" % table)
+
+                        if data:
+                            f.write("""
+
+--
+-- Dumping data for table {table}
+--
+
+LOCK TABLES {table} WRITE;
+/*!40000 ALTER TABLE {table} DISABLE KEYS */;
+INSERT INTO {table} VALUES {data};
+/*!40000 ALTER TABLE {table} ENABLE KEYS */;
+UNLOCK TABLES;
+""".format(
+    table=table,
+    data=",".join(data),
+))
+
+                if self.dumpSchema:
                     for view in views:
                         view = self.connection.quoteIdentifier(view)
+                        self.advance("Dumping view %s" % table)
+
                         cursor.execute("SHOW CREATE VIEW %s.%s;" % (quoteDbName, view))
                         row = cursor.fetchone()
 
@@ -218,52 +273,7 @@ DROP TABLE IF EXISTS {table};
     create=create,
 ))
 
-                        self.advance("Generated view structure dump for %s" % view)
-
-                if self.dumpData:
-                    for table in tables:
-                        data = []
-                        limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
-                        cursor.execute("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit))
-
-                        for row in cursor.fetchall():
-                            datarow = []
-                            for i, cell in enumerate(row):
-                                if cell is None:
-                                    datarow.append("NULL")
-                                elif cursor.description[i][1] in MySQLdb.BINARY:
-                                    if type(cell) is unicode:
-                                        cell = cell.encode("utf-8")
-                                    datarow.append("0x%s" % cell.encode("hex"))
-                                elif isinstance(cell, basestring):
-                                    try:
-                                        datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
-                                    except UnicodeDecodeError:
-                                        datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
-                                elif isinstance(cell, (int, long, float)):
-                                    datarow.append(str(cell))
-                                else:
-                                    datarow.append("'%s'" % self.connection.escapeString(str(cell)))
-                            data.append("(%s)" % ",".join(datarow))
-
-                        if data:
-                            f.write("""
-
---
--- Dumping data for table {table}
---
-
-LOCK TABLES {table} WRITE;
-/*!40000 ALTER TABLE {table} DISABLE KEYS */;
-INSERT INTO {table} VALUES {data};
-/*!40000 ALTER TABLE {table} ENABLE KEYS */;
-UNLOCK TABLES;
-""".format(
-    table=table,
-    data=",".join(data),
-))
-
-                        self.advance("Generated table data dump for %s" % table)
+                self.advance("Dump terminated")
 
             except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
                 print errmsg
