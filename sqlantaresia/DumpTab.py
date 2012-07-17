@@ -54,9 +54,10 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
         limitDumpData = self.spinLimit.value() if self.chkLimit.isChecked() else None
 
         self.thread = DumpThread(self.connection, self.dbName, fileName,
-                                 compression, self.groupSchema.isChecked(),
-                                 self.groupData.isChecked(), self.chkTables.isChecked(),
-                                 self.chkViews.isChecked(), limitDumpData)
+                                 compression, dumpSchema=self.groupSchema.isChecked(),
+                                 dumpData=self.groupData.isChecked(), dumpTables=self.chkTables.isChecked(),
+                                 dumpViews=self.chkViews.isChecked(), dumpTriggers=self.chkTriggers.isChecked(),
+                                 limitDumpData=limitDumpData)
         self.thread.progress.connect(self.on_dumpProgress)
         self.thread.subProgress.connect(self.on_dumpSubProgress)
         self.thread.query_terminated.connect(self.on_dumpTerminated)
@@ -88,7 +89,7 @@ class DumpThread(QueryThread):
     subProgress = pyqtSignal(int, int, str)
 
     def __init__(self, connection, db, destfile, compression, dumpSchema, dumpData, dumpTables,
-                 dumpViews, limitDumpData):
+                 dumpViews, dumpTriggers, limitDumpData):
         QueryThread.__init__(self, connection=connection, db=db, query="")
         self.destfile = destfile
         self.compression = compression
@@ -96,6 +97,7 @@ class DumpThread(QueryThread):
         self.dumpData = dumpData
         self.dumpTables = dumpSchema and dumpTables
         self.dumpViews = dumpSchema and dumpViews
+        self.dumpTriggers = dumpSchema and dumpTriggers
         self.limitDumpData = limitDumpData
         self.step = 0
         self.steps = 0
@@ -164,11 +166,11 @@ class DumpThread(QueryThread):
 ))
 
                 for table in tables:
-                    table = self.connection.quoteIdentifier(table)
+                    quoteTable = self.connection.quoteIdentifier(table)
                     self.advance("Dumping table %s" % table)
 
-                    if self.dumpSchema:
-                        cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, table))
+                    if self.dumpTables:
+                        cursor.execute("SHOW CREATE TABLE %s.%s;" % (quoteDbName, quoteTable))
                         row = cursor.fetchone()
                         create = row[1]
 
@@ -182,33 +184,65 @@ DROP TABLE IF EXISTS {table};
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 {create};
-/*!40101 SET character_set_client = @saved_cs_client */;
-""".format(
-    table=table,
+/*!40101 SET character_set_client = @saved_cs_client */;""".format(
+    table=quoteTable,
     create=create,
 ))
 
+                    if self.dumpTriggers:
+                        query = "SHOW TRIGGERS IN %s WHERE `Table` = ?;" % (quoteDbName,)
+                        cursor.execute(query.replace("?", "%s"), table)
+
+                        triggers = cursor.fetchall()
+                        for trigger in triggers:
+                            definer = trigger[7].split('@', 2)
+                            f.write("""/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER={definer}@{definerHost}*/ /*!50003 TRIGGER {trigger} {timing} {event} ON {table}
+FOR EACH ROW {statement} */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;""".format(
+    trigger=self.connection.quoteIdentifier(trigger[0]),
+    definer=self.connection.quoteIdentifier(definer[0]),
+    definerHost=self.connection.quoteIdentifier(definer[1]),
+    table=quoteTable,
+    statement=self.connection.quoteIdentifier(trigger[3]),
+    timing=trigger[4],
+    event=trigger[1],
+))
+
                     if self.dumpData:
-                        cursor.execute("SELECT COUNT(*) FROM %s.%s;" % (quoteDbName, table))
+                        cursor.execute("SELECT COUNT(*) FROM %s.%s;" % (quoteDbName, quoteTable))
                         count = cursor.fetchone()[0]
                         if self.limitDumpData:
                             count = min(count, self.limitDumpData)
 
                         if count:
-                            self.subProgress.emit(0, count, "Dumping rows of table %s" % table)
+                            self.subProgress.emit(0, count, "Dumping rows of table %s" % quoteTable)
 
                             f.write("""
+
 --
 -- Dumping data for table {table}
 --
 
 LOCK TABLES {table} WRITE;
 /*!40000 ALTER TABLE {table} DISABLE KEYS */;
-INSERT INTO {table} VALUES """.format(table=table))
+INSERT INTO {table} VALUES """.format(table=quoteTable))
 
                             limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
                             rownum = 0
-                            for row in self.connection.iterall("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit), cursor=cursor):
+                            for row in self.connection.iterall("SELECT * FROM %s.%s%s;" % (quoteDbName, quoteTable, limit), cursor=cursor):
                                 rownum += 1
 
                                 datarow = []
@@ -233,17 +267,17 @@ INSERT INTO {table} VALUES """.format(table=table))
                                     f.write(", ")
                                 f.write("(%s)" % ",".join(datarow))
 
-                                self.subProgress.emit(rownum, count, "Dumping rows of table %s" % table)
+                                self.subProgress.emit(rownum, count, "Dumping rows of table %s" % quoteTable)
 
                             f.write(""";
 /*!40000 ALTER TABLE {table} ENABLE KEYS */;
 UNLOCK TABLES;
-""".format(table=table))
+""".format(table=quoteTable))
 
-                if self.dumpSchema:
+                if self.dumpViews:
                     for view in views:
                         view = self.connection.quoteIdentifier(view)
-                        self.advance("Dumping view %s" % table)
+                        self.advance("Dumping view %s" % view)
 
                         cursor.execute("SHOW CREATE VIEW %s.%s;" % (quoteDbName, view))
                         row = cursor.fetchone()
