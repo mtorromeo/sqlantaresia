@@ -194,51 +194,51 @@ DROP TABLE IF EXISTS {table};
                         if self.limitDumpData:
                             count = min(count, self.limitDumpData)
 
-                        self.subProgress.emit(0, count, "Dumping rows of table %s" % table)
+                        if count:
+                            self.subProgress.emit(0, count, "Dumping rows of table %s" % table)
 
-                        data = []
-                        limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
-                        rownum = 0
-                        for row in self.connection.iterall("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit), cursor=cursor):
-                            rownum += 1
-
-                            datarow = []
-                            for i, cell in enumerate(row):
-                                if cell is None:
-                                    datarow.append("NULL")
-                                elif cursor.description[i][1] in MySQLdb.BINARY:
-                                    if type(cell) is unicode:
-                                        cell = cell.encode("utf-8")
-                                    datarow.append("0x%s" % cell.encode("hex"))
-                                elif isinstance(cell, basestring):
-                                    try:
-                                        datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
-                                    except UnicodeDecodeError:
-                                        datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
-                                elif isinstance(cell, (int, long, float)):
-                                    datarow.append(str(cell))
-                                else:
-                                    datarow.append("'%s'" % self.connection.escapeString(str(cell)))
-                            data.append("(%s)" % ",".join(datarow))
-
-                            self.subProgress.emit(rownum, count, "Dumping rows of table %s" % table)
-
-                        if data:
                             f.write("""
-
 --
 -- Dumping data for table {table}
 --
 
 LOCK TABLES {table} WRITE;
 /*!40000 ALTER TABLE {table} DISABLE KEYS */;
-INSERT INTO {table} VALUES {data};
+INSERT INTO {table} VALUES """.format(table=table))
+
+                            limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
+                            rownum = 0
+                            for row in self.connection.iterall("SELECT * FROM %s.%s%s;" % (quoteDbName, table, limit), cursor=cursor):
+                                rownum += 1
+
+                                datarow = []
+                                for i, cell in enumerate(row):
+                                    if cell is None:
+                                        datarow.append("NULL")
+                                    elif cursor.description[i][1] in MySQLdb.BINARY:
+                                        if type(cell) is unicode:
+                                            cell = cell.encode("utf-8")
+                                        datarow.append("0x%s" % cell.encode("hex"))
+                                    elif isinstance(cell, basestring):
+                                        try:
+                                            datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
+                                        except UnicodeDecodeError:
+                                            datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
+                                    elif isinstance(cell, (int, long, float)):
+                                        datarow.append(str(cell))
+                                    else:
+                                        datarow.append("'%s'" % self.connection.escapeString(str(cell)))
+
+                                if row > 0:
+                                    f.write(", ")
+                                f.write("(%s)" % ",".join(datarow))
+
+                                self.subProgress.emit(rownum, count, "Dumping rows of table %s" % table)
+
+                            f.write(""";
 /*!40000 ALTER TABLE {table} ENABLE KEYS */;
 UNLOCK TABLES;
-""".format(
-    table=table,
-    data=",".join(data),
-))
+""".format(table=table))
 
                 if self.dumpSchema:
                     for view in views:

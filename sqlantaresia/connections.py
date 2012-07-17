@@ -168,7 +168,7 @@ class SQLServerConnection(object):
 
         self.async_queries = []
 
-    def iterdb(self, cursor, arraysize=10):
+    def iterdb(self, cursor, arraysize=1000):
         while True:
             results = cursor.fetchmany(arraysize)
             if not results:
