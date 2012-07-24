@@ -12,7 +12,7 @@ import datetime
 import MySQLdb
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QByteArray, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QDialog, QToolBar, QShortcut, QKeySequence, QHeaderView
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QDialog, QShortcut, QKeySequence, QHeaderView
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection
@@ -65,27 +65,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         self.tabsWidget.setTabBar(QMiddleClickCloseTabBar())
         self.tabsWidget.setTabsClosable(True)
         self.tabsWidget.setMovable(True)
+        self.tabsWidget.setDocumentMode(True)
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
         # Close tab shortcut
         closeTabShortcut = QShortcut(QKeySequence("CTRL+W"), self)
         closeTabShortcut.activated.connect(self.on_closeTabShortcut_activated)
-
-        # Setup left dock with a new window with toolbar
-        dockWindow = QMainWindow(self.dockWidget)
-        dockWindow.setWindowFlags(Qt.Widget)
-        self.dockToolbar = QToolBar(dockWindow)
-        dockWindow.addToolBar(self.dockToolbar)
-        dockWindow.setCentralWidget(self.treeView)
-        self.dockWidget.setWidget(dockWindow)
-
-        # Dock toolbar
-        self.dockToolbar.addAction(self.actionAddConnection)
-        self.dockToolbar.addAction(self.actionRemoveConnection)
-        self.dockToolbar.addAction(self.actionConfigureConnection)
-        self.dockToolbar.addAction(self.actionRefresh)
-        self.dockToolbar.addSeparator()
-        self.dockToolbar.addAction(self.actionDisconnect)
-        self.dockToolbar.addAction(self.actionReconnect)
 
         # TreeViewModel
         self.dbmsModel = DBMSTreeModel(self, self.connections)
@@ -101,6 +86,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         TableDetails.defaultLimit = self.getConfInt("@TableDetails", "defaultLimit", 100)
         if self.config.has_section("@MainWindow"):
             self.restoreGeometry(QByteArray.fromBase64(self.config.get("@MainWindow", "geometry")))
+
+        size = self.size()
+        self.splitter.setSizes([size.width() / 4, size.width() / 4 * 3])
 
         QObject.connect(self.actionAboutQt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
@@ -213,7 +201,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             self.config.write(configfile)
 
     @pyqtSignature("")
-    def on_actionConfigureSQLAntaresia_triggered(self):
+    def on_actionPreferences_triggered(self):
         d = SettingsDialog()
         d.setEditorFont(QueryTab.font)
         if not d.exec_():

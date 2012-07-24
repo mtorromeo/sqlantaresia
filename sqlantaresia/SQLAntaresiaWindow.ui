@@ -25,28 +25,50 @@
     <normaloff>:/32/icons/server-database.png</normaloff>:/32/icons/server-database.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QTabWidget" name="tabsWidget">
-      <property name="currentIndex">
-       <number>0</number>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="tabsClosable">
-       <bool>true</bool>
-      </property>
-      <property name="movable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Tab 1</string>
+      <widget class="QTreeView" name="treeView">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerMinimumSectionSize">
+        <number>1</number>
        </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+      <widget class="QTabWidget" name="tabsWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="documentMode">
+        <bool>true</bool>
+       </property>
+       <property name="tabsClosable">
+        <bool>true</bool>
+       </property>
+       <property name="movable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Tab 1</string>
+        </attribute>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -63,8 +85,9 @@
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;Application</string>
     </property>
+    <addaction name="actionPreferences"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -74,62 +97,39 @@
     <addaction name="actionAboutSQLAntaresia"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menu_Settings">
+   <widget class="QMenu" name="menu_View">
     <property name="title">
-     <string>&amp;Settings</string>
+     <string>&amp;View</string>
     </property>
-    <addaction name="actionShowDatabases"/>
-    <addaction name="actionShowStatusbar"/>
-    <addaction name="separator"/>
-    <addaction name="actionConfigureSQLAntaresia"/>
+    <addaction name="actionShowToolbar"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Settings"/>
+   <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="minimumSize">
-    <size>
-     <width>250</width>
-     <height>180</height>
-    </size>
-   </property>
+  <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
-    <string>Servers</string>
+    <string>toolBar</string>
    </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QTreeView" name="treeView">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>140</y>
-       <width>256</width>
-       <height>192</height>
-      </rect>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::CustomContextMenu</enum>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
-     </property>
-     <property name="rootIsDecorated">
-      <bool>false</bool>
-     </property>
-     <property name="headerHidden">
-      <bool>true</bool>
-     </property>
-     <attribute name="headerMinimumSectionSize">
-      <number>1</number>
-     </attribute>
-     <attribute name="headerStretchLastSection">
-      <bool>false</bool>
-     </attribute>
-    </widget>
-   </widget>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAddConnection"/>
+   <addaction name="actionRemoveConnection"/>
+   <addaction name="actionConfigureConnection"/>
+   <addaction name="actionRefresh"/>
+   <addaction name="separator"/>
+   <addaction name="actionDisconnect"/>
+   <addaction name="actionReconnect"/>
   </widget>
   <action name="actionRefreshTableList">
    <property name="icon">
@@ -181,13 +181,13 @@
     <string>Show St&amp;atusbar</string>
    </property>
   </action>
-  <action name="actionConfigureSQLAntaresia">
+  <action name="actionPreferences">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
    </property>
    <property name="text">
-    <string>Configure &amp;SQL Antaresia</string>
+    <string>&amp;Preferences</string>
    </property>
   </action>
   <action name="actionConfigureConnections">
@@ -414,6 +414,17 @@
     <string>Dump Database</string>
    </property>
   </action>
+  <action name="actionShowToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Toolbar</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>treeView</tabstop>
@@ -436,38 +447,6 @@
     <hint type="destinationlabel">
      <x>401</x>
      <y>267</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionShowDatabases</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>dockWidget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>134</x>
-     <y>272</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dockWidget</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionShowDatabases</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>134</x>
-     <y>272</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
     </hint>
    </hints>
   </connection>
