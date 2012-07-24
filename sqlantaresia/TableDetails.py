@@ -22,9 +22,6 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableName = tableName
 
         self.setupUi(self)
-        self.tableStructure.verticalHeader().hide()
-        self.tableIndexes.verticalHeader().hide()
-        self.tableData.verticalHeader().hide()
         self.txtLimit.setValue(self.defaultLimit)
 
         self.lblQueryDesc.setText("SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName))
