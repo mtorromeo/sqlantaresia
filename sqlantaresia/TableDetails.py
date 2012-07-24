@@ -37,7 +37,6 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         #Data
         self.tableModel = QPyTableModel(self, self.db)
         self.tableModel.setTable(self.tableName)
-        QObject.connect(self.tableModel, SIGNAL("edited"), self.tableDataEdited)
         self.tableData.setModel(self.tableModel)
 
         self.refreshData()
@@ -89,9 +88,6 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
                     datetimeDelegate = delegates.DateTimeDelegate()
                 self.tableData.setItemDelegateForColumn(i, datetimeDelegate)
 
-        self.btnUndo.setEnabled(False)
-        self.btnApply.setEnabled(False)
-
     def refreshStructure(self):
         self.db.setDatabase(self.dbName)
         modelStructure = QPySelectModel(self, self.db)
@@ -137,10 +133,6 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableIndexes.resizeColumnsToContents()
         self.tableIndexes.resizeRowsToContents()
 
-    def tableDataEdited(self):
-        self.btnUndo.setEnabled(True)
-        self.btnApply.setEnabled(True)
-
     @pyqtSignature("")
     def on_btnEditQuery_clicked(self):
         where = self.txtWhere.text()
@@ -165,17 +157,3 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     @pyqtSignature("")
     def on_btnRefreshData_clicked(self):
         self.refreshData()
-
-    @pyqtSignature("")
-    def on_btnApply_clicked(self):
-        self.tableModel.submitAll()
-        if self.tableModel.lastError().isValid():
-            self.lblDataSubmitResult.setText(self.tableModel.lastError().databaseText())
-        self.btnUndo.setEnabled(False)
-        self.btnApply.setEnabled(False)
-
-    @pyqtSignature("")
-    def on_btnUndo_clicked(self):
-        self.tableModel.revertAll()
-        self.btnUndo.setEnabled(False)
-        self.btnApply.setEnabled(False)
