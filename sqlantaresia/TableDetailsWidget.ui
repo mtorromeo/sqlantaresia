@@ -14,7 +14,7 @@
    <enum>QTabWidget::West</enum>
   </property>
   <property name="currentIndex">
-   <number>0</number>
+   <number>1</number>
   </property>
   <widget class="QWidget" name="tabStructure">
    <attribute name="icon">
@@ -162,61 +162,6 @@
       </attribute>
      </widget>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLabel" name="lblDataSubmitResult">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnUndo">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&amp;Undo</string>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/edit-undo.png</normaloff>:/16/icons/edit-undo.png</iconset>
-        </property>
-        <property name="shortcut">
-         <string>Ctrl+Z</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnApply">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&amp;Apply</string>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/dialog-ok-apply.png</normaloff>:/16/icons/dialog-ok-apply.png</iconset>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
    </layout>
   </widget>
  </widget>
@@ -233,8 +178,6 @@
   <tabstop>btnRefreshData</tabstop>
   <tabstop>btnEditQuery</tabstop>
   <tabstop>tableData</tabstop>
-  <tabstop>btnApply</tabstop>
-  <tabstop>btnUndo</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
