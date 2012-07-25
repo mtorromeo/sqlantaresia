@@ -210,7 +210,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionPreferences_triggered(self):
         d = SettingsDialog()
-        d.setEditorFont(QueryTab.font)
+        d.setEditorFont(SQLEditor.font)
         if not d.exec_():
             return
 
@@ -218,9 +218,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             if section not in self.config.sections():
                 self.config.add_section(section)
 
-        QueryTab.font = d.lblSelectedFont.font()
+        SQLEditor.font = d.lblSelectedFont.font()
         TableDetails.defaultLimit = d.spinDefaultLimit.value()
-        self.config.set("@QueryEditor", "font", QueryTab.font.toString())
+        self.config.set("@QueryEditor", "font", SQLEditor.font.toString())
         self.config.set("@TableDetails", "defaultLimit", TableDetails.defaultLimit)
 
         with open(self.configFilename, "wb") as configfile:
