@@ -85,11 +85,12 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         SQLEditor.font.fromString(self.getConf("@QueryEditor", "font", 'Monospace,12,-1,5,50,0,0,0,0,0'))
         TableDetails.defaultLimit = self.getConfInt("@TableDetails", "defaultLimit", 100)
         if self.config.has_section("@MainWindow"):
-            self.restoreGeometry(QByteArray.fromBase64(self.config.get("@MainWindow", "geometry")))
+            self.restoreGeometry(QByteArray.fromBase64(self.getConf("@MainWindow", "geometry", "0")))
+            self.splitter.restoreState(QByteArray.fromBase64(self.getConf("@MainWindow", "splitter", "0")))
             self.actionShowToolbar.setChecked(self.getConfBool("@MainWindow", "toolbar", True))
-
-        size = self.size()
-        self.splitter.setSizes([size.width() / 4, size.width() / 4 * 3])
+        else:
+            size = self.size()
+            self.splitter.setSizes([size.width() / 4, size.width() / 4 * 3])
 
         QObject.connect(self.actionAboutQt, SIGNAL("triggered()"),  QApplication.aboutQt)
 
@@ -100,6 +101,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         if "@MainWindow" not in self.config.sections():
             self.config.add_section("@MainWindow")
         self.config.set("@MainWindow", "geometry", self.saveGeometry().toBase64())
+        self.config.set("@MainWindow", "splitter", self.splitter.saveState().toBase64())
         self.config.set("@MainWindow", "toolbar", self.toolBar.isVisible())
 
         with open(self.configFilename, "wb") as configfile:
