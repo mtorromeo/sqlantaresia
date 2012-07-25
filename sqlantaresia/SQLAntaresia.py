@@ -86,6 +86,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         TableDetails.defaultLimit = self.getConfInt("@TableDetails", "defaultLimit", 100)
         if self.config.has_section("@MainWindow"):
             self.restoreGeometry(QByteArray.fromBase64(self.config.get("@MainWindow", "geometry")))
+            self.actionShowToolbar.setChecked(self.getConfBool("@MainWindow", "toolbar", True))
 
         size = self.size()
         self.splitter.setSizes([size.width() / 4, size.width() / 4 * 3])
@@ -99,6 +100,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         if "@MainWindow" not in self.config.sections():
             self.config.add_section("@MainWindow")
         self.config.set("@MainWindow", "geometry", self.saveGeometry().toBase64())
+        self.config.set("@MainWindow", "toolbar", self.toolBar.isVisible())
 
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
