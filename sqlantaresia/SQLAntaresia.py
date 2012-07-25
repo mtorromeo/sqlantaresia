@@ -133,6 +133,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         index = self.tabsWidget.addTab(QueryTab(connection, dbName, query), QIcon(":/16/icons/database_edit.png"), title)
         self.tabsWidget.setCurrentIndex(index)
 
+    def on_actionShowToolbar_toggled(self, checked):
+        self.toolBar.setVisible(checked)
+
     @pyqtSignature("")
     def on_actionRefresh_triggered(self):
         self.dbmsModel.refresh()
