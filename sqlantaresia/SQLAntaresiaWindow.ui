@@ -143,24 +143,6 @@
    <addaction name="actionDisconnect"/>
    <addaction name="actionReconnect"/>
   </widget>
-  <action name="actionRefreshTableList">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
-   </property>
-   <property name="text">
-    <string>Refresh Table List</string>
-   </property>
-  </action>
-  <action name="actionRefreshDatabases">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
-   </property>
-   <property name="text">
-    <string>Refresh Databases</string>
-   </property>
-  </action>
   <action name="actionDropTable">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -170,29 +152,6 @@
     <string>Drop Table</string>
    </property>
   </action>
-  <action name="actionCloseTab">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/tab-close.png</normaloff>:/16/icons/tab-close.png</iconset>
-   </property>
-   <property name="text">
-    <string>Close Tab</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="actionShowStatusbar">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show St&amp;atusbar</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -200,15 +159,6 @@
    </property>
    <property name="text">
     <string>&amp;Preferences</string>
-   </property>
-  </action>
-  <action name="actionConfigureConnections">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
-   </property>
-   <property name="text">
-    <string>Configure &amp;Connections</string>
    </property>
   </action>
   <action name="actionAboutSQLAntaresia">
@@ -239,17 +189,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="actionShowDatabases">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show &amp;Databases</string>
    </property>
   </action>
   <action name="actionDropDatabase">
@@ -308,15 +247,6 @@
   <action name="actionRepairTable">
    <property name="text">
     <string>Repair Table</string>
-   </property>
-  </action>
-  <action name="actionGo">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/system-run.png</normaloff>:/16/icons/system-run.png</iconset>
-   </property>
-   <property name="text">
-    <string>Go</string>
    </property>
   </action>
   <action name="actionShowCreate">
