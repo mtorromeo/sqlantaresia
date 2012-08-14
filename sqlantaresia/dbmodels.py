@@ -70,7 +70,6 @@ class EntityDatabasesTreeItem(BaseTreeItem):
     def __init__(self):
         BaseTreeItem.__init__(self, "Databases")
         self.setIcon(QIcon(":/16/icons/database.png"))
-        self.setColumnCount(2)
         self.rowsByDb = {}
 
     def getDbList(self):
@@ -121,7 +120,6 @@ class DatabaseTreeItem(BaseTreeItem):
     def __init__(self, db):
         BaseTreeItem.__init__(self, db)
         self.setIcon(QIcon(":/16/icons/database.png"))
-        self.setColumnCount(2)
         self.rowsByTable = {}
 
     def getTableList(self):
@@ -243,9 +241,9 @@ class TriggerTreeItem(BaseTreeItem):
 class DBMSTreeModel(QStandardItemModel):
     def __init__(self, parent=None, connections=None):
         QStandardItemModel.__init__(self, parent)
-        self.setConnections(connections)
-        self.setColumnCount(1)
+        self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Connections", "Dimension"])
+        self.setConnections(connections)
 
     def setConnections(self, connections):
         self.connections = connections
@@ -256,7 +254,7 @@ class DBMSTreeModel(QStandardItemModel):
 
         try:
             for i, connectionName in enumerate(sorted(self.connections.iterkeys())):
-                self.insertRow(i, ConnectionTreeItem(connectionName, self.connections[connectionName]))
+                self.insertRow(i, [ConnectionTreeItem(connectionName, self.connections[connectionName]), BaseTreeItem("")])
         except Exception as e:
             self.clear()
             raise e
