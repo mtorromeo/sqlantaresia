@@ -11,6 +11,13 @@ from Ui_TableDetailsWidget import Ui_TableDetailsWidget
 from _mysql_exceptions import Error as MySQLError
 
 
+class QIndexButton(QtGui.QToolButton):
+    def __init__(self, text, index):
+        QtGui.QToolButton.__init__(self)
+        self.setText(text)
+        self.index = index
+
+
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     defaultLimit = 100
 
@@ -89,16 +96,41 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
                 self.tableData.setItemDelegateForColumn(i, self.datetimeDelegate)
 
     def refreshStructure(self):
+        self.columnDrops = []
+
         self.db.setDatabase(self.dbName)
-        modelStructure = QPySelectModel(self, self.db)
-        modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.quoteIdentifier(self.tableName))
-        try:
-            modelStructure.select()
-        except MySQLError as (errno, errmsg):
-            self.lblDataSubmitResult.setText(errmsg)
+
+        db = self.db.cursor(MySQLdb.cursors.DictCursor)
+        db.execute("SHOW FULL COLUMNS FROM %s" % self.db.quoteIdentifier(self.tableName))
+        data = db.fetchall()
+
+        labels = ["", "Field", "Type", "Collation", "Null", "Key", "Default", "Extra", "Comment"]
+        modelStructure = QtGui.QStandardItemModel(len(data), len(labels))
+
+        for n, row in enumerate(data):
+            modelStructure.setItem(n, 0, QtGui.QStandardItem(""))
+            modelStructure.setItem(n, 1, QtGui.QStandardItem(row["Field"]))
+            modelStructure.setItem(n, 2, QtGui.QStandardItem(row["Type"]))
+            modelStructure.setItem(n, 3, QtGui.QStandardItem(row["Collation"]))
+            modelStructure.setItem(n, 4, QtGui.QStandardItem(row["Null"]))
+            modelStructure.setItem(n, 5, QtGui.QStandardItem(row["Key"]))
+            modelStructure.setItem(n, 6, QtGui.QStandardItem(row["Default"]))
+            modelStructure.setItem(n, 7, QtGui.QStandardItem(row["Extra"]))
+            modelStructure.setItem(n, 8, QtGui.QStandardItem(row["Comment"]))
+
+        modelStructure.setHorizontalHeaderLabels(labels)
+
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
         self.tableStructure.resizeRowsToContents()
+
+        for n in range(modelStructure.rowCount()):
+            index = modelStructure.index(n, 0)
+            button = QIndexButton(str(n), index)
+            button.setIcon(QtGui.QIcon(":/10/icons/edit-delete-small.png"))
+            button.setCheckable(True)
+            button.clicked.connect(self.on_btnDeleteField_clicked)
+            self.tableStructure.setIndexWidget(index, button)
 
     def refreshIndexes(self):
         self.db.setDatabase(self.dbName)
@@ -149,3 +181,11 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     @pyqtSignature("")
     def on_btnRefreshData_clicked(self):
         self.refreshData()
+
+    def on_btnDeleteField_clicked(self):
+        button = self.sender()
+        n = int(button.text())
+        index = self.tableStructure.model().index(n, 1)
+        item = self.tableStructure.model().itemFromIndex(index)
+        field_name = item.text()
+        self.columnDrops.append(field_name)

@@ -1,4 +1,7 @@
 <RCC>
+  <qresource prefix="10">
+    <file alias="edit-delete">icons/edit-delete-small.png</file>
+  </qresource>
   <qresource prefix="16">
     <file alias="application-exit">icons/16/application-exit.png</file>
     <file alias="code">icons/16/code.png</file>

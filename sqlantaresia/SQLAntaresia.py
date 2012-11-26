@@ -11,7 +11,7 @@ import datetime
 import MySQLdb
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QByteArray, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QDialog, QShortcut, QKeySequence, QHeaderView
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QDialog, QShortcut, QKeySequence
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection

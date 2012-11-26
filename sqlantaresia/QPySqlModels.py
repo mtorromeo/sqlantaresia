@@ -73,11 +73,9 @@ class QPySelectModel(QAbstractTableModel):
 
 
 class QPyTableModel(QPySelectModel):
-    def __init__(self, parent, db):
-        QPySelectModel.__init__(self, parent, db)
-        self._tableName = None
-        self._filter = ""
-        self._limit = 0
+    _tableName = None
+    _filter = ""
+    _limit = 0
 
     def flags(self, index):
         if not index.isValid():

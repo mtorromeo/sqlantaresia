@@ -17,6 +17,13 @@ version = "0.5"
 url = "http://github.com/mtorromeo/sqlantaresia"
 
 
+def trace():
+    import pdb
+    from PyQt4 import QtCore
+    QtCore.pyqtRemoveInputHook()
+    pdb.set_trace()
+
+
 def main():
     import setproctitle
     setproctitle.setproctitle("sqlantaresia")
