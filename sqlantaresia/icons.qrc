@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="10">
-    <file alias="edit-delete">icons/edit-delete-small.png</file>
+    <file alias="edit-delete">icons/10/edit-delete.png</file>
   </qresource>
   <qresource prefix="16">
     <file alias="application-exit">icons/16/application-exit.png</file>

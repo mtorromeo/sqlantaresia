@@ -127,7 +127,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         for n in range(modelStructure.rowCount()):
             index = modelStructure.index(n, 0)
             button = QIndexButton(str(n), index)
-            button.setIcon(QtGui.QIcon(":/10/icons/edit-delete-small.png"))
+            button.setIcon(QtGui.QIcon(":/10/edit-delete"))
             button.setCheckable(True)
             button.clicked.connect(self.on_btnDeleteField_clicked)
             self.tableStructure.setIndexWidget(index, button)
