@@ -97,6 +97,8 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
     def refreshStructure(self):
         self.columnDrops = []
+        self.btnUndo.setEnabled(False)
+        self.btnApply.setEnabled(False)
 
         self.db.setDatabase(self.dbName)
 
@@ -188,4 +190,27 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         index = self.tableStructure.model().index(n, 1)
         item = self.tableStructure.model().itemFromIndex(index)
         field_name = item.text()
-        self.columnDrops.append(field_name)
+
+        if button.isChecked():
+            self.columnDrops.append(field_name)
+        else:
+            self.columnDrops.remove(field_name)
+
+        self.btnUndo.setEnabled(True)
+        self.btnApply.setEnabled(True)
+
+    @pyqtSignature("")
+    def on_btnUndo_clicked(self):
+        self.refreshStructure()
+
+    @pyqtSignature("")
+    def on_btnApply_clicked(self):
+        statement = "ALTER TABLE %s " % self.db.quoteIdentifier(self.tableName)
+
+        alterations = []
+        for column in self.columnDrops:
+            alterations.append("DROP COLUMN %s" % self.db.quoteIdentifier(column))
+
+        statement += ", ".join(alterations)
+
+        self.window().addQueryTab(self.db, self.dbName, statement)
