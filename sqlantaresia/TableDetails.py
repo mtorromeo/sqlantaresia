@@ -143,16 +143,8 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
             limit = " LIMIT %d" % limit
         else:
             limit = ""
-        index = self.window().tabsWidget.addTab(
-            QueryTab(
-                db=self.db,
-                dbName=self.dbName,
-                query="SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit)
-            ),
-            QtGui.QIcon(":/16/icons/database_edit.png"),
-            "Query on %s" % (self.dbName)
-        )
-        self.window().tabsWidget.setCurrentIndex(index)
+
+        self.window().addQueryTab(self.db, self.dbName, "SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit))
 
     @pyqtSignature("")
     def on_btnRefreshData_clicked(self):
