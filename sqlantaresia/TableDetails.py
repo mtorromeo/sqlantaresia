@@ -4,7 +4,7 @@ from PyQt4.QtCore import SIGNAL, QObject, pyqtSignature
 
 from QPySqlModels import *
 import MySQLdb
-from QueryTab import QueryTab
+import _mysql_exceptions
 import delegates
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
@@ -97,6 +97,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
     def refreshStructure(self):
         self.columnDrops = []
+        self.txtName.setText(self.tableName)
         self.btnUndo.setEnabled(False)
         self.btnApply.setEnabled(False)
 
@@ -199,18 +200,24 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.btnUndo.setEnabled(True)
         self.btnApply.setEnabled(True)
 
+    def on_txtName_textChanged(self, text):
+        self.btnUndo.setEnabled(True)
+        self.btnApply.setEnabled(True)
+
     @pyqtSignature("")
     def on_btnUndo_clicked(self):
         self.refreshStructure()
 
     @pyqtSignature("")
     def on_btnApply_clicked(self):
-        statement = "ALTER TABLE %s " % self.db.quoteIdentifier(self.tableName)
-
         alterations = []
+
+        if self.tableName != self.txtName.text():
+            alterations.append("RENAME TO %s" % self.db.quoteIdentifier(self.txtName.text()))
+
         for column in self.columnDrops:
             alterations.append("DROP COLUMN %s" % self.db.quoteIdentifier(column))
 
-        statement += ", ".join(alterations)
+        statement = "ALTER TABLE %s\n%s;" % (self.db.quoteIdentifier(self.tableName), ",\n".join(alterations))
 
         self.window().addQueryTab(self.db, self.dbName, statement)
