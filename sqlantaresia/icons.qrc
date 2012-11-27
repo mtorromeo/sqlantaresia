@@ -1,39 +1,39 @@
 <RCC>
   <qresource prefix="16">
-    <file>icons/database_lightning.png</file>
-    <file>icons/code.png</file>
-    <file>icons/document-save.png</file>
-    <file>icons/document-open.png</file>
-    <file>icons/control_panel.png</file>
-    <file>icons/database_refresh.png</file>
-    <file>icons/layer_database.png</file>
-    <file>icons/configure.png</file>
-    <file>icons/system-run.png</file>
-    <file>icons/tab-new.png</file>
-    <file>icons/group.png</file>
-    <file>icons/user.png</file>
-    <file>icons/edit-undo.png</file>
-    <file>icons/dialog-ok-apply.png</file>
-    <file>icons/network-connect.png</file>
-    <file>icons/network-disconnect.png</file>
-    <file>icons/application-exit.png</file>
-    <file>icons/document-properties.png</file>
-    <file>icons/list-add.png</file>
-    <file>icons/list-remove.png</file>
-    <file>icons/edit-delete.png</file>
-    <file>icons/tab-close.png</file>
-    <file>icons/view-refresh.png</file>
-    <file>icons/database_connect.png</file>
-    <file>icons/database_edit.png</file>
-    <file>icons/document-save-as.png</file>
-    <file>icons/database_server.png</file>
-    <file>icons/database_table.png</file>
-    <file>icons/database.png</file>
-  </qresource>
-  <qresource prefix="64">
-    <file>icons/qtlogo.png</file>
+    <file alias="application-exit">icons/16/application-exit.png</file>
+    <file alias="code">icons/16/code.png</file>
+    <file alias="configure">icons/16/configure.png</file>
+    <file alias="control-panel">icons/16/control_panel.png</file>
+    <file alias="database">icons/16/database.png</file>
+    <file alias="database-connect">icons/16/database_connect.png</file>
+    <file alias="database-edit">icons/16/database_edit.png</file>
+    <file alias="database-lightning">icons/16/database_lightning.png</file>
+    <file alias="database-refresh">icons/16/database_refresh.png</file>
+    <file alias="database-server">icons/16/database_server.png</file>
+    <file alias="database-table">icons/16/database_table.png</file>
+    <file alias="dialog-ok-apply">icons/16/dialog-ok-apply.png</file>
+    <file alias="document-open">icons/16/document-open.png</file>
+    <file alias="document-properties">icons/16/document-properties.png</file>
+    <file alias="document-save-as">icons/16/document-save-as.png</file>
+    <file alias="document-save">icons/16/document-save.png</file>
+    <file alias="edit-delete">icons/16/edit-delete.png</file>
+    <file alias="edit-undo">icons/16/edit-undo.png</file>
+    <file alias="group">icons/16/group.png</file>
+    <file alias="layer-database">icons/16/layer_database.png</file>
+    <file alias="list-add">icons/16/list-add.png</file>
+    <file alias="list-remove">icons/16/list-remove.png</file>
+    <file alias="network-connect">icons/16/network-connect.png</file>
+    <file alias="network-disconnect">icons/16/network-disconnect.png</file>
+    <file alias="system-run">icons/16/system-run.png</file>
+    <file alias="tab-close">icons/16/tab-close.png</file>
+    <file alias="tab-new">icons/16/tab-new.png</file>
+    <file alias="user">icons/16/user.png</file>
+    <file alias="view-refresh">icons/16/view-refresh.png</file>
   </qresource>
   <qresource prefix="32">
-    <file>icons/server-database.png</file>
+    <file alias="server-database">icons/32/server-database.png</file>
+  </qresource>
+  <qresource prefix="64">
+    <file alias="qtlogo">icons/64/qtlogo.png</file>
   </qresource>
 </RCC>

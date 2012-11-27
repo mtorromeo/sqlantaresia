@@ -22,7 +22,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
-    <normaloff>:/32/icons/server-database.png</normaloff>:/32/icons/server-database.png</iconset>
+    <normaloff>:/32/server-database</normaloff>:/32/server-database</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -146,7 +146,7 @@
   <action name="actionDropTable">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+     <normaloff>:/16/edit-delete</normaloff>:/16/edit-delete</iconset>
    </property>
    <property name="text">
     <string>Drop Table</string>
@@ -155,7 +155,7 @@
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
+     <normaloff>:/16/configure</normaloff>:/16/configure</iconset>
    </property>
    <property name="text">
     <string>&amp;Preferences</string>
@@ -164,7 +164,7 @@
   <action name="actionAboutSQLAntaresia">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/32/icons/server-database.png</normaloff>:/32/icons/server-database.png</iconset>
+     <normaloff>:/32/server-database</normaloff>:/32/server-database</iconset>
    </property>
    <property name="text">
     <string>About SQL Antaresia</string>
@@ -173,7 +173,7 @@
   <action name="actionAboutQt">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/64/icons/qtlogo.png</normaloff>:/64/icons/qtlogo.png</iconset>
+     <normaloff>:/64/qtlogo</normaloff>:/64/qtlogo</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -182,7 +182,7 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/application-exit.png</normaloff>:/16/icons/application-exit.png</iconset>
+     <normaloff>:/16/application-exit</normaloff>:/16/application-exit</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -194,7 +194,7 @@
   <action name="actionDropDatabase">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+     <normaloff>:/16/edit-delete</normaloff>:/16/edit-delete</iconset>
    </property>
    <property name="text">
     <string>Drop Database</string>
@@ -206,7 +206,7 @@
   <action name="actionReconnect">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/network-connect.png</normaloff>:/16/icons/network-connect.png</iconset>
+     <normaloff>:/16/network-connect</normaloff>:/16/network-connect</iconset>
    </property>
    <property name="text">
     <string>Re&amp;connect</string>
@@ -215,7 +215,7 @@
   <action name="actionDisconnect">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/network-disconnect.png</normaloff>:/16/icons/network-disconnect.png</iconset>
+     <normaloff>:/16/network-disconnect</normaloff>:/16/network-disconnect</iconset>
    </property>
    <property name="text">
     <string>&amp;Disconnect</string>
@@ -224,7 +224,7 @@
   <action name="actionTruncateTable">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+     <normaloff>:/16/edit-delete</normaloff>:/16/edit-delete</iconset>
    </property>
    <property name="text">
     <string>Truncate Table</string>
@@ -233,7 +233,7 @@
   <action name="actionNewQueryTab">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/tab-new.png</normaloff>:/16/icons/tab-new.png</iconset>
+     <normaloff>:/16/tab-new</normaloff>:/16/tab-new</iconset>
    </property>
    <property name="text">
     <string>&amp;New Query Tab</string>
@@ -252,7 +252,7 @@
   <action name="actionShowCreate">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-properties.png</normaloff>:/16/icons/document-properties.png</iconset>
+     <normaloff>:/16/document-properties</normaloff>:/16/document-properties</iconset>
    </property>
    <property name="text">
     <string>Show Create</string>
@@ -261,7 +261,7 @@
   <action name="actionRefresh">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
+     <normaloff>:/16/view-refresh</normaloff>:/16/view-refresh</iconset>
    </property>
    <property name="text">
     <string>&amp;Refresh</string>
@@ -273,7 +273,7 @@
   <action name="actionConfigureConnection">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/configure.png</normaloff>:/16/icons/configure.png</iconset>
+     <normaloff>:/16/configure</normaloff>:/16/configure</iconset>
    </property>
    <property name="text">
     <string>Configure server</string>
@@ -288,7 +288,7 @@
   <action name="actionRemoveConnection">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+     <normaloff>:/16/edit-delete</normaloff>:/16/edit-delete</iconset>
    </property>
    <property name="text">
     <string>Remove server</string>
@@ -303,7 +303,7 @@
   <action name="actionAddConnection">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/list-add.png</normaloff>:/16/icons/list-add.png</iconset>
+     <normaloff>:/16/list-add</normaloff>:/16/list-add</iconset>
    </property>
    <property name="text">
     <string>Add new server</string>
@@ -318,7 +318,7 @@
   <action name="actionShowProcessList">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/control_panel.png</normaloff>:/16/icons/control_panel.png</iconset>
+     <normaloff>:/16/control-panel</normaloff>:/16/control-panel</iconset>
    </property>
    <property name="text">
     <string>Show process list</string>
@@ -327,7 +327,7 @@
   <action name="actionDumpTable">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-properties.png</normaloff>:/16/icons/document-properties.png</iconset>
+     <normaloff>:/16/document-save</normaloff>:/16/document-save</iconset>
    </property>
    <property name="text">
     <string>Dump Table</string>
@@ -347,7 +347,7 @@
   <action name="actionDumpDatabase">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-save.png</normaloff>:/16/icons/document-save.png</iconset>
+     <normaloff>:/16/document-save</normaloff>:/16/document-save</iconset>
    </property>
    <property name="text">
     <string>Dump Database</string>

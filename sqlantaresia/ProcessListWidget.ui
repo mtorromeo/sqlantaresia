@@ -67,7 +67,7 @@
        </property>
        <property name="icon">
         <iconset resource="icons.qrc">
-         <normaloff>:/16/icons/view-refresh.png</normaloff>:/16/icons/view-refresh.png</iconset>
+         <normaloff>:/16/view-refresh</normaloff>:/16/view-refresh</iconset>
        </property>
       </widget>
      </item>

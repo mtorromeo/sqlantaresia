@@ -92,7 +92,7 @@
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
-             <normaloff>:/16/icons/system-run.png</normaloff>:/16/icons/system-run.png</iconset>
+             <normaloff>:/16/system-run</normaloff>:/16/system-run</iconset>
            </property>
           </widget>
          </item>
@@ -103,7 +103,7 @@
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
-             <normaloff>:/16/icons/edit-delete.png</normaloff>:/16/icons/edit-delete.png</iconset>
+             <normaloff>:/16/edit-delete</normaloff>:/16/edit-delete</iconset>
            </property>
           </widget>
          </item>
@@ -195,7 +195,7 @@
   <action name="actionLoadQuery">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-open.png</normaloff>:/16/icons/document-open.png</iconset>
+     <normaloff>:/16/document-open</normaloff>:/16/document-open</iconset>
    </property>
    <property name="text">
     <string>Load Query</string>
@@ -210,7 +210,7 @@
   <action name="actionSaveQuery">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-save.png</normaloff>:/16/icons/document-save.png</iconset>
+     <normaloff>:/16/document-save</normaloff>:/16/document-save</iconset>
    </property>
    <property name="text">
     <string>Save Query</string>
@@ -225,7 +225,7 @@
   <action name="actionSaveQueryAs">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/document-save-as.png</normaloff>:/16/icons/document-save-as.png</iconset>
+     <normaloff>:/16/document-save-as</normaloff>:/16/document-save-as</iconset>
    </property>
    <property name="text">
     <string>Save Query As...</string>

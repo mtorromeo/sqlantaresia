@@ -19,12 +19,12 @@
   <widget class="QWidget" name="tabStructure">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/layer_database.png</normaloff>:/16/icons/layer_database.png</iconset>
+     <normaloff>:/16/layer-database</normaloff>:/16/layer-database</iconset>
    </attribute>
    <attribute name="title">
     <string>Structure</string>
    </attribute>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QLabel" name="lblTableInfo">
       <property name="text">
@@ -37,19 +37,64 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QTableView" name="tableStructure">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="cornerButtonEnabled">
-        <bool>false</bool>
-       </property>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTableView" name="tableStructure">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="cornerButtonEnabled">
+           <bool>false</bool>
+          </property>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnUndo">
+            <property name="text">
+             <string>&amp;Undo</string>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/16/edit-undo</normaloff>:/16/edit-undo</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnApply">
+            <property name="text">
+             <string>&amp;Apply</string>
+            </property>
+            <property name="icon">
+             <iconset resource="icons.qrc">
+              <normaloff>:/16/dialog-ok-apply</normaloff>:/16/dialog-ok-apply</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QTableView" name="tableIndexes">
        <property name="selectionMode">
@@ -72,7 +117,7 @@
   <widget class="QWidget" name="tabData">
    <attribute name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/16/icons/database_table.png</normaloff>:/16/icons/database_table.png</iconset>
+     <normaloff>:/16/database-table</normaloff>:/16/database-table</iconset>
    </attribute>
    <attribute name="title">
     <string>Data</string>
@@ -120,7 +165,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/database_refresh.png</normaloff>:/16/icons/database_refresh.png</iconset>
+          <normaloff>:/16/database-refresh</normaloff>:/16/database-refresh</iconset>
         </property>
        </widget>
       </item>
@@ -131,7 +176,7 @@
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/16/icons/database_edit.png</normaloff>:/16/icons/database_edit.png</iconset>
+          <normaloff>:/16/database-edit</normaloff>:/16/database-edit</iconset>
         </property>
        </widget>
       </item>

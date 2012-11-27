@@ -61,15 +61,15 @@ class ConnectionTreeItem(BaseTreeItem):
 
     def refreshIcon(self):
         if self.connection.isOpen():
-            self.setIcon(QIcon(":/16/icons/database_server.png"))
+            self.setIcon(QIcon(":/16/database-server"))
         else:
-            self.setIcon(QIcon(":/16/icons/database_connect.png"))
+            self.setIcon(QIcon(":/16/database-connect"))
 
 
 class EntityDatabasesTreeItem(BaseTreeItem):
     def __init__(self):
         BaseTreeItem.__init__(self, "Databases")
-        self.setIcon(QIcon(":/16/icons/database.png"))
+        self.setIcon(QIcon(":/16/database"))
         self.rowsByDb = {}
 
     def getDbList(self):
@@ -99,7 +99,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
 class EntityPrivilegesTreeItem(BaseTreeItem):
     def __init__(self):
         BaseTreeItem.__init__(self, "Privileges")
-        self.setIcon(QIcon(":/16/icons/group.png"))
+        self.setIcon(QIcon(":/16/group"))
 
     def getPrivList(self):
         privlist = []
@@ -119,7 +119,7 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
 class DatabaseTreeItem(BaseTreeItem):
     def __init__(self, db):
         BaseTreeItem.__init__(self, db)
-        self.setIcon(QIcon(":/16/icons/database.png"))
+        self.setIcon(QIcon(":/16/database"))
         self.rowsByTable = {}
 
     def getTableList(self):
@@ -209,33 +209,33 @@ class DatabaseTreeItem(BaseTreeItem):
 class TableTreeItem(BaseTreeItem):
     def __init__(self, table):
         BaseTreeItem.__init__(self, table)
-        self.setIcon(QIcon(":/16/icons/database_table.png"))
+        self.setIcon(QIcon(":/16/database-table"))
 
 
 class PrivilegeTreeItem(BaseTreeItem):
     def __init__(self, priv):
         BaseTreeItem.__init__(self, priv)
-        self.setIcon(QIcon(":/16/icons/user.png"))
+        self.setIcon(QIcon(":/16/user"))
 
 
 class ProcedureTreeItem(BaseTreeItem):
     def __init__(self, proc):
         BaseTreeItem.__init__(self, proc + "()")
         self.name = proc
-        self.setIcon(QIcon(":/16/icons/code.png"))
+        self.setIcon(QIcon(":/16/code"))
 
 
 class FunctionTreeItem(BaseTreeItem):
     def __init__(self, func):
         BaseTreeItem.__init__(self, func + "()")
         self.name = func
-        self.setIcon(QIcon(":/16/icons/code.png"))
+        self.setIcon(QIcon(":/16/code"))
 
 
 class TriggerTreeItem(BaseTreeItem):
     def __init__(self, trig):
         BaseTreeItem.__init__(self, trig)
-        self.setIcon(QIcon(":/16/icons/database_lightning.png"))
+        self.setIcon(QIcon(":/16/database-lightning"))
 
 
 class DBMSTreeModel(QStandardItemModel):

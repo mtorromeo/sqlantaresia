@@ -132,7 +132,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def addQueryTab(self, connection, dbName, query=None, title=None):
         if not title:
             title = "Query on %s" % dbName
-        index = self.tabsWidget.addTab(QueryTab(connection, dbName, query), QIcon(":/16/icons/database_edit.png"), title)
+        index = self.tabsWidget.addTab(QueryTab(connection, dbName, query), QIcon(":/16/database-edit"), title)
         self.tabsWidget.setCurrentIndex(index)
 
     def on_actionShowToolbar_toggled(self, checked):
@@ -244,7 +244,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         idx = self.treeView.selectedIndexes()[0]
         connection = idx.data(Qt.UserRole + 1).getConnection()
 
-        index = self.tabsWidget.addTab(ProcessListTab(connection), QIcon(":/16/icons/database_server.png"), "Process list of %s" % (connection.host))
+        index = self.tabsWidget.addTab(ProcessListTab(connection), QIcon(":/16/database-server"), "Process list of %s" % (connection.host))
         self.tabsWidget.setCurrentIndex(index)
 
     def on_treeView_activated(self, modelIndex):
@@ -256,7 +256,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             dbName = parent.text()
             tableName = item.text()
 
-            index = self.tabsWidget.addTab(TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/icons/database_table.png"), "%s.%s" % (dbName, tableName))
+            index = self.tabsWidget.addTab(TableDetails(item.getConnection(), dbName, tableName), QIcon(":/16/database-table"), "%s.%s" % (dbName, tableName))
             self.tabsWidget.setCurrentIndex(index)
 
         elif _type is TriggerTreeItem:
@@ -414,7 +414,7 @@ FOR EACH ROW
         except MySQLError as (errno, errmsg):  # @UnusedVariable
             QMessageBox.critical(self, "Query result", errmsg)
 
-        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % dbName)
+        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/database"), "Query on %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
@@ -431,7 +431,7 @@ FOR EACH ROW
         dbName = item.text()
         conn = item.getConnection()
 
-        index = self.tabsWidget.addTab(DumpTab(conn, dbName), QIcon(":/16/icons/save.png"), "Dump of %s" % dbName)
+        index = self.tabsWidget.addTab(DumpTab(conn, dbName), QIcon(":/16/save"), "Dump of %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")
@@ -548,7 +548,7 @@ UNLOCK TABLES;
 
         dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/icons/database.png"), "Dump of %s.%s" % (quoteDbName, tableName))
+        index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/database"), "Dump of %s.%s" % (quoteDbName, tableName))
         self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSignature("")

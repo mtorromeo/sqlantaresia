@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>461</height>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -182,7 +182,7 @@
        </property>
        <property name="icon">
         <iconset resource="icons.qrc">
-         <normaloff>:/16/icons/document-save.png</normaloff>:/16/icons/document-save.png</iconset>
+         <normaloff>:/16/document-save</normaloff>:/16/document-save</iconset>
        </property>
       </widget>
      </item>
