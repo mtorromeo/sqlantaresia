@@ -8,13 +8,13 @@ import re
 import datetime
 import application
 import MySQLdb
-import _mysql_exceptions
 
 from zipfile import ZipFile
 from gzip import GzipFile
 from bz2 import BZ2File
 
 from connections import QueryThread
+from _mysql_exceptions import Error as MySQLError
 
 
 class DumpTab(QTabWidget, Ui_DumpWidget):
@@ -310,7 +310,7 @@ UNLOCK TABLES;
 
                 self.advance("Dump terminated")
 
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as (errno, errmsg):  # @UnusedVariable
                 print errmsg
 
             f.write("""

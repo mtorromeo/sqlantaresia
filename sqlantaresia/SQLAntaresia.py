@@ -5,7 +5,6 @@
 import ConfigParser
 import os
 import socket
-import _mysql_exceptions
 import paramiko
 import application
 import datetime
@@ -24,6 +23,7 @@ from editor import SQLEditor
 from DumpTab import DumpTab
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
+from _mysql_exceptions import Error as MySQLError
 
 from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem, TriggerTreeItem
 
@@ -272,7 +272,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 cursor.execute(query.replace("?", "%s"), trigName)
                 row = cursor.fetchone()
                 statement = row[3]
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as (errno, errmsg):  # @UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
                 return
 
@@ -303,7 +303,7 @@ FOR EACH ROW
                 cursor.execute("SHOW CREATE %s %s.%s;" % ("PROCEDURE" if _type is ProcedureTreeItem else "FUNCTION", conn.quoteIdentifier(dbName), conn.quoteIdentifier(procName)))
                 row = cursor.fetchone()
                 create = row[2]
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as (errno, errmsg):  # @UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
                 return
 
@@ -312,7 +312,7 @@ FOR EACH ROW
         elif not self.treeView.isExpanded(modelIndex):
             try:
                 item.open()
-            except _mysql_exceptions.OperationalError as (errnum, errmsg):
+            except MySQLError as (errnum, errmsg):
                 QMessageBox.critical(self, "MySQL error (%d)" % errnum, errmsg)
             except paramiko.SSHException as e:
                 QMessageBox.critical(self, "SSH error", str(e))
@@ -411,7 +411,7 @@ FOR EACH ROW
 
             row = cursor.fetchone()
             create = row[1]
-        except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+        except MySQLError as (errno, errmsg):  # @UnusedVariable
             QMessageBox.critical(self, "Query result", errmsg)
 
         index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/icons/database.png"), "Query on %s" % dbName)
@@ -543,7 +543,7 @@ UNLOCK TABLES;
     tableName=tableName,
     data=",".join(data),
 )
-        except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+        except MySQLError as (errno, errmsg):  # @UnusedVariable
             QMessageBox.critical(self, "Query result", errmsg)
 
         dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -576,9 +576,10 @@ UNLOCK TABLES;
         if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries) + "\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 conn.cursor().execute("\n".join(queries))
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as (errno, errmsg):  # @UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
-            self.on_actionRefresh_triggered()
+            else:
+                self.on_actionRefresh_triggered()
 
     @pyqtSignature("")
     def on_actionDropTable_triggered(self):
@@ -604,9 +605,10 @@ UNLOCK TABLES;
         if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries) + "\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 conn.cursor().execute("\n".join(queries))
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as (errno, errmsg):  # @UnusedVariable
                 QMessageBox.critical(self, "Query result", errmsg)
-            self.on_actionRefresh_triggered()
+            else:
+                self.on_actionRefresh_triggered()
 
     @pyqtSignature("")
     def on_actionTruncateTable_triggered(self):

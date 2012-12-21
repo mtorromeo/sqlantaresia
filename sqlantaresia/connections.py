@@ -5,7 +5,6 @@ import time
 import select
 import paramiko
 import socket
-import _mysql_exceptions
 import MySQLdb
 import SocketServer
 
@@ -13,6 +12,7 @@ from threading import Thread
 from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QMessageBox, QApplication
 from DBUtils.PersistentDB import PersistentDB
+from _mysql_exceptions import Error as MySQLError
 
 try:
     import Crypto.Random as Random
@@ -117,7 +117,7 @@ class QueryThread(QThread):
             self.dbworker()
             elapsed = time.time() - elapsed
 
-        except (_mysql_exceptions.ProgrammingError, _mysql_exceptions.IntegrityError, _mysql_exceptions.OperationalError, _mysql_exceptions.NotSupportedError) as (errno, errmsg):
+        except MySQLError as (errno, errmsg):
             self.query_error.emit(errno, errmsg)
 
         else:
@@ -218,7 +218,7 @@ class SQLServerConnection(object):
             self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=self.username, passwd=self.password, charset="utf8", use_unicode=True, compress=self.compression, setsession=['SET AUTOCOMMIT = 1'])
             # test connection
             self.cursor().execute("SELECT 1")
-        except (socket.error, _mysql_exceptions.OperationalError) as e:
+        except (socket.error, MySQLError) as e:
             self.close()
             raise e
 
@@ -269,5 +269,5 @@ class SQLServerConnection(object):
             db = self.connection().cursor()
             try:
                 db.execute(sql)
-            except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+            except MySQLError as (errno, errmsg):
                 QMessageBox.critical(QApplication.activeWindow(), "Query result", errmsg)

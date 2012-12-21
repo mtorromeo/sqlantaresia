@@ -4,11 +4,11 @@ from PyQt4.QtCore import SIGNAL, QObject, pyqtSignature
 
 from QPySqlModels import *
 import MySQLdb
-import _mysql_exceptions
 from QueryTab import QueryTab
 import delegates
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
+from _mysql_exceptions import Error as MySQLError
 
 
 class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
@@ -64,7 +64,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableModel.setLimit(self.txtLimit.text())
         try:
             self.tableModel.select(self.primary_columns)
-        except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+        except MySQLError as (errno, errmsg):
             self.lblDataSubmitResult.setText(errmsg)
         self.tableModel.reset()
         self.tableData.resizeColumnsToContents()
@@ -94,7 +94,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.quoteIdentifier(self.tableName))
         try:
             modelStructure.select()
-        except _mysql_exceptions.ProgrammingError as (errno, errmsg):
+        except MySQLError as (errno, errmsg):
             self.lblDataSubmitResult.setText(errmsg)
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
