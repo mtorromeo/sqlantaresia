@@ -70,23 +70,23 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableData.resizeColumnsToContents()
         self.tableData.resizeRowsToContents()
 
-        dateDelegate = None
-        timeDelegate = None
-        datetimeDelegate = None
+        self.dateDelegate = None
+        self.timeDelegate = None
+        self.datetimeDelegate = None
 
         for i, _type in enumerate(self.tableModel._types):
             if _type in MySQLdb.DATE:
-                if not dateDelegate:
-                    dateDelegate = delegates.DateDelegate()
-                self.tableData.setItemDelegateForColumn(i, dateDelegate)
+                if not self.dateDelegate:
+                    self.dateDelegate = delegates.DateDelegate()
+                self.tableData.setItemDelegateForColumn(i, self.dateDelegate)
             elif _type in MySQLdb.TIME:
-                if not timeDelegate:
-                    timeDelegate = delegates.TimeDelegate()
-                self.tableData.setItemDelegateForColumn(i, timeDelegate)
+                if not self.timeDelegate:
+                    self.timeDelegate = delegates.TimeDelegate()
+                self.tableData.setItemDelegateForColumn(i, self.timeDelegate)
             elif _type in MySQLdb.DATETIME:
-                if not datetimeDelegate:
-                    datetimeDelegate = delegates.DateTimeDelegate()
-                self.tableData.setItemDelegateForColumn(i, datetimeDelegate)
+                if not self.datetimeDelegate:
+                    self.datetimeDelegate = delegates.DateTimeDelegate()
+                self.tableData.setItemDelegateForColumn(i, self.datetimeDelegate)
 
     def refreshStructure(self):
         self.db.setDatabase(self.dbName)
