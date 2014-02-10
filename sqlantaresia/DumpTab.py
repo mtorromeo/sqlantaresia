@@ -191,7 +191,7 @@ DROP TABLE IF EXISTS {table};
 
                     if self.dumpTriggers:
                         query = "SHOW TRIGGERS IN %s WHERE `Table` = ?;" % (quoteDbName,)
-                        cursor.execute(query.replace("?", "%s"), table)
+                        cursor.execute(query.replace("?", "%s"), (table,))
 
                         triggers = cursor.fetchall()
                         for trigger in triggers:

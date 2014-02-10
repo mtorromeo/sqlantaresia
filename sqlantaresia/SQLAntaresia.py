@@ -269,7 +269,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 cursor = conn.cursor()
 
                 query = "SHOW TRIGGERS IN %s WHERE `Trigger` = ?;" % (conn.quoteIdentifier(dbName),)
-                cursor.execute(query.replace("?", "%s"), trigName)
+                cursor.execute(query.replace("?", "%s"), (trigName,))
                 row = cursor.fetchone()
                 statement = row[3]
             except MySQLError as (errno, errmsg):  # @UnusedVariable
