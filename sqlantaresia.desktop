@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=SQL Antaresia
+GenericName=MySQL Graphical Interface
+Comment=MySQL administrative tool aimed at developers and sysadmins
+Exec=/usr/bin/sqlantaresia
+Icon=server-database
+Terminal=false
+Type=Application
+Categories=QT;Database;Development;Application;
