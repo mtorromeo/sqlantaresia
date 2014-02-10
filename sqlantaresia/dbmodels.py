@@ -163,7 +163,7 @@ class DatabaseTreeItem(BaseTreeItem):
         conn = self.getConnection()
         db = conn.cursor()
 
-        db.execute("SHOW PROCEDURE STATUS WHERE Db=%s", self.text())
+        db.execute("SHOW PROCEDURE STATUS WHERE Db=%s", (self.text(),))
         for row in db.fetchall():
             proclist.append(row[1])
 
@@ -175,7 +175,7 @@ class DatabaseTreeItem(BaseTreeItem):
         conn = self.getConnection()
         db = conn.cursor()
 
-        db.execute("SHOW FUNCTION STATUS WHERE Db=%s", self.text())
+        db.execute("SHOW FUNCTION STATUS WHERE Db=%s", (self.text(),))
         for row in db.fetchall():
             funclist.append(row[1])
 
