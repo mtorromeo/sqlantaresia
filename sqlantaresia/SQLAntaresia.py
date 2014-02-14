@@ -172,7 +172,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     @pyqtSignature("")
     def on_actionAboutSQLAntaresia_triggered(self):
         QMessageBox.about(self, "About %s" % application.name,
-            u"<b>%s</b> v%s<br /><a href='%s'>%s</a><br /><br />%s<br /><br />© 2009-2012 <a href='mailto:massimiliano.torromeo@gmail.com'>Massimiliano Torromeo</a>" % (
+            u"<b>%s</b> v%s<br /><a href='%s'>%s</a><br /><br />%s<br /><br />© 2009-2014 <a href='mailto:massimiliano.torromeo@gmail.com'>Massimiliano Torromeo</a>" % (
                 application.name,
                 application.version,
                 application.url, application.url,
