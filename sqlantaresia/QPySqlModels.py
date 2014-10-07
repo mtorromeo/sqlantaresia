@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import QAbstractTableModel, Qt
+from PyQt5.QtCore import QAbstractTableModel, Qt
 
 import operator
-
-#from MySQLdb.cursors import SSCursor
 
 
 class QPySelectModel(QAbstractTableModel):
@@ -52,7 +50,7 @@ class QPySelectModel(QAbstractTableModel):
 
         data = self._rows[index.row()][index.column()]
         try:
-            data = "NULL" if data is None else unicode(data)
+            data = "NULL" if data is None else str(data)
         except UnicodeDecodeError:
             data = "BLOB"
         return data

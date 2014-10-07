@@ -16,7 +16,7 @@ from sqlantaresia import application
 import sys
 import os
 from setuptools import setup
-from PyQt4 import uic
+from PyQt5 import uic
 from glob import glob
 
 mainscript = 'bin/sqlantaresia'
@@ -34,7 +34,7 @@ if sys.platform == 'darwin':
         app=[mainscript],
         options={"py2app": {
             "argv_emulation": True,
-            "includes": ["sip", "PyQt4.QtCore", "PyQt4.QtGui", "PyQt4.Qsci"]
+            "includes": ["sip", "PyQt5.QtCore", "PyQt5.QtGui", "PyQt5.Qsci"]
         }},
     )
 elif sys.platform == 'win32':
@@ -66,7 +66,7 @@ setup(
     name=application.name,
     packages=["sqlantaresia"],
     scripts=[mainscript],
-    requires=["paramiko", "MySQL_python", "DBUtils", "setproctitle"],
+    requires=["paramiko", "mysql-connector-python", "DBUtils", "setproctitle"],
     version=application.version,
     description=application.description,
     long_description=open(README).read(),
@@ -77,8 +77,7 @@ setup(
     keywords=["qt", "pyqt", "desktop", "mysql"],
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
         "License :: OSI Approved :: MIT License",
         "Environment :: X11 Applications :: Qt",
         "Intended Audience :: System Administrators",

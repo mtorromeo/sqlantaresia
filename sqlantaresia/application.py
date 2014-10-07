@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sip
 import sys
-
-sip.setapi("QString", 2)
-sip.setapi("QVariant", 2)
 
 import warnings
 warnings.filterwarnings("ignore", ".*sha module is deprecated.*", DeprecationWarning)
@@ -21,7 +17,7 @@ def main():
     import setproctitle
     setproctitle.setproctitle("sqlantaresia")
 
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     from SQLAntaresia import SQLAntaresia
 
     app = QApplication(sys.argv)

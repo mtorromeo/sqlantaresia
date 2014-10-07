@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QStandardItem, QStandardItemModel, QIcon
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 
 
 class BaseTreeItem(QStandardItem):
@@ -253,10 +253,11 @@ class DBMSTreeModel(QStandardItemModel):
         self.clear()
 
         try:
-            for i, connectionName in enumerate(sorted(self.connections.iterkeys())):
+            for i, connectionName in enumerate(sorted(self.connections.keys())):
                 self.insertRow(i, [ConnectionTreeItem(connectionName, self.connections[connectionName]), BaseTreeItem("")])
         except Exception as e:
             self.clear()
             raise e
         finally:
-            self.reset()
+            self.beginResetModel()
+            self.endResetModel()

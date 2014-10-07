@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QTabWidget, QToolBar
-from PyQt4.QtCore import pyqtSignature
+from PyQt5.QtWidgets import QTabWidget, QToolBar
+from PyQt5.QtCore import pyqtSlot
 from QPySqlModels import QPySelectModel
 
 from Ui_QueryWidget import Ui_QueryWidget
@@ -28,19 +28,19 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
         self.btnKillQuery.setVisible(False)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionLoadQuery_triggered(self):
         self.txtQuery.loadDialog()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionSaveQuery_triggered(self):
         self.txtQuery.save()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionSaveQueryAs_triggered(self):
         self.txtQuery.saveAsDialog()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnExecuteQuery_clicked(self):
         self.db.setDatabase(self.dbName)
         queryModel = QPySelectModel(self, self.db)
@@ -90,7 +90,7 @@ class QueryTab(QTabWidget, Ui_QueryWidget):
 
         self.queryThread = self.db.asyncQuery(self.txtQuery.text(), db=self.dbName, callback=queryExecuted, callback_error=queryError)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnKillQuery_clicked(self):
         if self.queryThread:
             self.queryThread.kill()

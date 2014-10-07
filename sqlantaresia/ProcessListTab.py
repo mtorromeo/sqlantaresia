@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QTabWidget
-from PyQt4.QtCore import pyqtSignature, QTimer
+from PyQt5.QtWidgets import QTabWidget
+from PyQt5.QtCore import pyqtSlot, QTimer
 from QPySqlModels import QPySelectModel
 
 from Ui_ProcessListWidget import Ui_ProcessListWidget
@@ -48,11 +48,11 @@ class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
         else:
             self.timer.stop()
 
-    @pyqtSignature("int")
+    @pyqtSlot(int)
     def on_spinSeconds_valueChanged(self, seconds):
         self.timer.setInterval(seconds * 1000)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnRefresh_clicked(self):
         self.refresh()
 

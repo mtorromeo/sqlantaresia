@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QTabWidget, QSpacerItem, QSizePolicy, QFileDialog
-from PyQt4.QtCore import pyqtSignature, pyqtSignal
+from PyQt5.QtWidgets import QTabWidget, QSpacerItem, QSizePolicy, QFileDialog
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
 from Ui_DumpWidget import Ui_DumpWidget
 
 import re
 import datetime
 import application
-import MySQLdb
+
+from mysql.connector.constants import FieldType
+from mysql.connector import Error as MySQLError
 
 from zipfile import ZipFile
 from gzip import GzipFile
 from bz2 import BZ2File
 
 from connections import QueryThread
-from _mysql_exceptions import Error as MySQLError
 
 
 class DumpTab(QTabWidget, Ui_DumpWidget):
@@ -27,7 +28,7 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
         self.setupUi(self)
         self.groupProgress.setVisible(False)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnSave_clicked(self):
         extension = ".sql"
         compression = ""
@@ -249,16 +250,16 @@ INSERT INTO {table} VALUES """.format(table=quoteTable))
                                 for i, cell in enumerate(row):
                                     if cell is None:
                                         datarow.append("NULL")
-                                    elif cursor.description[i][1] in MySQLdb.BINARY:
-                                        if type(cell) is unicode:
+                                    elif cursor.description[i][1] in (FieldType.TINY_BLOB, FieldType.MEDIUM_BLOB, FieldType.LONG_BLOB, FieldType.BLOB):
+                                        if isinstance(cell, str):
                                             cell = cell.encode("utf-8")
                                         datarow.append("0x%s" % cell.encode("hex"))
-                                    elif isinstance(cell, basestring):
+                                    elif isinstance(cell, str):
                                         try:
                                             datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
                                         except UnicodeDecodeError:
                                             datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
-                                    elif isinstance(cell, (int, long, float)):
+                                    elif isinstance(cell, (int, float)):
                                         datarow.append(str(cell))
                                     else:
                                         datarow.append("'%s'" % self.connection.escapeString(str(cell)))
@@ -310,8 +311,9 @@ UNLOCK TABLES;
 
                 self.advance("Dump terminated")
 
-            except MySQLError as (errno, errmsg):  # @UnusedVariable
-                print errmsg
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
+                print(errmsg)
 
             f.write("""
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

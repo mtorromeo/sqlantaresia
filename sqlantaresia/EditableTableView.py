@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QTableView, QAbstractItemView
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTableView, QAbstractItemView
 
 
 class EditableTableView(QTableView):

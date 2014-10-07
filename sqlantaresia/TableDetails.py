@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
-from PyQt4 import QtGui
-from PyQt4.QtCore import SIGNAL, QObject, pyqtSignature
+from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtWidgets import QTabWidget
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
+
+from mysql.connector.constants import FieldType
+from mysql.connector import Error as MySQLError
 
 from QPySqlModels import *
-import MySQLdb
 from QueryTab import QueryTab
 import delegates
 
 from Ui_TableDetailsWidget import Ui_TableDetailsWidget
-from _mysql_exceptions import Error as MySQLError
 
 
-class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
+class TableDetails(QTabWidget, Ui_TableDetailsWidget):
     defaultLimit = 100
 
     def __init__(self, db, dbName, tableName):
-        QtGui.QTabWidget.__init__(self)
+        QTabWidget.__init__(self)
 
         self.db = db
         self.dbName = dbName
@@ -25,7 +27,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.txtLimit.setValue(self.defaultLimit)
 
         self.lblQueryDesc.setText("SELECT * FROM %s WHERE" % self.db.quoteIdentifier(self.tableName))
-        QObject.connect(self.txtWhere, SIGNAL("returnPressed()"), self.refreshData)
+        self.txtWhere.returnPressed.connect(self.refreshData)
 
         self.db.setDatabase(self.dbName)
 
@@ -64,9 +66,11 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableModel.setLimit(self.txtLimit.text())
         try:
             self.tableModel.select(self.primary_columns)
-        except MySQLError as (errno, errmsg):
+        except MySQLError as exc:
+            (errno, errmsg) = exc.args
             self.lblDataSubmitResult.setText(errmsg)
-        self.tableModel.reset()
+        self.tableModel.beginResetModel()
+        self.tableModel.endResetModel()
         self.tableData.resizeColumnsToContents()
         self.tableData.resizeRowsToContents()
 
@@ -75,15 +79,15 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.datetimeDelegate = None
 
         for i, _type in enumerate(self.tableModel._types):
-            if _type in MySQLdb.DATE:
+            if _type is FieldType.DATE:
                 if not self.dateDelegate:
                     self.dateDelegate = delegates.DateDelegate()
                 self.tableData.setItemDelegateForColumn(i, self.dateDelegate)
-            elif _type in MySQLdb.TIME:
+            elif _type is FieldType.TIME:
                 if not self.timeDelegate:
                     self.timeDelegate = delegates.TimeDelegate()
                 self.tableData.setItemDelegateForColumn(i, self.timeDelegate)
-            elif _type in MySQLdb.DATETIME:
+            elif _type in (FieldType.DATETIME, FieldType.TIMESTAMP):
                 if not self.datetimeDelegate:
                     self.datetimeDelegate = delegates.DateTimeDelegate()
                 self.tableData.setItemDelegateForColumn(i, self.datetimeDelegate)
@@ -94,7 +98,8 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         modelStructure.setSelect("SHOW FULL COLUMNS FROM %s" % self.db.quoteIdentifier(self.tableName))
         try:
             modelStructure.select()
-        except MySQLError as (errno, errmsg):
+        except MySQLError as exc:
+            (errno, errmsg) = exc.args
             self.lblDataSubmitResult.setText(errmsg)
         self.tableStructure.setModel(modelStructure)
         self.tableStructure.resizeColumnsToContents()
@@ -103,12 +108,12 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
     def refreshIndexes(self):
         self.db.setDatabase(self.dbName)
 
-        db = self.db.cursor(MySQLdb.cursors.DictCursor)
+        db = self.db.cursor(dictionary=True)
         db.execute("SHOW INDEX FROM %s" % self.db.quoteIdentifier(self.tableName))
         data = db.fetchall()
 
         labels = ["Key", "Type", "Unique", "Column", "Cardinality", "Packed", "Collation", "Null", "Comment"]
-        modelIndexes = QtGui.QStandardItemModel(len(data), len(labels))
+        modelIndexes = QStandardItemModel(len(data), len(labels))
 
         self.primary_columns = []
 
@@ -117,15 +122,15 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
                 if row["Key_name"] == "PRIMARY":
                     self.primary_columns.append(row["Column_name"])
 
-                modelIndexes.setItem(n, 0, QtGui.QStandardItem(row["Key_name"]))
-                modelIndexes.setItem(n, 1, QtGui.QStandardItem(row["Index_type"]))
-                modelIndexes.setItem(n, 2, QtGui.QStandardItem(str(not row["Non_unique"])))
-                modelIndexes.setItem(n, 3, QtGui.QStandardItem(row["Column_name"]))
-                modelIndexes.setItem(n, 4, QtGui.QStandardItem(str(row["Cardinality"])))
-                modelIndexes.setItem(n, 5, QtGui.QStandardItem("" if row["Packed"] is None else str(row["Packed"])))
-                modelIndexes.setItem(n, 6, QtGui.QStandardItem(row["Collation"]))
-                modelIndexes.setItem(n, 7, QtGui.QStandardItem(str(row["Null"])))
-                modelIndexes.setItem(n, 8, QtGui.QStandardItem(row["Comment"]))
+                modelIndexes.setItem(n, 0, QStandardItem(row["Key_name"]))
+                modelIndexes.setItem(n, 1, QStandardItem(row["Index_type"]))
+                modelIndexes.setItem(n, 2, QStandardItem(str(not row["Non_unique"])))
+                modelIndexes.setItem(n, 3, QStandardItem(row["Column_name"]))
+                modelIndexes.setItem(n, 4, QStandardItem(str(row["Cardinality"])))
+                modelIndexes.setItem(n, 5, QStandardItem("" if row["Packed"] is None else str(row["Packed"])))
+                modelIndexes.setItem(n, 6, QStandardItem(row["Collation"]))
+                modelIndexes.setItem(n, 7, QStandardItem(str(row["Null"])))
+                modelIndexes.setItem(n, 8, QStandardItem(row["Comment"]))
 
             modelIndexes.setHorizontalHeaderLabels(labels)
 
@@ -133,7 +138,7 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
         self.tableIndexes.resizeColumnsToContents()
         self.tableIndexes.resizeRowsToContents()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnEditQuery_clicked(self):
         where = self.txtWhere.text()
         if not where:
@@ -146,6 +151,6 @@ class TableDetails(QtGui.QTabWidget, Ui_TableDetailsWidget):
 
         self.window().addQueryTab(self.db, self.dbName, "SELECT * FROM %s WHERE %s%s" % (self.db.quoteIdentifier(self.tableName), where, limit))
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnRefreshData_clicked(self):
         self.refreshData()

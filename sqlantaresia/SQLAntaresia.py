@@ -2,16 +2,19 @@
 # File : SQLAntaresia.py
 # Depends: pyqt4, python-qscintilla, python-paramiko
 
-import ConfigParser
+import configparser
 import os
 import socket
 import paramiko
 import application
 import datetime
-import MySQLdb
 
-from PyQt4.QtCore import QObject, SIGNAL, pyqtSignature, QByteArray, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QMenu, QIcon, QDialog, QShortcut, QKeySequence, QHeaderView
+from mysql.connector.constants import FieldType
+from mysql.connector import Error as MySQLError
+
+from PyQt5.QtCore import QObject, pyqtSlot, QByteArray, Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QMenu, QDialog, QShortcut, QHeaderView
+from PyQt5.QtGui import QIcon, QKeySequence
 from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
 from ConfigureConnection import ConfigureConnection
@@ -23,7 +26,6 @@ from editor import SQLEditor
 from DumpTab import DumpTab
 from ProcessListTab import ProcessListTab
 from connections import SQLServerConnection
-from _mysql_exceptions import Error as MySQLError
 
 from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem, TriggerTreeItem
 
@@ -41,7 +43,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         else:
             self.configFilename = os.path.expanduser('~/.sqlantaresia.conf')
 
-        self.config = ConfigParser.ConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read([self.configFilename])
 
         self.connections = {}
@@ -90,7 +92,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             size = self.size()
             self.splitter.setSizes([size.width() / 4, size.width() / 4 * 3])
 
-        QObject.connect(self.actionAboutQt, SIGNAL("triggered()"),  QApplication.aboutQt)
+        self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
     def closeEvent(self, event):
         for connectionName in self.connections:
@@ -113,9 +115,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def getConf(self, section, name, defValue=None):
         try:
             return self.config.get(section, name)
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             return defValue
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             return defValue
 
     def getConfInt(self, section, name, defValue=None):
@@ -124,9 +126,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def getConfBool(self, section, name, defValue=False):
         try:
             return self.config.getboolean(section, name)
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             return defValue
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             return defValue
 
     def addQueryTab(self, connection, dbName, query=None, title=None):
@@ -138,7 +140,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
     def on_actionShowToolbar_toggled(self, checked):
         self.toolBar.setVisible(checked)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionRefresh_triggered(self):
         self.dbmsModel.refresh()
 
@@ -152,7 +154,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             i += 1
             item = self.dbmsModel.item(i)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionReconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
             item = idx.data(Qt.UserRole + 1).getConnectionItem()
@@ -161,7 +163,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             item.open()
             self.treeView.setExpanded(idx, True)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionDisconnect_triggered(self):
         for idx in self.treeView.selectedIndexes():
             item = idx.data(Qt.UserRole + 1).getConnectionItem()
@@ -169,10 +171,10 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             item.refresh()
             self.treeView.setExpanded(idx, False)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionAboutSQLAntaresia_triggered(self):
         QMessageBox.about(self, "About %s" % application.name,
-            u"<b>%s</b> v%s<br /><a href='%s'>%s</a><br /><br />%s<br /><br />© 2009-2014 <a href='mailto:massimiliano.torromeo@gmail.com'>Massimiliano Torromeo</a>" % (
+            "<b>%s</b> v%s<br /><a href='%s'>%s</a><br /><br />%s<br /><br />© 2009-2014 <a href='mailto:massimiliano.torromeo@gmail.com'>Massimiliano Torromeo</a>" % (
                 application.name,
                 application.version,
                 application.url, application.url,
@@ -205,7 +207,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionPreferences_triggered(self):
         d = SettingsDialog()
         d.setEditorFont(SQLEditor.font)
@@ -224,7 +226,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         with open(self.configFilename, "wb") as configfile:
             self.config.write(configfile)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionNewQueryTab_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -236,7 +238,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
             dbName = item.text()
             self.addQueryTab(item.getConnection(), dbName)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionShowProcessList_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -272,7 +274,8 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 cursor.execute(query.replace("?", "%s"), (trigName,))
                 row = cursor.fetchone()
                 statement = row[3]
-            except MySQLError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
                 QMessageBox.critical(self, "Query result", errmsg)
                 return
 
@@ -303,7 +306,8 @@ FOR EACH ROW
                 cursor.execute("SHOW CREATE %s %s.%s;" % ("PROCEDURE" if _type is ProcedureTreeItem else "FUNCTION", conn.quoteIdentifier(dbName), conn.quoteIdentifier(procName)))
                 row = cursor.fetchone()
                 create = row[2]
-            except MySQLError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
                 QMessageBox.critical(self, "Query result", errmsg)
                 return
 
@@ -312,7 +316,8 @@ FOR EACH ROW
         elif not self.treeView.isExpanded(modelIndex):
             try:
                 item.open()
-            except MySQLError as (errnum, errmsg):
+            except MySQLError as exc:
+                (errnum, errmsg) = exc.args
                 QMessageBox.critical(self, "MySQL error (%d)" % errnum, errmsg)
             except paramiko.SSHException as e:
                 QMessageBox.critical(self, "SSH error", str(e))
@@ -386,7 +391,7 @@ FOR EACH ROW
 
         self.addQueryTab(conn, dbName, query)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionShowCreate_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -411,13 +416,14 @@ FOR EACH ROW
 
             row = cursor.fetchone()
             create = row[1]
-        except MySQLError as (errno, errmsg):  # @UnusedVariable
+        except MySQLError as exc:
+            (errno, errmsg) = exc.args
             QMessageBox.critical(self, "Query result", errmsg)
 
         index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=create), QIcon(":/16/database"), "Query on %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionDumpDatabase_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -434,7 +440,7 @@ FOR EACH ROW
         index = self.tabsWidget.addTab(DumpTab(conn, dbName), QIcon(":/16/save"), "Dump of %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionDumpTable_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -505,18 +511,18 @@ DROP TABLE IF EXISTS {tableName};
                 for i, cell in enumerate(row):
                     if cell is None:
                         datarow.append("NULL")
-                    elif cursor.description[i][1] in MySQLdb.BINARY:
+                    elif cursor.description[i][1] in (FieldType.TINY_BLOB, FieldType.MEDIUM_BLOB, FieldType.LONG_BLOB, FieldType.BLOB):
                         datarow.append("0x%s" % cell.encode("hex"))
-                    elif isinstance(cell, basestring):
+                    elif isinstance(cell, str):
                         try:
                             datarow.append("'%s'" % db.escapeString(cell.encode("utf-8")))
                         except UnicodeDecodeError:
                             datarow.append("0x%s" % cell.encode("hex"))
-                    elif isinstance(cell, (int, long, float)):
+                    elif isinstance(cell, (int, float)):
                         datarow.append(str(cell))
                     else:
                         datarow.append("'%s'" % db.escapeString(str(cell)))
-                        print type(cell), cell
+                        print(type(cell), cell)
                 data.append("(%s)" % ",".join(datarow))
 
             if data:
@@ -543,7 +549,8 @@ UNLOCK TABLES;
     tableName=tableName,
     data=",".join(data),
 )
-        except MySQLError as (errno, errmsg):  # @UnusedVariable
+        except MySQLError as exc:
+            (errno, errmsg) = exc.args
             QMessageBox.critical(self, "Query result", errmsg)
 
         dump += "\n-- Dump completed on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -551,7 +558,7 @@ UNLOCK TABLES;
         index = self.tabsWidget.addTab(QueryTab(item.getConnection(), dbName, query=dump), QIcon(":/16/database"), "Dump of %s.%s" % (quoteDbName, tableName))
         self.tabsWidget.setCurrentIndex(index)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionDropDatabase_triggered(self):
         queries = []
         conn = None
@@ -576,12 +583,13 @@ UNLOCK TABLES;
         if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries) + "\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 conn.cursor().execute("\n".join(queries))
-            except MySQLError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
                 QMessageBox.critical(self, "Query result", errmsg)
             else:
                 self.on_actionRefresh_triggered()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionDropTable_triggered(self):
         queries = []
         conn = None
@@ -605,28 +613,29 @@ UNLOCK TABLES;
         if conn and QMessageBox.question(self, "Confirmation request", "\n".join(queries) + "\n\nDo you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
             try:
                 conn.cursor().execute("\n".join(queries))
-            except MySQLError as (errno, errmsg):  # @UnusedVariable
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
                 QMessageBox.critical(self, "Query result", errmsg)
             else:
                 self.on_actionRefresh_triggered()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionTruncateTable_triggered(self):
         self.queryOnSelectedTables("TRUNCATE TABLE %s.%s;")
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionAnalyzeTable_triggered(self):
         self.queryOnSelectedTables("ANALYZE TABLE %s;", listTables=True)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionOptimizeTable_triggered(self):
         self.queryOnSelectedTables("OPTIMIZE TABLE %s;", listTables=True)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionRepairTable_triggered(self):
         self.queryOnSelectedTables("REPAIR TABLE %s;", listTables=True)
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionConfigureConnection_triggered(self):
         if not self.treeView.selectedIndexes():
             return
@@ -673,7 +682,7 @@ UNLOCK TABLES;
 
         self.saveConfig()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionAddConnection_triggered(self):
         options = {
             "host": "localhost",
@@ -697,7 +706,7 @@ UNLOCK TABLES;
             self.on_actionRefresh_triggered()
             self.saveConfig()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_actionRemoveConnection_triggered(self):
         if not self.treeView.selectedIndexes():
             return

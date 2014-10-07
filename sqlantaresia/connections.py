@@ -5,14 +5,15 @@ import time
 import select
 import paramiko
 import socket
-import MySQLdb
-import SocketServer
+import socketserver
+
+from mysql import connector
+from mysql.connector import Error as MySQLError
 
 from threading import Thread
-from PyQt4.QtCore import QThread, pyqtSignal
-from PyQt4.QtGui import QMessageBox, QApplication
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMessageBox, QApplication
 from DBUtils.PersistentDB import PersistentDB
-from _mysql_exceptions import Error as MySQLError
 
 try:
     import Crypto.Random as Random
@@ -20,12 +21,12 @@ except ImportError:
     Random = None
 
 
-class ForwardServer(SocketServer.ThreadingTCPServer):
+class ForwardServer(socketserver.ThreadingTCPServer):
     daemon_threads = True
     allow_reuse_address = True
 
 
-class Handler(SocketServer.BaseRequestHandler):
+class Handler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
             chan = self.ssh_transport.open_channel('direct-tcpip', (self.chain_host, self.chain_port), self.request.getpeername())
@@ -117,7 +118,8 @@ class QueryThread(QThread):
             self.dbworker()
             elapsed = time.time() - elapsed
 
-        except MySQLError as (errno, errmsg):
+        except MySQLError as exc:
+            (errno, errmsg) = exc.args
             self.query_error.emit(errno, errmsg)
 
         else:
@@ -215,7 +217,7 @@ class SQLServerConnection(object):
             else:
                 host = self.host
                 port = self.port
-            self.dbpool = PersistentDB(creator=MySQLdb, host=host, port=port, user=self.username, passwd=self.password, charset="utf8", use_unicode=True, compress=self.compression, setsession=['SET AUTOCOMMIT = 1'])
+            self.dbpool = PersistentDB(creator=connector, host=host, port=port, user=self.username, passwd=self.password, charset="utf8", use_unicode=True, compress=self.compression, setsession=['SET AUTOCOMMIT = 1'])
             # test connection
             self.cursor().execute("SELECT 1")
         except (socket.error, MySQLError) as e:
@@ -273,5 +275,6 @@ class SQLServerConnection(object):
             db = self.connection().cursor()
             try:
                 db.execute(sql)
-            except MySQLError as (errno, errmsg):
+            except MySQLError as exc:
+                (errno, errmsg) = exc.args
                 QMessageBox.critical(QApplication.activeWindow(), "Query result", errmsg)

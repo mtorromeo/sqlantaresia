@@ -23,10 +23,10 @@ Dependencies
 ''''''''''''
 SQLAntaresia is a **python 2.6+** application and it also depends upon the following external libraries:
 
-* PyQt4 (4.6+)
-* PyQt4 QScintilla bindings
+* PyQt5
+* PyQt5 QScintilla bindings
 * paramiko
-* MySQL-python
+* mysql-connector-python
 * DBUtils
 * setproctitle
 * PyCrypto (For unix only)

@@ -1,5 +1,6 @@
-from PyQt4 import QtGui
-from PyQt4 import Qsci
+from PyQt5 import Qsci
+from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtWidgets import QFileDialog
 
 from zipfile import ZipFile
 from gzip import GzipFile
@@ -9,7 +10,7 @@ import codecs
 
 
 class SQLEditor(Qsci.QsciScintilla):
-    font = QtGui.QFont("fixed")
+    font = QFont("fixed")
 
     def __init__(self, parent):
         Qsci.QsciScintilla.__init__(self, parent)
@@ -19,21 +20,21 @@ class SQLEditor(Qsci.QsciScintilla):
         self.lexer.setFont(self.font)
         self.setMarginsFont(self.font)
 
-        fgColor = QtGui.QColor(190, 190, 190, 255)
-        bgColor = QtGui.QColor(30, 36, 38, 255)
-        black = QtGui.QColor(0, 0, 0, 255)
-        comment = QtGui.QColor(101, 103, 99, 255)
+        fgColor = QColor(190, 190, 190, 255)
+        bgColor = QColor(30, 36, 38, 255)
+        black = QColor(0, 0, 0, 255)
+        comment = QColor(101, 103, 99, 255)
 
         self.lexer.setDefaultColor(fgColor)
         self.lexer.setColor(fgColor, self.lexer.Default)
         self.lexer.setColor(comment, self.lexer.Comment)
         self.lexer.setColor(comment, self.lexer.CommentLine)
         self.lexer.setColor(comment, self.lexer.CommentDoc)
-        self.lexer.setColor(QtGui.QColor(204, 33, 33, 255), self.lexer.Number)
-        self.lexer.setColor(QtGui.QColor(114, 160, 207, 255), self.lexer.Keyword)
-        self.lexer.setColor(QtGui.QColor(139, 226, 51, 255), self.lexer.DoubleQuotedString)
-        self.lexer.setColor(QtGui.QColor(139, 226, 51, 255), self.lexer.SingleQuotedString)
-        self.lexer.setColor(QtGui.QColor(252, 163, 61, 255), self.lexer.PlusKeyword)
+        self.lexer.setColor(QColor(204, 33, 33, 255), self.lexer.Number)
+        self.lexer.setColor(QColor(114, 160, 207, 255), self.lexer.Keyword)
+        self.lexer.setColor(QColor(139, 226, 51, 255), self.lexer.DoubleQuotedString)
+        self.lexer.setColor(QColor(139, 226, 51, 255), self.lexer.SingleQuotedString)
+        self.lexer.setColor(QColor(252, 163, 61, 255), self.lexer.PlusKeyword)
         self.lexer.setColor(fgColor, self.lexer.Operator)
         self.lexer.setColor(fgColor, self.lexer.Identifier)
         self.lexer.setColor(comment, self.lexer.PlusComment)
@@ -46,11 +47,11 @@ class SQLEditor(Qsci.QsciScintilla):
         self.setCaretForegroundColor(fgColor)
         self.setSelectionBackgroundColor(black)
         self.setCaretLineVisible(True)
-        self.setCaretLineBackgroundColor(QtGui.QColor(44, 53, 56, 255))
+        self.setCaretLineBackgroundColor(QColor(44, 53, 56, 255))
         self.setMarginsForegroundColor(bgColor)
         self.setMarginsBackgroundColor(black)
         self.setMatchedBraceForegroundColor(fgColor)
-        self.setMatchedBraceBackgroundColor(QtGui.QColor(89, 71, 47, 255))
+        self.setMatchedBraceBackgroundColor(QColor(89, 71, 47, 255))
 
         self.setAutoIndent(True)
         self.setFolding(Qsci.QsciScintilla.NoFoldStyle)
@@ -65,7 +66,7 @@ class SQLEditor(Qsci.QsciScintilla):
         self.filename = None
 
     def loadDialog(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
+        filename = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
 
@@ -84,7 +85,7 @@ class SQLEditor(Qsci.QsciScintilla):
             self.setText(sql)
 
     def saveAsDialog(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
+        filename = QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
             self.saveQuery(self.filename)

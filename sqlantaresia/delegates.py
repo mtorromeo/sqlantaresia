@@ -1,5 +1,5 @@
-from PyQt4.QtGui import QItemDelegate, QDateEdit, QTimeEdit, QDateTimeEdit
-from PyQt4.QtCore import Qt, QDate, QTime, QDateTime
+from PyQt5.QtWidgets import QItemDelegate, QDateEdit, QTimeEdit, QDateTimeEdit
+from PyQt5.QtCore import Qt, QDate, QTime, QDateTime
 
 
 class CustomDelegate(QItemDelegate):

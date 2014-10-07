@@ -1,5 +1,5 @@
-from PyQt4.QtCore import pyqtSignature
-from PyQt4.QtGui import QDialog, QFontDialog
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QDialog, QFontDialog
 
 from Ui_SettingsDialog import Ui_SettingsDialog
 
@@ -13,7 +13,7 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         self.lblSelectedFont.setFont(font)
         self.lblSelectedFont.setText("%s %d" % (font.family(), font.pointSize()))
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_btnFont_clicked(self):
         fd = QFontDialog(self)
         if fd.exec_():

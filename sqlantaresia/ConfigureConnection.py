@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import Qt, QObject,  SIGNAL
-from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt5.QtCore import Qt, QObject
+from PyQt5.QtWidgets import QDialog, QMessageBox
 from Ui_ConfigureConnectionDialog import Ui_ConfigureConnectionDialog
 
 
@@ -28,7 +28,7 @@ class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
         if self.connectionOptions["tunnel_password"] is not None:
             self.txtTunnelPassword.setText(self.connectionOptions["tunnel_password"])
 
-        QObject.connect(self, SIGNAL("accepted()"), self.onAccept)
+        self.accepted.connect(self.onAccept)
 
     def on_checkTunnel_stateChanged(self, state):
         self.groupTunnel.setEnabled(state == Qt.Checked)
