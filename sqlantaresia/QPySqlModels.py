@@ -92,16 +92,20 @@ class QPyTableModel(QPySelectModel):
             where = []
             values = [value]
 
-            for primary_column in self._primary_columns:
-                for i, column in enumerate(self.cursor.description):
-                    if column[0] == primary_column:
-                        where.append("%s = %%s" % self.db.quoteIdentifier(primary_column))
-                        values.append(row[i])
-                        break
+            if self._primary_columns:
+                for primary_column in self._primary_columns:
+                    for i, column in enumerate(self.cursor.description):
+                        if column[0] == primary_column:
+                            where.append("%s = %%s" % self.db.quoteIdentifier(primary_column))
+                            values.append(row[i])
+                            break
             else:
                 for i, column in enumerate(self.cursor.description):
-                    where.append("%s = %%s" % self.db.quoteIdentifier(column[0]))
-                    values.append(row[i])
+                    if row[i] is None:
+                        where.append("%s IS NULL" % self.db.quoteIdentifier(column[0]))
+                    else:
+                        where.append("%s = %%s" % self.db.quoteIdentifier(column[0]))
+                        values.append(row[i])
 
             query = "UPDATE %s SET %s = %%s WHERE %s LIMIT 1" % (self.db.quoteIdentifier(self._tableName), self.db.quoteIdentifier(self.cursor.description[index.column()][0]), " AND ".join(where))
             cursor = self.db.cursor()
