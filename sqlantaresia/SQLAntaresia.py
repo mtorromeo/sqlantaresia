@@ -100,11 +100,11 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
 
         if "@MainWindow" not in self.config.sections():
             self.config.add_section("@MainWindow")
-        self.config.set("@MainWindow", "geometry", self.saveGeometry().toBase64())
-        self.config.set("@MainWindow", "splitter", self.splitter.saveState().toBase64())
-        self.config.set("@MainWindow", "toolbar", self.toolBar.isVisible())
+        self.config.set("@MainWindow", "geometry", bytes(self.saveGeometry().toBase64()).decode("utf-8"))
+        self.config.set("@MainWindow", "splitter", bytes(self.splitter.saveState().toBase64()).decode("utf-8"))
+        self.config.set("@MainWindow", "toolbar", str(self.toolBar.isVisible()))
 
-        with open(self.configFilename, "wb") as configfile:
+        with open(self.configFilename, "w", encoding="utf-8") as configfile:
             self.config.write(configfile)
 
     def on_closeTabShortcut_activated(self):
@@ -195,16 +195,16 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
                 self.config.add_section(name)
             connection = self.connections[name]
             self.config.set(name, "host", connection.host)
-            self.config.set(name, "port", connection.port)
+            self.config.set(name, "port", str(connection.port))
             self.config.set(name, "username", connection.username)
             self.config.set(name, "password", connection.password)
-            self.config.set(name, "compression", connection.compression)
-            self.config.set(name, "use_tunnel", connection.use_tunnel)
+            self.config.set(name, "compression", str(connection.compression))
+            self.config.set(name, "use_tunnel", str(connection.use_tunnel))
             self.config.set(name, "tunnel_username", connection.tunnel_username)
             self.config.set(name, "tunnel_password", connection.tunnel_password)
-            self.config.set(name, "tunnel_port", connection.tunnel_port)
+            self.config.set(name, "tunnel_port", str(connection.tunnel_port))
 
-        with open(self.configFilename, "wb") as configfile:
+        with open(self.configFilename, "w", encoding="utf-8") as configfile:
             self.config.write(configfile)
 
     @pyqtSlot()
@@ -221,9 +221,9 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         SQLEditor.font = d.lblSelectedFont.font()
         TableDetails.defaultLimit = d.spinDefaultLimit.value()
         self.config.set("@QueryEditor", "font", SQLEditor.font.toString())
-        self.config.set("@TableDetails", "defaultLimit", TableDetails.defaultLimit)
+        self.config.set("@TableDetails", "defaultLimit", str(TableDetails.defaultLimit))
 
-        with open(self.configFilename, "wb") as configfile:
+        with open(self.configFilename, "w", encoding="utf-8") as configfile:
             self.config.write(configfile)
 
     @pyqtSlot()
