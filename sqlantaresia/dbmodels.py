@@ -4,8 +4,8 @@ from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 
 
 class BaseTreeItem(QStandardItem):
-    def __init__(self, name):
-        QStandardItem.__init__(self, name)
+    def __init__(self, text, **kwds):
+        super().__init__(text, **kwds)
         self.setEditable(False)
         self.setColumnCount(1)
         self.setData(self)
@@ -37,8 +37,8 @@ class BaseTreeItem(QStandardItem):
 
 
 class ConnectionTreeItem(BaseTreeItem):
-    def __init__(self, name, connection):
-        BaseTreeItem.__init__(self, name)
+    def __init__(self, connection, **kwds):
+        super().__init__(**kwds)
         self.connection = connection
         self.refresh()
 
@@ -67,8 +67,8 @@ class ConnectionTreeItem(BaseTreeItem):
 
 
 class EntityDatabasesTreeItem(BaseTreeItem):
-    def __init__(self):
-        BaseTreeItem.__init__(self, "Databases")
+    def __init__(self, **kwds):
+        super().__init__(text="Databases", **kwds)
         self.setIcon(QIcon(":/16/database"))
         self.rowsByDb = {}
 
@@ -76,7 +76,7 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         def showDbSize(t):
             for row in t.result:
                 i = self.rowsByDb[row[0]]
-                self.setChild(i, 1, BaseTreeItem("%d MB" % (row[1] / 1024 / 1024)))
+                self.setChild(i, 1, BaseTreeItem(text="%d MB" % (row[1] / 1024 / 1024)))
 
         self.getConnection().asyncQuery("SELECT TABLE_SCHEMA, SUM(DATA_LENGTH) + SUM(INDEX_LENGTH) FROM `information_schema`.`TABLES` GROUP BY TABLE_SCHEMA", callback=showDbSize)
 
@@ -93,12 +93,12 @@ class EntityDatabasesTreeItem(BaseTreeItem):
         self.rowsByDb = {}
         for i, db in enumerate(self.getDbList()):
             self.rowsByDb[db] = i
-            self.insertRow(i, DatabaseTreeItem(db))
+            self.insertRow(i, DatabaseTreeItem(text=db))
 
 
 class EntityPrivilegesTreeItem(BaseTreeItem):
-    def __init__(self):
-        BaseTreeItem.__init__(self, "Privileges")
+    def __init__(self, **kwds):
+        super().__init__(text="Privileges", **kwds)
         self.setIcon(QIcon(":/16/group"))
 
     def getPrivList(self):
@@ -113,12 +113,12 @@ class EntityPrivilegesTreeItem(BaseTreeItem):
         BaseTreeItem.refresh(self)
 
         for i, priv in enumerate(self.getPrivList()):
-            self.insertRow(i, PrivilegeTreeItem(priv))
+            self.insertRow(i, PrivilegeTreeItem(text=priv))
 
 
 class DatabaseTreeItem(BaseTreeItem):
-    def __init__(self, db):
-        BaseTreeItem.__init__(self, db)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.setIcon(QIcon(":/16/database"))
         self.rowsByTable = {}
 
@@ -130,7 +130,7 @@ class DatabaseTreeItem(BaseTreeItem):
                     size = 0
 
                 i = self.rowsByTable[row[0]]
-                self.setChild(i, 1, BaseTreeItem("%d MB" % (size / 1024 / 1024)))
+                self.setChild(i, 1, BaseTreeItem(text="%d MB" % (size / 1024 / 1024)))
 
         self.getConnection().asyncQuery("SELECT TABLE_NAME, DATA_LENGTH + INDEX_LENGTH FROM `information_schema`.`TABLES` WHERE TABLE_SCHEMA = %s", (self.text(),), callback=showTableSize)
 
@@ -186,61 +186,61 @@ class DatabaseTreeItem(BaseTreeItem):
 
         i = None
         for i, proc in enumerate(self.getProcedureList()):
-            self.insertRow(i, ProcedureTreeItem(proc))
+            self.insertRow(i, ProcedureTreeItem(proc=proc))
 
         if i is None:
             i = -1
 
         for func in self.getFunctionList():
             i += 1
-            self.insertRow(i, FunctionTreeItem(func))
+            self.insertRow(i, FunctionTreeItem(func=func))
 
         for trig in self.getTriggerList():
             i += 1
-            self.insertRow(i, TriggerTreeItem(trig))
+            self.insertRow(i, TriggerTreeItem(text=trig))
 
         self.rowsByTable = {}
         for table in self.getTableList():
             i += 1
             self.rowsByTable[table] = i
-            self.insertRow(i, TableTreeItem(table))
+            self.insertRow(i, TableTreeItem(text=table))
 
 
 class TableTreeItem(BaseTreeItem):
-    def __init__(self, table):
-        BaseTreeItem.__init__(self, table)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.setIcon(QIcon(":/16/database-table"))
 
 
 class PrivilegeTreeItem(BaseTreeItem):
-    def __init__(self, priv):
-        BaseTreeItem.__init__(self, priv)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.setIcon(QIcon(":/16/user"))
 
 
 class ProcedureTreeItem(BaseTreeItem):
-    def __init__(self, proc):
-        BaseTreeItem.__init__(self, proc + "()")
+    def __init__(self, proc, **kwds):
+        super().__init__(text=proc + "()", **kwds)
         self.name = proc
         self.setIcon(QIcon(":/16/code"))
 
 
 class FunctionTreeItem(BaseTreeItem):
-    def __init__(self, func):
-        BaseTreeItem.__init__(self, func + "()")
+    def __init__(self, func, **kwds):
+        super().__init__(text=func + "()", **kwds)
         self.name = func
         self.setIcon(QIcon(":/16/code"))
 
 
 class TriggerTreeItem(BaseTreeItem):
-    def __init__(self, trig):
-        BaseTreeItem.__init__(self, trig)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.setIcon(QIcon(":/16/database-lightning"))
 
 
 class DBMSTreeModel(QStandardItemModel):
-    def __init__(self, parent=None, connections=None):
-        QStandardItemModel.__init__(self, parent)
+    def __init__(self, connections=None, **kwds):
+        super().__init__(**kwds)
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Connections", "Dimension"])
         self.setConnections(connections)
@@ -254,10 +254,11 @@ class DBMSTreeModel(QStandardItemModel):
 
         try:
             for i, connectionName in enumerate(sorted(self.connections.keys())):
-                self.insertRow(i, [ConnectionTreeItem(connectionName, self.connections[connectionName]), BaseTreeItem("")])
+                self.insertRow(i, [ConnectionTreeItem(text=connectionName, connection=self.connections[connectionName]), BaseTreeItem(text="")])
         except Exception as e:
             self.clear()
             raise e
         finally:
-            self.beginResetModel()
-            self.endResetModel()
+            pass
+            # self.beginResetModel()
+            # self.endResetModel()

@@ -5,8 +5,8 @@ from .Ui_SettingsDialog import Ui_SettingsDialog
 
 
 class SettingsDialog(QDialog, Ui_SettingsDialog):
-    def __init__(self):
-        QDialog.__init__(self)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
         self.setupUi(self)
 
     def setEditorFont(self, font):

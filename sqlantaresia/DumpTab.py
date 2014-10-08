@@ -19,11 +19,11 @@ from .connections import QueryThread
 
 
 class DumpTab(QTabWidget, Ui_DumpWidget):
-    def __init__(self, connection, dbName):
-        QTabWidget.__init__(self)
+    def __init__(self, connection, database, **kwds):
+        super().__init__(**kwds)
 
         self.connection = connection
-        self.dbName = dbName
+        self.database = database
 
         self.setupUi(self)
         self.groupProgress.setVisible(False)
@@ -54,8 +54,8 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
 
         limitDumpData = self.spinLimit.value() if self.chkLimit.isChecked() else None
 
-        self.thread = DumpThread(self.connection, self.dbName, filename,
-                                 compression, dumpSchema=self.groupSchema.isChecked(),
+        self.thread = DumpThread(connection=self.connection, db=self.database, destfile=filename,
+                                 compression=compression, dumpSchema=self.groupSchema.isChecked(),
                                  dumpData=self.groupData.isChecked(), dumpTables=self.chkTables.isChecked(),
                                  dumpViews=self.chkViews.isChecked(), dumpTriggers=self.chkTriggers.isChecked(),
                                  limitDumpData=limitDumpData)
@@ -91,7 +91,7 @@ class DumpThread(QueryThread):
 
     def __init__(self, connection, db, destfile, compression, dumpSchema, dumpData, dumpTables,
                  dumpViews, dumpTriggers, limitDumpData):
-        QueryThread.__init__(self, connection=connection, db=db, query="")
+        super().__init__(connection, db=db, query="")
         self.destfile = destfile
         self.compression = compression
         self.dumpSchema = dumpSchema

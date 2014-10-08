@@ -7,8 +7,8 @@ from .Ui_QueryWidget import Ui_QueryWidget
 
 
 class QueryTab(QTabWidget, Ui_QueryWidget):
-    def __init__(self, db, dbName, query="SHOW TABLES"):
-        QTabWidget.__init__(self)
+    def __init__(self, db, dbName, query="SHOW TABLES", **kwds):
+        super().__init__(**kwds)
 
         self.db = db
         self.dbName = dbName

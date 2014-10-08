@@ -31,8 +31,8 @@ from .dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, Connection
 
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
-    def __init__(self):
-        QMainWindow.__init__(self)
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
 
         # Configuration file
         if os.name == "nt":
@@ -75,7 +75,7 @@ class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
         closeTabShortcut.activated.connect(self.on_closeTabShortcut_activated)
 
         # TreeViewModel
-        self.dbmsModel = DBMSTreeModel(self, self.connections)
+        self.dbmsModel = DBMSTreeModel(parent=self, connections=self.connections)
         self.treeView.setModel(self.dbmsModel)
 
         # ContextMenu
@@ -437,7 +437,7 @@ FOR EACH ROW
         dbName = item.text()
         conn = item.getConnection()
 
-        index = self.tabsWidget.addTab(DumpTab(conn, dbName), QIcon(":/16/save"), "Dump of %s" % dbName)
+        index = self.tabsWidget.addTab(DumpTab(connection=conn, database=dbName), QIcon(":/16/save"), "Dump of %s" % dbName)
         self.tabsWidget.setCurrentIndex(index)
 
     @pyqtSlot()
@@ -660,7 +660,7 @@ UNLOCK TABLES;
             "tunnel_password": connection.tunnel_password,
         }
 
-        configDialog = ConfigureConnection(self, name, options)
+        configDialog = ConfigureConnection(parent=self, name=name, options=options)
         if configDialog.exec_() != QDialog.Accepted:
             return
 
@@ -696,7 +696,7 @@ UNLOCK TABLES;
             "tunnel_password": None
         }
 
-        configDialog = ConfigureConnection(self, "", options)
+        configDialog = ConfigureConnection(parent=self, name="", options=options)
         if configDialog.exec_() != QDialog.Accepted:
             return
 

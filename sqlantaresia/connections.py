@@ -95,8 +95,8 @@ class QueryThread(QThread):
     query_error = pyqtSignal(int, str)
     query_terminated = pyqtSignal(object)
 
-    def __init__(self, connection, query, query_params=None, db=None):
-        QThread.__init__(self)
+    def __init__(self, connection, query, query_params=None, db=None, **kwds):
+        super().__init__(**kwds)
         self.connection = connection
         self.query = query
         self.query_params = query_params

@@ -16,8 +16,8 @@ from .Ui_TableDetailsWidget import Ui_TableDetailsWidget
 class TableDetails(QTabWidget, Ui_TableDetailsWidget):
     defaultLimit = 100
 
-    def __init__(self, db, dbName, tableName):
-        QTabWidget.__init__(self)
+    def __init__(self, db, dbName, tableName, **kwds):
+        super().__init__(**kwds)
 
         self.db = db
         self.dbName = dbName

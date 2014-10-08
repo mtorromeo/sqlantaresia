@@ -10,8 +10,8 @@ from bz2 import BZ2File
 class SQLEditor(Qsci.QsciScintilla):
     font = QFont("fixed")
 
-    def __init__(self, parent):
-        Qsci.QsciScintilla.__init__(self, parent)
+    def __init__(self, parent, **kwds):
+        super().__init__(parent, **kwds)
 
         self.lexer = Qsci.QsciLexerSQL()
         self.lexer.setDefaultFont(self.font)

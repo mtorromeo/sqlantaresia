@@ -8,8 +8,8 @@ class QPySelectModel(QAbstractTableModel):
     _rows = []
     _statement = None
 
-    def __init__(self, parent, db):
-        QAbstractTableModel.__init__(self, parent)
+    def __init__(self, parent, db, **kwds):
+        super().__init__(parent, **kwds)
         self.db = db
         self.cursor = db.cursor()
 
@@ -71,8 +71,8 @@ class QPySelectModel(QAbstractTableModel):
 
 
 class QPyTableModel(QPySelectModel):
-    def __init__(self, parent, db):
-        QPySelectModel.__init__(self, parent, db)
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
         self._tableName = None
         self._filter = ""
         self._limit = 0

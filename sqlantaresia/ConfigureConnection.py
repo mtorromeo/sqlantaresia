@@ -5,12 +5,12 @@ from .Ui_ConfigureConnectionDialog import Ui_ConfigureConnectionDialog
 
 
 class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):
-    def __init__(self, parent=None, connectionName="", connectionOptions={}):
-        QDialog.__init__(self, parent)
+    def __init__(self, name="", options={}, **kwds):
+        super().__init__(**kwds)
         self.setupUi(self)
 
-        self.connection = connectionName
-        self.connectionOptions = connectionOptions
+        self.connection = name
+        self.connectionOptions = options
 
         self.txtName.setText(self.connection)
         self.txtHost.setText(self.connectionOptions["host"])

@@ -7,8 +7,8 @@ from .Ui_ProcessListWidget import Ui_ProcessListWidget
 
 
 class ProcessListTab(QTabWidget, Ui_ProcessListWidget):
-    def __init__(self, connection):
-        QTabWidget.__init__(self)
+    def __init__(self, connection, **kwds):
+        super().__init__(**kwds)
 
         self.connection = connection
 
