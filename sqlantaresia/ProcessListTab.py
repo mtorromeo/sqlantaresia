@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QTabWidget
 from PyQt5.QtCore import pyqtSlot, QTimer
-from QPySqlModels import QPySelectModel
+from .QPySqlModels import QPySelectModel
 
-from Ui_ProcessListWidget import Ui_ProcessListWidget
+from .Ui_ProcessListWidget import Ui_ProcessListWidget
 
 
 class ProcessListTab(QTabWidget, Ui_ProcessListWidget):

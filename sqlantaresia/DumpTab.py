@@ -2,11 +2,11 @@
 from PyQt5.QtWidgets import QTabWidget, QSpacerItem, QSizePolicy, QFileDialog
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
-from Ui_DumpWidget import Ui_DumpWidget
+from .Ui_DumpWidget import Ui_DumpWidget
 
 import re
 import datetime
-import application
+from . import application
 
 from mysql.connector.constants import FieldType
 from mysql.connector import Error as MySQLError
@@ -15,7 +15,7 @@ from zipfile import ZipFile
 from gzip import GzipFile
 from bz2 import BZ2File
 
-from connections import QueryThread
+from .connections import QueryThread
 
 
 class DumpTab(QTabWidget, Ui_DumpWidget):

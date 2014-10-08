@@ -214,7 +214,7 @@
   <customwidget>
    <class>EditableTableView</class>
    <extends>QTableView</extends>
-   <header>EditableTableView</header>
+   <header>.EditableTableView</header>
   </customwidget>
  </customwidgets>
  <tabstops>

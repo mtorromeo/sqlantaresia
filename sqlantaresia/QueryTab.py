@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QTabWidget, QToolBar
 from PyQt5.QtCore import pyqtSlot
-from QPySqlModels import QPySelectModel
+from .QPySqlModels import QPySelectModel
 
-from Ui_QueryWidget import Ui_QueryWidget
+from .Ui_QueryWidget import Ui_QueryWidget
 
 
 class QueryTab(QTabWidget, Ui_QueryWidget):

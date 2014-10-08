@@ -1,7 +1,7 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog, QFontDialog
 
-from Ui_SettingsDialog import Ui_SettingsDialog
+from .Ui_SettingsDialog import Ui_SettingsDialog
 
 
 class SettingsDialog(QDialog, Ui_SettingsDialog):

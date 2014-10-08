@@ -6,7 +6,7 @@ import configparser
 import os
 import socket
 import paramiko
-import application
+from . import application
 import datetime
 
 from mysql.connector.constants import FieldType
@@ -15,19 +15,19 @@ from mysql.connector import Error as MySQLError
 from PyQt5.QtCore import QObject, pyqtSlot, QByteArray, Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QMenu, QDialog, QShortcut, QHeaderView
 from PyQt5.QtGui import QIcon, QKeySequence
-from QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
+from .QMiddleClickCloseTabBar import QMiddleClickCloseTabBar
 
-from ConfigureConnection import ConfigureConnection
-from Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
-from SettingsDialog import SettingsDialog
-from TableDetails import TableDetails
-from QueryTab import QueryTab
-from editor import SQLEditor
-from DumpTab import DumpTab
-from ProcessListTab import ProcessListTab
-from connections import SQLServerConnection
+from .ConfigureConnection import ConfigureConnection
+from .Ui_SQLAntaresiaWindow import Ui_SQLAntaresiaWindow
+from .SettingsDialog import SettingsDialog
+from .TableDetails import TableDetails
+from .QueryTab import QueryTab
+from .editor import SQLEditor
+from .DumpTab import DumpTab
+from .ProcessListTab import ProcessListTab
+from .connections import SQLServerConnection
 
-from dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem, TriggerTreeItem
+from .dbmodels import DBMSTreeModel, DatabaseTreeItem, TableTreeItem, ConnectionTreeItem, ProcedureTreeItem, FunctionTreeItem, TriggerTreeItem
 
 
 class SQLAntaresia(QMainWindow, Ui_SQLAntaresiaWindow):
@@ -522,7 +522,7 @@ DROP TABLE IF EXISTS {tableName};
                         datarow.append(str(cell))
                     else:
                         datarow.append("'%s'" % db.escapeString(str(cell)))
-                        print(type(cell), cell)
+                        print((type(cell), cell))
                 data.append("(%s)" % ",".join(datarow))
 
             if data:

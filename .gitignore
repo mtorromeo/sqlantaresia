@@ -3,6 +3,7 @@
 *.pyc
 *.pyo
 Ui_*.py
+/env
 /build
 /dist
 /SQLAntaresia.egg-info

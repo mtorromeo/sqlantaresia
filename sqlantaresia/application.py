@@ -18,7 +18,7 @@ def main():
     setproctitle.setproctitle("sqlantaresia")
 
     from PyQt5.QtWidgets import QApplication
-    from SQLAntaresia import SQLAntaresia
+    from .SQLAntaresia import SQLAntaresia
 
     app = QApplication(sys.argv)
     app.setApplicationName(name)

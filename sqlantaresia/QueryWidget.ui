@@ -239,7 +239,7 @@
   <customwidget>
    <class>SQLEditor</class>
    <extends>QTextEdit</extends>
-   <header>editor</header>
+   <header>.editor</header>
   </customwidget>
  </customwidgets>
  <resources>

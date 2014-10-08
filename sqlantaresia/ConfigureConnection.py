@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from Ui_ConfigureConnectionDialog import Ui_ConfigureConnectionDialog
+from .Ui_ConfigureConnectionDialog import Ui_ConfigureConnectionDialog
 
 
 class ConfigureConnection(QDialog, Ui_ConfigureConnectionDialog):

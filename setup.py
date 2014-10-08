@@ -19,19 +19,17 @@ from setuptools import setup
 from PyQt5 import uic
 from glob import glob
 
-mainscript = 'bin/sqlantaresia'
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 
 # Programmatically compile the forms with the uic module, sadly this is not possible for icon resources
 for form in glob("sqlantaresia/*.ui"):
     uif = "Ui_{0}.py".format(os.path.basename(form).rpartition('.')[0])
-    with open(os.path.join("sqlantaresia", uif), "wb") as f:
-        uic.compileUi(form, f)
+    with open(os.path.join("sqlantaresia", uif), "w") as f:
+        uic.compileUi(form, f, from_imports=True)
 
 if sys.platform == 'darwin':
     extra_options = dict(
         setup_requires=['py2app'],
-        app=[mainscript],
         options={"py2app": {
             "argv_emulation": True,
             "includes": ["sip", "PyQt5.QtCore", "PyQt5.QtGui", "PyQt5.Qsci"]
@@ -50,7 +48,6 @@ elif sys.platform == 'win32':
 
     extra_options = dict(
         windows=[{
-            "script": mainscript,
             "icon_resources": [(0, "kexi.ico")]
         }],
         options={"py2exe": {
@@ -65,8 +62,12 @@ else:
 setup(
     name=application.name,
     packages=["sqlantaresia"],
-    scripts=[mainscript],
-    requires=["paramiko", "mysql-connector-python", "DBUtils", "setproctitle"],
+    entry_points = {
+        'gui_scripts': [
+            'sqlantaresia = sqlantaresia.application:main',
+        ],
+    },
+    requires=["paramiko", "mysql_connector_python", "DBUtils", "setproctitle"],
     version=application.version,
     description=application.description,
     long_description=open(README).read(),

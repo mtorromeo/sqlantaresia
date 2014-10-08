@@ -6,11 +6,11 @@ from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from mysql.connector.constants import FieldType
 from mysql.connector import Error as MySQLError
 
-from QPySqlModels import *
-from QueryTab import QueryTab
-import delegates
+from .QPySqlModels import *
+from .QueryTab import QueryTab
+from . import delegates
 
-from Ui_TableDetailsWidget import Ui_TableDetailsWidget
+from .Ui_TableDetailsWidget import Ui_TableDetailsWidget
 
 
 class TableDetails(QTabWidget, Ui_TableDetailsWidget):

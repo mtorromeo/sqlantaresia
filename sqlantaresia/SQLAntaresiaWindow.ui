@@ -372,7 +372,7 @@
   <customwidget>
    <class>DbTreeView</class>
    <extends>QTreeView</extends>
-   <header>DbTreeView</header>
+   <header>.DbTreeView</header>
   </customwidget>
  </customwidgets>
  <tabstops>
