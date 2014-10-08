@@ -6,8 +6,6 @@ from zipfile import ZipFile
 from gzip import GzipFile
 from bz2 import BZ2File
 
-import codecs
-
 
 class SQLEditor(Qsci.QsciScintilla):
     font = QFont("fixed")
@@ -66,7 +64,7 @@ class SQLEditor(Qsci.QsciScintilla):
         self.filename = None
 
     def loadDialog(self):
-        filename = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
+        filename, _filter = QFileDialog.getOpenFileName(self, "Load query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
 
@@ -79,13 +77,13 @@ class SQLEditor(Qsci.QsciScintilla):
             else:
                 opener = open
 
-            with codecs.EncodedFile(opener(self.filename, "r"), "utf-8") as f:
-                sql = f.read()
+            with opener(self.filename, "rb") as f:
+                sql = f.read().decode("utf-8")
 
             self.setText(sql)
 
     def saveAsDialog(self):
-        filename = QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
+        filename, _filter = QFileDialog.getSaveFileName(self, "Save query", "", "SQL Files (*.sql *.sql.gz *.sql.bz2 *.sql.zip)")
         if filename:
             self.filename = filename
             self.saveQuery(self.filename)
@@ -106,5 +104,5 @@ class SQLEditor(Qsci.QsciScintilla):
         else:
             opener = open
 
-        with codecs.EncodedFile(opener(self.filename, "w"), "utf-8") as f:
-            f.write(self.text())
+        with opener(self.filename, "wb") as f:
+            f.write(self.text().encode("utf-8"))

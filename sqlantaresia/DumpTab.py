@@ -43,8 +43,8 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
         if compression:
             extension += "." + compression
 
-        fileName = QFileDialog.getSaveFileName(self, "Save database dump", "", "SQL Files (*%s)" % extension)
-        if not fileName:
+        filename, _filter = QFileDialog.getSaveFileName(self, "Save database dump", "", "SQL Files (*%s)" % extension)
+        if not filename:
             return
 
         self.groupProgress.setVisible(True)
@@ -54,7 +54,7 @@ class DumpTab(QTabWidget, Ui_DumpWidget):
 
         limitDumpData = self.spinLimit.value() if self.chkLimit.isChecked() else None
 
-        self.thread = DumpThread(self.connection, self.dbName, fileName,
+        self.thread = DumpThread(self.connection, self.dbName, filename,
                                  compression, dumpSchema=self.groupSchema.isChecked(),
                                  dumpData=self.groupData.isChecked(), dumpTables=self.chkTables.isChecked(),
                                  dumpViews=self.chkViews.isChecked(), dumpTriggers=self.chkTriggers.isChecked(),
@@ -120,7 +120,7 @@ class DumpThread(QueryThread):
         elif self.compression == "bz2":
             opener = BZ2File
 
-        with opener(self.destfile, "w") as f:
+        with opener(self.destfile, "wb") as f:
 
             try:
                 cursor = self.connection.cursor()
@@ -164,7 +164,7 @@ class DumpThread(QueryThread):
     host=self.connection.host,
     db=self.db,
     serverVersion=serverVersion,
-))
+).encode("utf-8"))
 
                 for table in tables:
                     quoteTable = self.connection.quoteIdentifier(table)
@@ -188,7 +188,7 @@ DROP TABLE IF EXISTS {table};
 /*!40101 SET character_set_client = @saved_cs_client */;""".format(
     table=quoteTable,
     create=create,
-))
+).encode("utf-8"))
 
                     if self.dumpTriggers:
                         query = "SHOW TRIGGERS IN %s WHERE `Table` = ?;" % (quoteDbName,)
@@ -220,7 +220,7 @@ DELIMITER ;
     statement=trigger[3],
     timing=trigger[4],
     event=trigger[1],
-))
+).encode("utf-8"))
 
                     if self.dumpData:
                         cursor.execute("SELECT COUNT(*) FROM %s.%s;" % (quoteDbName, quoteTable))
@@ -239,7 +239,7 @@ DELIMITER ;
 
 LOCK TABLES {table} WRITE;
 /*!40000 ALTER TABLE {table} DISABLE KEYS */;
-INSERT INTO {table} VALUES """.format(table=quoteTable))
+INSERT INTO {table} VALUES """.format(table=quoteTable).encode("utf-8"))
 
                             limit = " LIMIT %d" % self.limitDumpData if self.limitDumpData else ""
                             rownum = 0
@@ -256,7 +256,7 @@ INSERT INTO {table} VALUES """.format(table=quoteTable))
                                         datarow.append("0x%s" % cell.encode("hex"))
                                     elif isinstance(cell, str):
                                         try:
-                                            datarow.append("'%s'" % self.connection.escapeString(cell.encode("utf-8")))
+                                            datarow.append("'%s'" % self.connection.escapeString(cell))
                                         except UnicodeDecodeError:
                                             datarow.append("0x%s" % cell.encode("utf-8").encode("hex"))
                                     elif isinstance(cell, (int, float)):
@@ -264,16 +264,16 @@ INSERT INTO {table} VALUES """.format(table=quoteTable))
                                     else:
                                         datarow.append("'%s'" % self.connection.escapeString(str(cell)))
 
-                                if row > 0:
-                                    f.write(", ")
-                                f.write("(%s)" % ",".join(datarow))
+                                if len(row) > 0:
+                                    f.write(", ".encode("utf-8"))
+                                f.write("({0})".format(",".join(datarow)).encode("utf-8"))
 
                                 self.subProgress.emit(rownum, count, "Dumping rows of table %s" % quoteTable)
 
                             f.write(""";
 /*!40000 ALTER TABLE {table} ENABLE KEYS */;
 UNLOCK TABLES;
-""".format(table=quoteTable))
+""".format(table=quoteTable).encode("utf-8"))
 
                 if self.dumpViews:
                     for view in views:
@@ -307,7 +307,7 @@ UNLOCK TABLES;
 """.format(
     view=view,
     create=create,
-))
+).encode("utf-8"))
 
                 self.advance("Dump terminated")
 
@@ -326,4 +326,6 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on %s\n""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+-- Dump completed on {0}\n""".format(
+    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+).encode("utf-8"))

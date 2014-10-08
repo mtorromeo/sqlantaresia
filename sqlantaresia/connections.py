@@ -264,7 +264,7 @@ class SQLServerConnection(object):
         return "`" + identifier.replace("`", "``") + "`"
 
     def escapeString(self, value):
-        return self.connection()._con.escape_string(value)
+        return self.connection()._con.converter.escape(value)
 
     def quotedQuery(self, query, values):
         db = self.connection()._con

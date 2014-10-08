@@ -2,6 +2,7 @@
 !.gitignore
 *.pyc
 *.pyo
+*.sql
 Ui_*.py
 /env
 /build
